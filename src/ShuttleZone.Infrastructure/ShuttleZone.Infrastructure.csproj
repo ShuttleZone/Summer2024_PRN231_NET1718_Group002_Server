@@ -1,6 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ShuttleZone.Domain\ShuttleZone.Domain.csproj" />
+    <ProjectReference Include="..\ShuttleZone.Application\ShuttleZone.Application.csproj" />
   </ItemGroup>
 </Project>

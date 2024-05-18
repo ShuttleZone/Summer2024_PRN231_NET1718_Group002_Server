@@ -5,4 +5,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ShuttleZone.Application\ShuttleZone.Application.csproj" />
+    <ProjectReference Include="..\ShuttleZone.Domain\ShuttleZone.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
