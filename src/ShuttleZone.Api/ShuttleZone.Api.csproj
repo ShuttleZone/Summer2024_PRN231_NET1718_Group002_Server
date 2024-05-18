@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ShuttleZone.Application\ShuttleZone.Application.csproj" />
     <ProjectReference Include="..\ShuttleZone.Domain\ShuttleZone.Domain.csproj" />
+    <ProjectReference Include="..\ShuttleZone.Common\ShuttleZone.Common.csproj" />
   </ItemGroup>
 
 </Project>
