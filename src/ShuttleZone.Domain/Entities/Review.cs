@@ -4,10 +4,8 @@ using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.Entities;
 
-public class Review : BaseAuditableEntity<Review>
+public class Review : BaseAuditableEntity<Guid>
 {
-    [Key]
-    public Guid ReviewId { get; set; }
     public RatingEnum Rating { get; set; }
     public string? Comment { get; set; }
     

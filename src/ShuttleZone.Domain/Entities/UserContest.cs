@@ -1,6 +1,6 @@
 namespace ShuttleZone.Domain.Entities;
 
-public class UserContest
+public class UserContest 
 {
     public Guid UserId { get; set; }
     public User? User { get; set; }

@@ -1,12 +1,12 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ShuttleZone.Domain.Entities;
-using ShuttleZone.Infrastructure.Common;
 
 namespace ShuttleZone.Infrastructure.Data.Configurations;
 
-public class UserContestConfiguration : IDatabaseModelMapper<UserContest>
+public class UserContestConfiguration : IEntityTypeConfiguration<UserContest>
 {
-    public void Map(EntityTypeBuilder<UserContest> builder)
+    public void Configure(EntityTypeBuilder<UserContest> builder)
     {
         builder.HasKey(uc => uc.UserId);
         builder.HasKey(uc => uc.ContestId);

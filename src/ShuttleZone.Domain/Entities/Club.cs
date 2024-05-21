@@ -4,10 +4,8 @@ using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.Entities;
 
-public class Club : BaseAuditableEntity<Club>
+public class Club : BaseAuditableEntity<Guid>
 {
-    [Key]
-    public Guid ClubId { get; set; }
     public string? ClubName { get; set; }
     public string? ClubAddress { get; set; }
     public string? ClubPhone { get; set; }

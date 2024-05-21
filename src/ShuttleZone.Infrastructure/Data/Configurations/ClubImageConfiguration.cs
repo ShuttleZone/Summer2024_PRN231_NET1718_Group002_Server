@@ -1,12 +1,12 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ShuttleZone.Domain.Entities;
-using ShuttleZone.Infrastructure.Common;
 
 namespace ShuttleZone.Infrastructure.Data.Configurations;
 
-public class ClubImageConfiguration : IDatabaseModelMapper<ClubImage>
+public class ClubImageConfiguration : IEntityTypeConfiguration<ClubImage>
 {
-    public void Map(EntityTypeBuilder<ClubImage> builder)
+    public void Configure(EntityTypeBuilder<ClubImage> builder)
     {
         builder.HasKey(ci => ci.Id);
         builder.HasOne(ci => ci.Club)

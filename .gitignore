@@ -478,4 +478,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
-*.Development*
+
+# Development files
+src/**/*.Development.json

@@ -4,10 +4,8 @@ using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.Entities;
 
-public class Court : BaseAuditableEntity<Court>
+public class Court : BaseAuditableEntity<Guid>
 {
-    [Key]
-    public Guid CourtId { get; set; }
     public string? Name { get; set; }
     public CourtType CourtType { get; set; }
     public CourtStatus CourtStatus { get; set; }

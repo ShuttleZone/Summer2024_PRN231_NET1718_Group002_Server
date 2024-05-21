@@ -3,10 +3,9 @@ using ShuttleZone.Domain.Common;
 
 namespace ShuttleZone.Domain.Entities;
 
-public class ClubImage : BaseEntity<ClubImage>
+public class ClubImage : BaseEntity<Guid>
 {
-    [Key]
-    public Guid ImageId { get; set; }
+    
     public string? ImageUrl { get; set; }
     
     public Guid? ClubId { get; set; }

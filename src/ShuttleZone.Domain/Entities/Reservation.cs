@@ -4,10 +4,8 @@ using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.Entities;
 
-public class Reservation : BaseAuditableEntity<Reservation>
+public class Reservation : BaseAuditableEntity<Guid>
 {
-    [Key]
-    public Guid ReservationId { get; set; }
     public DateTime BookingDate { get; set; }
     public int TotalHours { get; set; }
     public double TotalPrice { get; set; }

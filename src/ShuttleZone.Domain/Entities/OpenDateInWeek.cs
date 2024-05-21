@@ -3,7 +3,7 @@ using ShuttleZone.Domain.Common;
 
 namespace ShuttleZone.Domain.Entities;
 
-public class OpenDateInWeek : BaseEntity<OpenDateInWeek>
+public class OpenDateInWeek : BaseEntity<int>
 {   
     public DateOnly Date { get; set; }
     

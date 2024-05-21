@@ -1,16 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ShuttleZone.Domain.Entities;
-using ShuttleZone.Infrastructure.Common;
 
 namespace ShuttleZone.Infrastructure.Data.Configurations;
 
-public class ClubConfiguration : IDatabaseModelMapper<Club>
+public class ClubConfiguration : IEntityTypeConfiguration<Club>
 {
-    public void Map(EntityTypeBuilder<Club> builder)
+    public void Configure(EntityTypeBuilder<Club> builder)
     {
         builder.ToTable(nameof(Club));
-        builder.HasKey(c => c.ClubId);
+        builder.HasKey(c => c.Id);
         builder.Property(c => c.Created).ValueGeneratedOnAdd();
         builder.Property(c => c.LastModified).ValueGeneratedOnUpdate();
         builder.HasOne(c => c.Owner)

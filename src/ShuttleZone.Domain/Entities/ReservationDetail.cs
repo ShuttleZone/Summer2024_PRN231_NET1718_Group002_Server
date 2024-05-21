@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using ShuttleZone.Domain.Common;
 using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.Entities;
 
-public class ReservationDetail
+public class ReservationDetail : BaseEntity<int>
 {
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }

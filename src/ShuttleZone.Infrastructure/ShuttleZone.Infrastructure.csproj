@@ -2,10 +2,17 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ShuttleZone.Domain\ShuttleZone.Domain.csproj" />
     <ProjectReference Include="..\ShuttleZone.Application\ShuttleZone.Application.csproj" />
+    <ProjectReference Include="..\ShuttleZone.Common\ShuttleZone.Common.csproj" />
   </ItemGroup>
 </Project>

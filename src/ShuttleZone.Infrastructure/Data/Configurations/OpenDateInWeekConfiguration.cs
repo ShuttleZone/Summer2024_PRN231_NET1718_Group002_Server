@@ -1,12 +1,12 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ShuttleZone.Domain.Entities;
-using ShuttleZone.Infrastructure.Common;
 
 namespace ShuttleZone.Infrastructure.Data.Configurations;
 
-public class OpenDateInWeekConfiguration : IDatabaseModelMapper<OpenDateInWeek>
+public class OpenDateInWeekConfiguration : IEntityTypeConfiguration<OpenDateInWeek>
 {
-    public void Map(EntityTypeBuilder<OpenDateInWeek> builder)
+    public void Configure(EntityTypeBuilder<OpenDateInWeek> builder)
     {
         builder.HasKey(odiw => odiw.Id);
         builder.HasOne(odiw => odiw.Club)
@@ -14,4 +14,5 @@ public class OpenDateInWeekConfiguration : IDatabaseModelMapper<OpenDateInWeek>
             .HasForeignKey(odiw => odiw.ClubId)
             .IsRequired();
     }
+    
 }

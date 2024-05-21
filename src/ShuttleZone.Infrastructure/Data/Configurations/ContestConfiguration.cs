@@ -1,14 +1,14 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ShuttleZone.Domain.Entities;
-using ShuttleZone.Infrastructure.Common;
 
 namespace ShuttleZone.Infrastructure.Data.Configurations;
 
-public class ContestConfiguration :IDatabaseModelMapper<Contest>
+public class ContestConfiguration :IEntityTypeConfiguration<Contest>
 {
-    public void Map(EntityTypeBuilder<Contest> builder)
+    public void Configure(EntityTypeBuilder<Contest> builder)
     {
-        builder.HasKey(c => c.ContestId);
+        builder.HasKey(c => c.Id);
         builder.HasMany(c => c.UserContests)
             .WithOne(c => c.Contest)
             .HasForeignKey(c => c.ContestId)
@@ -16,7 +16,7 @@ public class ContestConfiguration :IDatabaseModelMapper<Contest>
 
         builder.HasOne(c => c.Reservation)
             .WithOne(c => c.Contest)
-            .HasForeignKey<Reservation>(c => c.ReservationId)
+            .HasForeignKey<Reservation>(c => c.Id)
             .IsRequired(false);
     }
 }

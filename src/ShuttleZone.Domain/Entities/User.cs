@@ -5,11 +5,8 @@ using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.Entities;
 
-public class User : BaseAuditableEntity<User>
+public class User : BaseAuditableEntity<Guid>
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public Guid UserId { get; set; }
     public string? Username { get; set; }
     public string? Fullname { get; set; }
     public string? Email { get; set; }
