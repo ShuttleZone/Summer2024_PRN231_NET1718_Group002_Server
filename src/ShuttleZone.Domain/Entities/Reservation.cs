@@ -16,5 +16,6 @@ public class Reservation : BaseAuditableEntity<Reservation>
     
     public Guid CustomerId { get; set; }
     public User? Customer { get; set; }
-    
+
+    public ICollection<ReservationDetail> ReservationDetails = new List<ReservationDetail>();
 }

@@ -17,5 +17,8 @@ public class User : BaseAuditableEntity<User>
     public UserStatusEnum UserStatusEnum { get; set; }
 
     public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
-
+    public ICollection<UserRole> Roles { get; set; } = new List<UserRole>();
+    public ICollection<Review> Reviews { get; set; } = new List<Review>();
+    public ICollection<Club> Clubs { get; set; } = new List<Club>();
+    public ICollection<UserContest> UserContests { get; set; } = new List<UserContest>();
 }

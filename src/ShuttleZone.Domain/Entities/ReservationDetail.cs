@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.Entities;
@@ -9,4 +10,9 @@ public class ReservationDetail
     public double Price { get; set; }
     public ReservationStatusEnum ReservationDetailStatus { get; set; }
     
+    public Guid? CourtId { get; set; }
+    public Court? Court { get; set; }
+    
+    public Guid ReservationId { get; set; } 
+    public  Reservation Reservation { get; set; } = null!;
 }
