@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using ShuttleZone.Domain.Common;
 using ShuttleZone.Domain.Enums;
 
@@ -7,6 +8,7 @@ namespace ShuttleZone.Domain.Entities;
 public class User : BaseAuditableEntity<User>
 {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid UserId { get; set; }
     public string? Username { get; set; }
     public string? Fullname { get; set; }

@@ -1,7 +1,10 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ShuttleZone.Application.Common.Interfaces;
+using ShuttleZone.Domain.Entities;
+using ShuttleZone.Infrastructure.Data.Configurations;
 
 namespace ShuttleZone.Infrastructure.Data;
 
@@ -21,17 +24,17 @@ public class ApplicationDbContext : IdentityDbContext, IApplicationDbContext, IR
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-		// var modelMappers = AppDomain.CurrentDomain.GetAssemblies()
-		// 	.SelectMany(a => a.GetTypes())
-		// 	.Where(t => t.IsClass && !t.IsAbstract && t.IsAssignableTo(typeof(IDatabaseModelMapper<>)));
-		//
-  //       modelMappers
-  //           .ToList()
-  //           .ForEach(modelMapper =>
-  //           {
-  //               var instance = Activator.CreateInstance(modelMapper) as IDatabaseModelMapper;
-  //               instance?.Map(builder);
-  //           });
+        // var modelMappers = AppDomain.CurrentDomain.GetAssemblies()
+        // 	.SelectMany(a => a.GetTypes())
+        // 	.Where(t => t.IsClass && !t.IsAbstract && t.IsAssignableTo(typeof(IDatabaseModelMapper<>)));
+        //
+        //       modelMappers
+        //           .ToList()
+        //           .ForEach(modelMapper =>
+        //           {
+        //               var instance = Activator.CreateInstance(modelMapper) as IDatabaseModelMapper;
+        //               instance?.Map(builder);
+        //           });
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

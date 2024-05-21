@@ -10,4 +10,6 @@ public class Transaction : BaseAuditableEntity<Transaction>
     public double Amount { get; set; }
     public TransactionStatusEnum TransactionStatus { get; set; }
     
+    public Guid ReservationId { get; set; }
+    public Reservation Reservation { get; set; } = null!;
 }

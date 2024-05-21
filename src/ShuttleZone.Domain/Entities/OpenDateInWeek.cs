@@ -1,11 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using ShuttleZone.Domain.Common;
 
 namespace ShuttleZone.Domain.Entities;
 
-public class OpenDateInWeek
+public class OpenDateInWeek : BaseEntity<OpenDateInWeek>
 {   
-    [Key]
-    public int DateId { get; set; }
     public DateOnly Date { get; set; }
     
     public Guid ClubId { get; set; }

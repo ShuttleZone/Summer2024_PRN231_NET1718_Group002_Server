@@ -14,5 +14,7 @@ public class Contest : BaseAuditableEntity<Contest>
     public ContestStatusEnum ContestStatus { get; set; }
 
     public ICollection<UserContest> UserContests = new List<UserContest>();
+    
+    public Reservation? Reservation { get; set; }
 
 }
