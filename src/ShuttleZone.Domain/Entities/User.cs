@@ -1,17 +1,12 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 using ShuttleZone.Domain.Common;
 using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.Entities;
 
-public class User : BaseAuditableEntity<Guid> 
+public class User : IdentityUser<Guid>
 {
-    public required string Username { get; set; }
     public required string Fullname { get; set; }
-    public required string Email { get; set; }
-    public required string Password { get; set; }
-    public required string Phone { get; set; }
     public required int Gender { get; set; }
     public UserStatusEnum UserStatusEnum { get; set; }
 

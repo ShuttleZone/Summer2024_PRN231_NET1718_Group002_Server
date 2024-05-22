@@ -296,7 +296,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("ClubId");
 
-                    b.ToTable("ClubImage");
+                    b.ToTable("ClubImage", (string)null);
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.Contest", b =>
@@ -332,7 +332,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Contest");
+                    b.ToTable("Contest", (string)null);
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.Court", b =>
@@ -370,7 +370,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("ClubId");
 
-                    b.ToTable("Court");
+                    b.ToTable("Court", (string)null);
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.Foo", b =>
@@ -424,7 +424,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("CourtId");
 
-                    b.ToTable("Maintenance");
+                    b.ToTable("Maintenance", (string)null);
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.OpenDateInWeek", b =>
@@ -446,7 +446,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("ClubId");
 
-                    b.ToTable("OpenDateInWeek");
+                    b.ToTable("OpenDateInWeek", (string)null);
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.Reservation", b =>
@@ -492,7 +492,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Reservation");
+                    b.ToTable("Reservation", (string)null);
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.ReservationDetail", b =>
@@ -527,7 +527,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("ReservationId");
 
-                    b.ToTable("ReservationDetail");
+                    b.ToTable("ReservationDetail", (string)null);
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.Review", b =>
@@ -619,7 +619,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("ReservationId");
 
-                    b.ToTable("Transaction");
+                    b.ToTable("Transaction", (string)null);
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.User", b =>
@@ -693,7 +693,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserContest");
+                    b.ToTable("UserContest", (string)null);
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.UserRole", b =>
@@ -708,7 +708,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRole");
+                    b.ToTable("UserRole", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

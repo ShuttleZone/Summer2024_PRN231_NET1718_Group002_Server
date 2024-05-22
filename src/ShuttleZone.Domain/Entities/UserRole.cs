@@ -1,12 +1,9 @@
-using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace ShuttleZone.Domain.Entities;
 
-public class UserRole
-{
-    public Guid UserId { get; set; }
-    public required User User { get; set; }
-
-    public int RoleId { get; set; }
+public class UserRole : IdentityUserRole<Guid>
+{   
+    public required User User { get; set; }  
     public required Role Role { get; set; }
 }
