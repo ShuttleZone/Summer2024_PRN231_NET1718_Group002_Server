@@ -5,14 +5,14 @@ using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.Entities;
 
-public class User : BaseAuditableEntity<Guid>
+public class User : BaseAuditableEntity<Guid> 
 {
-    public string? Username { get; set; }
-    public string? Fullname { get; set; }
-    public string? Email { get; set; }
-    public string? Password { get; set; }
-    public string? Phone { get; set; }
-    public int Gender { get; set; }
+    public required string Username { get; set; }
+    public required string Fullname { get; set; }
+    public required string Email { get; set; }
+    public required string Password { get; set; }
+    public required string Phone { get; set; }
+    public required int Gender { get; set; }
     public UserStatusEnum UserStatusEnum { get; set; }
 
     public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();

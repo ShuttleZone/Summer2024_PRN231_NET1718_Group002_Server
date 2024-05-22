@@ -6,7 +6,7 @@ public class UserContest
     public User? User { get; set; }
     
     public Guid ContestId { get; set; }
-    public Contest? Contest { get; set; }
+    public Contest Contest { get; set; } = null!;
     
     public bool isCreatedPerson { get; set; }
     public bool isWinner { get; set; }

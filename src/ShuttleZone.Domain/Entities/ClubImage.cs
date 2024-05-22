@@ -6,8 +6,8 @@ namespace ShuttleZone.Domain.Entities;
 public class ClubImage : BaseEntity<Guid>
 {
     
-    public string? ImageUrl { get; set; }
+    public required string ImageUrl { get; set; }//req
     
-    public Guid? ClubId { get; set; }
-    public Club? Club { get; set; }
+    public required Guid ClubId { get; set; }//req
+    public required Club Club { get; set; }//req
 }

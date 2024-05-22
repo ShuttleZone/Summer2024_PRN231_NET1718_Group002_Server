@@ -6,17 +6,17 @@ namespace ShuttleZone.Domain.Entities;
 
 public class Club : BaseAuditableEntity<Guid>
 {
-    public string? ClubName { get; set; }
-    public string? ClubAddress { get; set; }
-    public string? ClubPhone { get; set; }
-    public string? ClubDescription { get; set; }
+    public required string ClubName { get; set; }
+    public required string ClubAddress { get; set; }
+    public required string ClubPhone { get; set; }
+    public required string ClubDescription { get; set; }
     public ClubStatusEnum ClubStatusEnum { get; set; }
     public TimeOnly OpenTime { get; set; }
     public TimeOnly CloseTime { get; set; }
     public double MinDuration { get; set; }
     
-    public Guid? OwnerId { get; set; }
-    public User? Owner { get; set; }
+    public Guid OwnerId { get; set; }
+    public required User Owner { get; set; }
     
 
     public ICollection<Review> Reviews = new List<Review>();

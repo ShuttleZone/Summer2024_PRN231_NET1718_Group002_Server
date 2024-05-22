@@ -10,7 +10,8 @@ public class ReservationDetailConfiguration : IEntityTypeConfiguration<Reservati
     {
         builder.HasKey(rd => rd.Id);
         builder.HasOne(rd => rd.Reservation)
-            .WithMany(rd => rd.ReservationDetails);
+            .WithMany(rd => rd.ReservationDetails)
+            .HasForeignKey(rd => rd.ReservationId);
 
         builder.HasOne(rd => rd.Court)
             .WithMany(rd => rd.ReservationDetails)
