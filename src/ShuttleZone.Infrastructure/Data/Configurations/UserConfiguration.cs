@@ -14,11 +14,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                 .WithOne(u => u.User)
                 .HasForeignKey(u => u.UserId)
                 .IsRequired();
-
-        builder.HasMany(u => u.UserContests)
-            .WithOne(u => u.User)
-            .HasForeignKey(u => u.UserId)
-            .IsRequired(false);
+        
 
     }
 }

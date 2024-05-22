@@ -9,10 +9,8 @@ public class ContestConfiguration :IEntityTypeConfiguration<Contest>
     public void Configure(EntityTypeBuilder<Contest> builder)
     {
         builder.HasKey(c => c.Id);
-        builder.HasMany(c => c.UserContests)
-            .WithOne(c => c.Contest)
-            .HasForeignKey(c => c.ContestId)
-            .IsRequired(false);
+        builder.HasMany(c => c.Participants)
+            .WithMany(c => c.Contests);
 
         builder.HasOne(c => c.Reservation)
             .WithOne(c => c.Contest)

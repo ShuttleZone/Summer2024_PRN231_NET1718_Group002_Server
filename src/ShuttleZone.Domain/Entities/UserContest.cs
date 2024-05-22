@@ -8,7 +8,5 @@ public class UserContest
     public Guid ContestId { get; set; }
     public Contest Contest { get; set; } = null!;
     
-    public bool isCreatedPerson { get; set; }
-    public bool isWinner { get; set; }
-    public int Point { get; set; }
+    
 }

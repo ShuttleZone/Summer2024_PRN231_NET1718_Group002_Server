@@ -11,7 +11,9 @@ using ShuttleZone.Infrastructure.Helpers;
 
 namespace ShuttleZone.Infrastructure.Data;
 
-public class ApplicationDbContext : IdentityDbContext, IApplicationDbContext, IReadOnlyApplicationDbContext
+public class ApplicationDbContext : IdentityDbContext<User, Role,
+    Guid, IdentityUserClaim<Guid>, UserRole, IdentityUserLogin<Guid>,
+    IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>, IApplicationDbContext, IReadOnlyApplicationDbContext
 {
     
     public ApplicationDbContext()
