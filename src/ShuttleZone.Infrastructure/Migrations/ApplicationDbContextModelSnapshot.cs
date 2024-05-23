@@ -22,21 +22,6 @@ namespace ShuttleZone.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ContestUser", b =>
-                {
-                    b.Property<Guid>("ContestsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ParticipantsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("ContestsId", "ParticipantsId");
-
-                    b.HasIndex("ParticipantsId");
-
-                    b.ToTable("ContestUser");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
@@ -232,17 +217,11 @@ namespace ShuttleZone.Infrastructure.Migrations
                     b.Property<int>("MaxPlayer")
                         .HasColumnType("int");
 
-                    b.Property<int>("Point")
-                        .HasColumnType("int");
-
                     b.Property<string>("Policy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("isCreatedPerson")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("isWinner")
-                        .HasColumnType("bit");
+                    b.Property<Guid>("ReservationId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -627,6 +606,30 @@ namespace ShuttleZone.Infrastructure.Migrations
                     b.ToTable("User", (string)null);
                 });
 
+            modelBuilder.Entity("ShuttleZone.Domain.Entities.UserContest", b =>
+                {
+                    b.Property<Guid>("ContestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ParticipantsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Point")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("isCreatedPerson")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isWinner")
+                        .HasColumnType("bit");
+
+                    b.HasKey("ContestId", "ParticipantsId");
+
+                    b.HasIndex("ParticipantsId");
+
+                    b.ToTable("UserContest");
+                });
+
             modelBuilder.Entity("ShuttleZone.Domain.Entities.UserRole", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -640,21 +643,6 @@ namespace ShuttleZone.Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-                });
-
-            modelBuilder.Entity("ContestUser", b =>
-                {
-                    b.HasOne("ShuttleZone.Domain.Entities.Contest", null)
-                        .WithMany()
-                        .HasForeignKey("ContestsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ShuttleZone.Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("ParticipantsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -804,6 +792,21 @@ namespace ShuttleZone.Infrastructure.Migrations
                         .HasForeignKey("ReservationId");
 
                     b.Navigation("Reservation");
+                });
+
+            modelBuilder.Entity("ShuttleZone.Domain.Entities.UserContest", b =>
+                {
+                    b.HasOne("ShuttleZone.Domain.Entities.Contest", null)
+                        .WithMany()
+                        .HasForeignKey("ContestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ShuttleZone.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("ParticipantsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.UserRole", b =>

@@ -6,14 +6,12 @@ namespace ShuttleZone.Domain.Entities;
 
 public class Contest : BaseAuditableEntity<Guid>
 {   
-    public bool isCreatedPerson { get; set; }
-    public bool isWinner { get; set; }
-    public int Point { get; set; }
     public DateTime ContestDate { get; set; }
     public int MaxPlayer { get; set; }
     public string? Policy { get; set; }
     public ContestStatusEnum ContestStatus { get; set; }
     
     public Reservation? Reservation { get; set; }
+    public required Guid ReservationId { get; set; }
     public List<User> Participants = new List<User>();
 }

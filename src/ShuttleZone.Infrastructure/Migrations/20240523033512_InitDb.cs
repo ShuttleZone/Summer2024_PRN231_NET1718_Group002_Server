@@ -16,13 +16,11 @@ namespace ShuttleZone.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    isCreatedPerson = table.Column<bool>(type: "bit", nullable: false),
-                    isWinner = table.Column<bool>(type: "bit", nullable: false),
-                    Point = table.Column<int>(type: "int", nullable: false),
                     ContestDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     MaxPlayer = table.Column<int>(type: "int", nullable: false),
                     Policy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ContestStatus = table.Column<int>(type: "int", nullable: false),
+                    ReservationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -224,30 +222,6 @@ namespace ShuttleZone.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ContestUser",
-                columns: table => new
-                {
-                    ContestsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ParticipantsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ContestUser", x => new { x.ContestsId, x.ParticipantsId });
-                    table.ForeignKey(
-                        name: "FK_ContestUser_Contest_ContestsId",
-                        column: x => x.ContestsId,
-                        principalTable: "Contest",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ContestUser_User_ParticipantsId",
-                        column: x => x.ParticipantsId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Reservation",
                 columns: table => new
                 {
@@ -275,6 +249,33 @@ namespace ShuttleZone.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_Reservation_User_CustomerId",
                         column: x => x.CustomerId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserContest",
+                columns: table => new
+                {
+                    ParticipantsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ContestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    isCreatedPerson = table.Column<bool>(type: "bit", nullable: false),
+                    isWinner = table.Column<bool>(type: "bit", nullable: false),
+                    Point = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserContest", x => new { x.ContestId, x.ParticipantsId });
+                    table.ForeignKey(
+                        name: "FK_UserContest_Contest_ContestId",
+                        column: x => x.ContestId,
+                        principalTable: "Contest",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserContest_User_ParticipantsId",
+                        column: x => x.ParticipantsId,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -483,11 +484,6 @@ namespace ShuttleZone.Infrastructure.Migrations
                 column: "ClubId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ContestUser_ParticipantsId",
-                table: "ContestUser",
-                column: "ParticipantsId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Court_ClubId",
                 table: "Court",
                 column: "ClubId");
@@ -545,6 +541,11 @@ namespace ShuttleZone.Infrastructure.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserContest_ParticipantsId",
+                table: "UserContest",
+                column: "ParticipantsId");
         }
 
         /// <inheritdoc />
@@ -569,9 +570,6 @@ namespace ShuttleZone.Infrastructure.Migrations
                 name: "ClubImage");
 
             migrationBuilder.DropTable(
-                name: "ContestUser");
-
-            migrationBuilder.DropTable(
                 name: "Foo");
 
             migrationBuilder.DropTable(
@@ -588,6 +586,9 @@ namespace ShuttleZone.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Transaction");
+
+            migrationBuilder.DropTable(
+                name: "UserContest");
 
             migrationBuilder.DropTable(
                 name: "Role");

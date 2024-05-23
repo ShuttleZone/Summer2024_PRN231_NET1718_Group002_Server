@@ -10,7 +10,8 @@ public class ContestConfiguration :IEntityTypeConfiguration<Contest>
     {
         builder.HasKey(c => c.Id);
         builder.HasMany(c => c.Participants)
-            .WithMany(c => c.Contests);
+            .WithMany(c => c.Contests)
+            .UsingEntity<UserContest>();
 
         builder.HasOne(c => c.Reservation)
             .WithOne(c => c.Contest)
