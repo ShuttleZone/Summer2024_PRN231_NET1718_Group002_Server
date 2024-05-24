@@ -9,5 +9,7 @@ public class ClubMappingProfile : Profile
     public ClubMappingProfile()
     {
         CreateMap<Club, DtoClubResponse>();
+        CreateMap<Review, DtoReviewResponse>();
+        CreateMap<ClubImage, DtoClubImageResponse>();
     }
 }

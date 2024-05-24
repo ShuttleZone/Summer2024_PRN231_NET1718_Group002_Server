@@ -12,5 +12,5 @@ public class Review : BaseAuditableEntity<Guid>
     public required User Reviewer { get; set; }
     
     public Guid? ClubId { get; set; }
-    public required Club Club { get; set; }//req
+    public required Club Club { get; set; }
 }

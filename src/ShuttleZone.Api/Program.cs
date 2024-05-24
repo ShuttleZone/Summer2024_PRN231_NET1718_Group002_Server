@@ -8,6 +8,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddOdataControllers();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
+builder.Services.AddAppCors(builder.Configuration);
 
 var app = builder.Build();
 
@@ -18,6 +19,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowReactApp");
 app.UseRouting();
 app.MapControllers();
 app.EnsureMigrations();
