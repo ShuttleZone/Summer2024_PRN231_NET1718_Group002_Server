@@ -2,10 +2,8 @@ using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
-using ShuttleZone.Infrastructure.Data.Configurations;
 using ShuttleZone.Common.Constants;
 using ShuttleZone.Infrastructure.Helpers;
 
@@ -33,8 +31,8 @@ public class ApplicationDbContext : IdentityDbContext<User, Role,
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        base.OnConfiguring(optionsBuilder);
         if (optionsBuilder.IsConfigured) return;
+        base.OnConfiguring(optionsBuilder);
         optionsBuilder.UseSqlServer(DataAccessHelper.GetConnectionString());
         if (ApplicationEnvironment.IsDevelopment())
             optionsBuilder.EnableSensitiveDataLogging()
@@ -50,5 +48,11 @@ public class ApplicationDbContext : IdentityDbContext<User, Role,
     public IQueryable<TEntity> CreateReadOnlySet<TEntity>() where TEntity : class
     {
         return base.Set<TEntity>().AsNoTracking();
+    }
+
+    public void Migrate()
+    {
+        if (base.Database.GetPendingMigrations().Any())
+            base.Database.Migrate();
     }
 }

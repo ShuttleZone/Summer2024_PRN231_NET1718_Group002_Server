@@ -8,8 +8,10 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        var autoRegisterableTypes = typeof(DependencyInjection).Assembly
-            .GetTypes()
+        var autoRegisterableTypes = AppDomain
+            .CurrentDomain
+            .GetAssemblies()
+            .SelectMany(t => t.GetTypes())
             .Where(t => t.GetCustomAttributes<AutoRegisterAttribute>().Any())
             .Where(t => t.IsInterface);
         foreach (var registerableType in autoRegisterableTypes)
