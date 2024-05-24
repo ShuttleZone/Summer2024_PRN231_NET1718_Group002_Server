@@ -17,6 +17,6 @@ public class Reservation : BaseAuditableEntity<Guid>
     public ICollection<ReservationDetail> ReservationDetails = new List<ReservationDetail>();
     public ICollection<Transaction> Transactions = new List<Transaction>();
     
-    public Guid ContestId { get; set; }
+    public Guid? ContestId { get; set; }
     public Contest? Contest { get; set; }
 }

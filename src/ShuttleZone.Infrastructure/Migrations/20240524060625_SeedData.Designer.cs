@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShuttleZone.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ShuttleZone.Infrastructure.Data;
 namespace ShuttleZone.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240524060625_SeedData")]
+    partial class SeedData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -239,7 +242,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("ClubId");
 
-                    b.ToTable("ClubImage", (string)null);
+                    b.ToTable("ClubImage");
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.Contest", b =>
@@ -275,7 +278,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Contest", (string)null);
+                    b.ToTable("Contest");
 
                     b.HasData(
                         new
@@ -335,7 +338,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("ClubId");
 
-                    b.ToTable("Court", (string)null);
+                    b.ToTable("Court");
 
                     b.HasData(
                         new
@@ -535,7 +538,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("CourtId");
 
-                    b.ToTable("Maintenance", (string)null);
+                    b.ToTable("Maintenance");
 
                     b.HasData(
                         new
@@ -579,7 +582,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("ClubId");
 
-                    b.ToTable("OpenDateInWeek", (string)null);
+                    b.ToTable("OpenDateInWeek");
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.Reservation", b =>
@@ -630,7 +633,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Reservation", (string)null);
+                    b.ToTable("Reservation");
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.ReservationDetail", b =>
@@ -665,7 +668,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("ReservationId");
 
-                    b.ToTable("ReservationDetail", (string)null);
+                    b.ToTable("ReservationDetail");
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.Review", b =>
@@ -828,7 +831,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("ReservationId");
 
-                    b.ToTable("Transaction", (string)null);
+                    b.ToTable("Transaction");
                 });
 
             modelBuilder.Entity("ShuttleZone.Domain.Entities.User", b =>
@@ -1010,7 +1013,7 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.HasIndex("ParticipantsId");
 
-                    b.ToTable("UserContest", (string)null);
+                    b.ToTable("UserContest");
 
                     b.HasData(
                         new
