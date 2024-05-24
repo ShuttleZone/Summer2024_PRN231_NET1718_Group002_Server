@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using ShuttleZone.Domain.Common;
 
 namespace ShuttleZone.Domain.Entities;

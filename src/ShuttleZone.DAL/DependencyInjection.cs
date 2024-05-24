@@ -4,11 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using ShuttleZone.Application.Extensions;
 using ShuttleZone.Common.Attributes;
 
-namespace ShuttleZone.Application.DependencyInjection;
+namespace ShuttleZone.DAL.DependencyInjection;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddDALServices(this IServiceCollection services)
     {
         var autoRegisterableTypes = AppDomain
             .CurrentDomain
