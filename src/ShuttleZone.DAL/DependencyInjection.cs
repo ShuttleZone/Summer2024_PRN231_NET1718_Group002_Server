@@ -27,13 +27,6 @@ public static class DependencyInjection
             if (implementationType != null)
                 services.Add(new ServiceDescriptor(registerableType, implementationType, lifeTime));
         }
-        
-        // AutoMapper
-        var autoMapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.AddAllProfiles();
-        });
-        services.AddSingleton(autoMapperConfig.CreateMapper());
 
         return services;
     }
