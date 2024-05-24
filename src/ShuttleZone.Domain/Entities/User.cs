@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using ShuttleZone.Domain.Common;
 using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.Entities;
