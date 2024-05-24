@@ -1,14 +1,16 @@
+using System.Reflection;
 using Microsoft.AspNetCore.OData;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.Settigns;
+using ShuttleZone.Common.Attributes;
 
 namespace ShuttleZone.Api.DependencyInjection;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddOdataControllers(this IServiceCollection services)
+    public static IServiceCollection AddODataControllers(this IServiceCollection services)
     {
         services
             .AddControllers()
@@ -47,6 +49,20 @@ public static class DependencyInjection
                 );
             }
         });
+        return services;
+    }
+
+    public static IServiceCollection AddApplicationSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        var settings = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(t => t.GetCustomAttributes<ApplicationSettingAttribute>().Any());
+        foreach (var setting in settings) {
+            var section = configuration.GetSection(setting.Name).Get(setting);
+            ArgumentNullException.ThrowIfNull(section, nameof(section));
+            services.AddSingleton(setting, section);
+        }
+
         return services;
     }
 
