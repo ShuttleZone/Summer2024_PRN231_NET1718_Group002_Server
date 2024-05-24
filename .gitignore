@@ -481,3 +481,6 @@ $RECYCLE.BIN/
 
 # Development files
 src/**/*.Development.json
+
+# Editor directories and files
+.idea/
