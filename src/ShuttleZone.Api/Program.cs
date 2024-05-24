@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Identity;
+
 var builder = WebApplication.CreateBuilder(args);
 ApplicationEnvironment.SetEnvironment(builder.Environment.EnvironmentName);
 
