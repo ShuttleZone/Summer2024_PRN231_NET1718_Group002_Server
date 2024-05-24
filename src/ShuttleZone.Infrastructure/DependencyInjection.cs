@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using ShuttleZone.Application.Common.Interfaces;
+using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Infrastructure.Data;
 
 namespace ShuttleZone.Infrastructure.DependencyInjection;

@@ -2,9 +2,9 @@ using System.Reflection;
 using Microsoft.AspNetCore.OData;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
-using ShuttleZone.Application.Common.Interfaces;
-using ShuttleZone.Application.Settigns;
+using ShuttleZone.Api.Settings;
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.DAL.Common.Interfaces;
 
 namespace ShuttleZone.Api.DependencyInjection;
 
@@ -21,15 +21,6 @@ public static class DependencyInjection
                 .EnableQueryFeatures());
 
         return services;
-    }
-
-    public static IApplicationBuilder EnsureMigrations(this IApplicationBuilder app)
-    {
-        using var scope = app.ApplicationServices.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
-        dbContext.Migrate();
-
-        return app;
     }
 
     public static IServiceCollection AddAppCors(this IServiceCollection services, IConfiguration configuration)
@@ -64,6 +55,15 @@ public static class DependencyInjection
         }
 
         return services;
+    }
+
+    public static IApplicationBuilder EnsureMigrations(this IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+        dbContext.Migrate();
+
+        return app;
     }
 
     private static IEdmModel GetEdmModel()

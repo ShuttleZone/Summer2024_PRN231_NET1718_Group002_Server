@@ -2,10 +2,10 @@ using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Common.Constants;
 using ShuttleZone.Infrastructure.Helpers;
+using ShuttleZone.DAL.Common.Interfaces;
 
 namespace ShuttleZone.Infrastructure.Data;
 
@@ -40,12 +40,12 @@ public class ApplicationDbContext : IdentityDbContext<User, Role,
                 .LogTo(Console.WriteLine);
     }
 
-    public IQueryable<TEntity> CreateSet<TEntity>() where TEntity : class
+    DbSet<TEntity> IApplicationDbContext.CreateSet<TEntity>() where TEntity : class
     {
         return base.Set<TEntity>();
     }
 
-    public IQueryable<TEntity> CreateReadOnlySet<TEntity>() where TEntity : class
+    IQueryable<TEntity> IReadOnlyApplicationDbContext.CreateSet<TEntity>() where TEntity : class
     {
         return base.Set<TEntity>().AsNoTracking();
     }

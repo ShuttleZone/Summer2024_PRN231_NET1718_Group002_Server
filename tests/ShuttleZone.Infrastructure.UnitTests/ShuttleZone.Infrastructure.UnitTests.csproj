@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ShuttleZone.Infrastructure\ShuttleZone.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\ShuttleZone.DAL\ShuttleZone.DAL.csproj" />
   </ItemGroup>
 
   <ItemGroup>

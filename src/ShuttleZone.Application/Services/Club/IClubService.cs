@@ -13,5 +13,5 @@ public interface IClubService
     /// Gets a list of clubs.
     /// </summary>
     /// <returns>A <see cref="IQueryable{T}"/> of <see cref="Club"/>.</returns>
-    Task<IQueryable<DtoClubResponse>> GetClubsAsync();
+    IQueryable<DtoClubResponse> GetClubs();
 }

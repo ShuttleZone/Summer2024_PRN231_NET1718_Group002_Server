@@ -1,6 +1,6 @@
 using ShuttleZone.Common.Attributes;
 
-namespace ShuttleZone.Application.Settigns;
+namespace ShuttleZone.Api.Settings;
 
 /// <summary>
 /// Represents the CORS settings.

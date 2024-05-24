@@ -9,6 +9,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddODataControllers();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
+builder.Services.AddDALServices();
 builder.Services.AddAppCors(builder.Configuration);
 
 var app = builder.Build();

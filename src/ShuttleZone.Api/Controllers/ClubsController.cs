@@ -37,9 +37,9 @@ public sealed class ClubsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [EnableQuery]
     [HttpGet]
-    public async Task<ActionResult<IQueryable<DtoClubResponse>>> GetClubs()
+    public ActionResult<IQueryable<DtoClubResponse>> GetClubs()
     {
-        var clubs = await _clubService.GetClubsAsync();
+        var clubs = _clubService.GetClubs();
         return Ok(clubs);
     }
 }

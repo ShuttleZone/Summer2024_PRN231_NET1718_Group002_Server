@@ -1,5 +1,5 @@
-using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Common.Constants;
+using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Infrastructure.Data;
 using ShuttleZone.Infrastructure.Helpers;
 
