@@ -10,8 +10,8 @@ public class Review : BaseAuditableEntity<Guid>
     public string? Comment { get; set; }
     
     public Guid? ReviewerId { get; set; }
-    public required User Reviewer { get; set; }
+    public User? Reviewer { get; set; }
     
     public Guid? ClubId { get; set; }
-    public required Club Club { get; set; }//req
+    public Club? Club { get; set; }
 }
