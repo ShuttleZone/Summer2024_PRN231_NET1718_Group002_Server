@@ -1,5 +1,5 @@
 using ShuttleZone.Common.Attributes;
-using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebResponses;
 
 namespace ShuttleZone.Application.Services;
 
@@ -13,5 +13,5 @@ public interface IClubService
     /// Gets a list of clubs.
     /// </summary>
     /// <returns>A <see cref="IQueryable{T}"/> of <see cref="Club"/>.</returns>
-    Task<IQueryable<Club>> GetClubsAsync();
+    Task<IQueryable<DtoClubResponse>> GetClubsAsync();
 }

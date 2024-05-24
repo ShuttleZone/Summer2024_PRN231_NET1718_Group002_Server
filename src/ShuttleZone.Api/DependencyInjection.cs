@@ -14,7 +14,10 @@ public static class DependencyInjection
             .AddOData(opt => 
                 opt
                 .AddRouteComponents("odata", GetEdmModel())
-                .EnableQueryFeatures());
+                .EnableQueryFeatures()
+                .Filter()
+                .Select()
+                .Count());
 
         return services;
     }

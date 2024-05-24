@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Application.Services;
-using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebResponses;
 
 namespace ShuttleZone.Api.Controllers;
 
@@ -37,7 +37,7 @@ public sealed class ClubsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [EnableQuery]
     [HttpGet]
-    public async Task<ActionResult<IQueryable<Club>>> GetClubs()
+    public async Task<ActionResult<IQueryable<DtoClubResponse>>> GetClubs()
     {
         var clubs = await _clubService.GetClubsAsync();
         return Ok(clubs);

@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Infrastructure.Data;
@@ -10,6 +11,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
         services.AddScoped<IReadOnlyApplicationDbContext, ApplicationDbContext>();
+
 
         return services;
     }

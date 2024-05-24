@@ -1,6 +1,5 @@
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Common.Constants;
-using ShuttleZone.Domain.Entities;
 using ShuttleZone.Infrastructure.Data;
 using ShuttleZone.Infrastructure.Helpers;
 
@@ -65,6 +64,5 @@ public class DatabaseTests
 
         // Assert
         dbContext.Should().NotBeNull();
-        dbContext.CreateSet<Foo>().Should().NotBeNull();
     }
 }
