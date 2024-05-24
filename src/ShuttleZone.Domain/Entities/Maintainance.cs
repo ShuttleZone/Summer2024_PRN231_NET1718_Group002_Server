@@ -10,5 +10,5 @@ public class Maintenance : BaseAuditableEntity<Guid>
     public DateTime EndTime { get; set; }
     
     public required Guid CourtId { get; set; }
-    public required Court Court { get; set; }//require
+    public Court? Court { get; set; }//require
 }

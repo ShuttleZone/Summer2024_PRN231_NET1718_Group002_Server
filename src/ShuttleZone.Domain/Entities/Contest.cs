@@ -12,6 +12,5 @@ public class Contest : BaseAuditableEntity<Guid>
     public ContestStatusEnum ContestStatus { get; set; }
     
     public Reservation? Reservation { get; set; }
-    public required Guid ReservationId { get; set; }
     public List<User> Participants = new List<User>();
 }
