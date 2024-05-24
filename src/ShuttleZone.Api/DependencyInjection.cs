@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.OData;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using ShuttleZone.Application.Common.Interfaces;
-using ShuttleZone.Infrastructure.Data;
 
 namespace ShuttleZone.Api.DependencyInjection;
 
@@ -16,14 +15,6 @@ public static class DependencyInjection
                 opt
                 .AddRouteComponents("odata", GetEdmModel())
                 .EnableQueryFeatures());
-
-        return services;
-    }
-
-    public static IServiceCollection AddApplicationDbContext(this IServiceCollection services)
-    {
-        services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
-        services.AddScoped<IReadOnlyApplicationDbContext, ApplicationDbContext>();
 
         return services;
     }

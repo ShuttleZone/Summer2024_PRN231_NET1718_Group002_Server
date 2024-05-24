@@ -6,8 +6,8 @@ ApplicationEnvironment.SetEnvironment(builder.Environment.EnvironmentName);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOdataControllers();
-builder.Services.AddApplicationDbContext();
 builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices();
 
 var app = builder.Build();
 
@@ -20,7 +20,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.MapControllers();
-// Console.WriteLine("Application started.");
 app.EnsureMigrations();
 
 app.Run();
