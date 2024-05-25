@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.DAL.Common.Interfaces;
+using ShuttleZone.DAL.Repositories.IRepositories;
 
 namespace ShuttleZone.DAL.Repositories;
 
