@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Common.Constants;
 using ShuttleZone.Infrastructure.Helpers;
-using ShuttleZone.DAL.Common.Interfaces;
+using ShuttleZone.Infrastructure.Data.Interfaces;
 
 namespace ShuttleZone.Infrastructure.Data;
 
@@ -13,7 +13,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role,
     Guid, IdentityUserClaim<Guid>, UserRole, IdentityUserLogin<Guid>,
     IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>, IApplicationDbContext, IReadOnlyApplicationDbContext
 {
-    
+
     public ApplicationDbContext()
     {
     }

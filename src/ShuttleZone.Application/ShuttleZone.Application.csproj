@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ShuttleZone.Common\ShuttleZone.Common.csproj" />
+    <ProjectReference Include="..\ShuttleZone.Domain\ShuttleZone.Domain.csproj" />
     <ProjectReference Include="..\ShuttleZone.DAL\ShuttleZone.DAL.csproj" />
   </ItemGroup>
 </Project>

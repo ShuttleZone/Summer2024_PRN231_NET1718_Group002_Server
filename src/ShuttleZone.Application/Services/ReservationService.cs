@@ -1,6 +1,5 @@
 ﻿using ShuttleZone.Application.Services.IServices;
-using ShuttleZone.DAL.Common;
-using ShuttleZone.Domain.WebResponses.ReservationDetails;
+using ShuttleZone.DAL.Common.Interfaces;
 
 namespace ShuttleZone.Application.Services
 {

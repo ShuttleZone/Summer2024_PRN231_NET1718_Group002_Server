@@ -1,9 +1,8 @@
-﻿using ShuttleZone.DAL.Common;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.Repositories;
-using ShuttleZone.DAL.Repositories.IRepositories;
+using ShuttleZone.Infrastructure.Data.Interfaces;
 
-namespace ShuttleZone.DAL
+namespace ShuttleZone.DAL.Common.Implementations
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
@@ -19,9 +18,9 @@ namespace ShuttleZone.DAL
 
         public async Task<bool> Complete()
         {
-            return await Task.Run(()=>_context.SaveChanges())>0;
+            return await Task.Run(() => _context.SaveChanges()) > 0;
         }
-      
+
         public void Dispose()
         {
             try
