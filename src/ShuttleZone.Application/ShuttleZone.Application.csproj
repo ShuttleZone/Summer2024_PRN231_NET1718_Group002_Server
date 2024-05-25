@@ -5,7 +5,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ShuttleZone.Common\ShuttleZone.Common.csproj" />
     <ProjectReference Include="..\ShuttleZone.DAL\ShuttleZone.DAL.csproj" />
   </ItemGroup>
 </Project>
