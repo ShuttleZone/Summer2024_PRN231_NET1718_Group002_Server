@@ -1,9 +1,10 @@
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.Domain.WebResponses.Contest;
 
-namespace ShuttleZone.Application.DependencyInjection.Services.Contest;
+namespace ShuttleZone.Application.Services;
 
 [AutoRegister]
 public interface IContestService
 {
-    ICollection<Domain.Entities.Contest> GetContests();
+    IQueryable<DtoContestResponse> GetContests();
 }
