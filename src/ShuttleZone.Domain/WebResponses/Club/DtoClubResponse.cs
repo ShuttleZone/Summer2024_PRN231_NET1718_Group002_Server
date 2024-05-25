@@ -2,7 +2,7 @@ using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.WebResponses;
 
-public class DtoClubResponse
+public record DtoClubResponse
 {
     public Guid Id { get; set; }
     public required string ClubName { get; set; }
@@ -12,17 +12,17 @@ public class DtoClubResponse
     public TimeOnly OpenTime { get; set; }
     public TimeOnly CloseTime { get; set; }
 
-    public ICollection<DtoReviewResponse> Reviews = new List<DtoReviewResponse>();
-    public ICollection<DtoClubImageResponse> ClubImages = new List<DtoClubImageResponse>();
+    public ICollection<DtoReviewResponse> Reviews { get; set; } = new List<DtoReviewResponse>();
+    public ICollection<DtoClubImageResponse> ClubImages { get; set; } = new List<DtoClubImageResponse>();
 }
 
-public class DtoReviewResponse
+public record DtoReviewResponse
 {
     public Guid Id { get; set; }
     public RatingEnum Rating { get; set; }
 }
 
-public class DtoClubImageResponse
+public record DtoClubImageResponse
 {
     public Guid Id { get; set; }
     public required string ImageUrl { get; set; }
