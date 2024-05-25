@@ -1,7 +1,5 @@
 using System.Reflection;
-using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
-using ShuttleZone.Application.Extensions;
 using ShuttleZone.Common.Attributes;
 
 namespace ShuttleZone.DAL.DependencyInjection;

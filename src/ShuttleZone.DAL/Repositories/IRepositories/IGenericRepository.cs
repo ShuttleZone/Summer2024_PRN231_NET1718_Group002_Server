@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace ShuttleZone.Application.Common.Interfaces;
+namespace ShuttleZone.DAL.Repositories.IRepositories;
 
 public interface IGenericRepository<T> where T : class
 {

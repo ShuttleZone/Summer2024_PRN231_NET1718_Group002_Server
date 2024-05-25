@@ -4,6 +4,6 @@ namespace ShuttleZone.Application.Services.IServices
 {
     public interface IReservationService
     {
-        Task<ReservationDetailsResponse> GetMyReservationDetails(Guid currentUser);
+        //Task<ReservationDetailsResponse> GetMyReservationDetails(Guid currentUser);
     }
 }
