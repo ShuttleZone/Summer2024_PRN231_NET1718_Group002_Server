@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace ShuttleZone.DAL.Repositories.IRepositories;
+namespace ShuttleZone.DAL.Common.Interfaces;
 
 public interface IGenericRepository<T> where T : class
 {
@@ -8,15 +8,15 @@ public interface IGenericRepository<T> where T : class
     Task AddAsync(T entity, CancellationToken cancellationToken = default);
     void AddMany(IEnumerable<T> entities);
     Task AddManyAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
-    
+
     IQueryable<T> GetAll();
     T? Get(Expression<Func<T, bool>> predicate);
     Task<T?> GetAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
     IQueryable<T> Find(Expression<Func<T, bool>> predicate);
-    
+
     long Count(Expression<Func<T, bool>> predicate);
     Task<long> CountAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
-    
+
     bool Exists(Expression<Func<T, bool>> predicate);
     Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
 }
