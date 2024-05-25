@@ -13,10 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ShuttleZone.Domain\ShuttleZone.Domain.csproj" />
-    <ProjectReference Include="..\ShuttleZone.Common\ShuttleZone.Common.csproj" />
-    <ProjectReference Include="..\ShuttleZone.DAL\ShuttleZone.DAL.csproj" />
-    <ProjectReference Include="..\ShuttleZone.Infrastructure\ShuttleZone.Infrastructure.csproj" />
     <ProjectReference Include="..\ShuttleZone.Application\ShuttleZone.Application.csproj" />
   </ItemGroup>
 

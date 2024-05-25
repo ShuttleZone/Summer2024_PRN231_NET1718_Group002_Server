@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\ShuttleZone.Domain\ShuttleZone.Domain.csproj" />
     <ProjectReference Include="..\ShuttleZone.Common\ShuttleZone.Common.csproj" />
     <ProjectReference Include="..\ShuttleZone.Infrastructure\ShuttleZone.Infrastructure.csproj" />
   </ItemGroup>
