@@ -28,7 +28,13 @@ public sealed class ContestController : ODataController
         var contests = _contestService.GetContests();
         return Ok(contests);
     }
-    
-    
+
+    [EnableQuery]
+    [HttpGet("/GetContestByUserId/{userId}")]
+    public ActionResult<IQueryable<DtoMyContestResponse>> GetMyContest(Guid userId)
+    {
+        var contest = _contestService.GetContestByUserId(userId);
+        return Ok(contest);
+    }
 
 }

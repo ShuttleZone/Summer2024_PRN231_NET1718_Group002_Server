@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Contest;
@@ -25,5 +26,14 @@ public class ContestService : IContestService
             .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
 
         return dtoClubs;
+    }
+
+    public IQueryable<DtoMyContestResponse> GetContestByUserId(Guid userId)
+    {
+        var queryableContest = _contestRepository
+            .Find(c => c.Participants.Any(u => u.Id == userId));
+        var dtoContest = queryableContest.ProjectTo<DtoMyContestResponse>(_mapper.ConfigurationProvider);
+
+        return dtoContest;
     }
 }

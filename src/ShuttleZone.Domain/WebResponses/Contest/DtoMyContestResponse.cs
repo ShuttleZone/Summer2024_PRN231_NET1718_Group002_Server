@@ -1,9 +1,8 @@
-using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.WebResponses.Contest;
 
-public class DtoContestResponse
+public class DtoMyContestResponse
 {
     public Guid Id { get; set; }
     public DateTime ContestDate { get; set; }
@@ -11,7 +10,7 @@ public class DtoContestResponse
     public string? Policy { get; set; }
     public ContestStatusEnum ContestStatus { get; set; }
 
-    public List<UserContestDTO> Participants { get; set; } = new List<UserContestDTO>();
+    public List<DtoContestResponse.UserContestDTO> Participants { get; set; } = new List<DtoContestResponse.UserContestDTO>();
 
     
     public class UserContestDTO
@@ -24,5 +23,4 @@ public class DtoContestResponse
         public bool IsWinner { get; set; }
         public int Point { get; set; }
     }
-    
 }
