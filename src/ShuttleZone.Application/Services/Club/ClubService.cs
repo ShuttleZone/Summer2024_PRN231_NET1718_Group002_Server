@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Domain.WebResponses;
 
 namespace ShuttleZone.Application.Services;

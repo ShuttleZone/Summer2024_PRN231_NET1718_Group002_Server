@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Infrastructure.Data;
+using ShuttleZone.Infrastructure.Data.Interfaces;
 
 namespace ShuttleZone.Infrastructure.DependencyInjection;
 

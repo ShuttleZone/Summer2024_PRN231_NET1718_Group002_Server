@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.DAL.Common.Interfaces;
+using ShuttleZone.Infrastructure.Data.Interfaces;
 
-namespace ShuttleZone.DAL.Repositories;
+namespace ShuttleZone.DAL.Common.Implementations;
 
 public class GenericRepository<T> : IGenericRepository<T> where T : class
 {

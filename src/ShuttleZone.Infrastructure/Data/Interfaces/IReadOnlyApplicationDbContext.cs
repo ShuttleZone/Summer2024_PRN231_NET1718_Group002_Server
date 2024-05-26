@@ -1,4 +1,4 @@
-namespace ShuttleZone.DAL.Common.Interfaces;
+namespace ShuttleZone.Infrastructure.Data.Interfaces;
 
 public interface IReadOnlyApplicationDbContext
 {

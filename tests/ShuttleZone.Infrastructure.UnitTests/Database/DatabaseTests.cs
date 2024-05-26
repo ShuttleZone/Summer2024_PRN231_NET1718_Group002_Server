@@ -1,6 +1,6 @@
 using ShuttleZone.Common.Constants;
-using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Infrastructure.Data;
+using ShuttleZone.Infrastructure.Data.Interfaces;
 using ShuttleZone.Infrastructure.Helpers;
 
 namespace ShuttleZone.Infrastructure.UnitTests.Database;

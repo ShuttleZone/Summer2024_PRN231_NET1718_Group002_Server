@@ -1,8 +1,8 @@
-using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.Domain.Entities;
+using ShuttleZone.DAL.Common.Interfaces;
 
-namespace ShuttleZone.Application.Services;
+namespace ShuttleZone.DAL.Repositories;
 
 [AutoRegister]
 public interface IClubRepository : IGenericRepository<Club>

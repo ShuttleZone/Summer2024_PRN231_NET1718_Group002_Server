@@ -1,5 +1,5 @@
-using ShuttleZone.Application.Services;
-using ShuttleZone.DAL.Common.Interfaces;
+using ShuttleZone.DAL.Common.Implementations;
+using ShuttleZone.Infrastructure.Data.Interfaces;
 using ShuttleZone.Domain.Entities;
 
 namespace ShuttleZone.DAL.Repositories;
