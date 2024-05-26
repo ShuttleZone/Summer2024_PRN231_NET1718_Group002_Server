@@ -10,17 +10,19 @@ public class DtoContestResponse
     public int MaxPlayer { get; set; }
     public string? Policy { get; set; }
     public ContestStatusEnum ContestStatus { get; set; }
-    
-    public List<User> Participants = new List<User>();
+
+    public List<UserContestDTO> Participants { get; set; } = new List<UserContestDTO>();
 
     
-    public class DtoUserContestResponse
+    public class UserContestDTO
     {
-        public Guid ParticipantsId { get; set; }
-        public Guid ContestId { get; set; }
-    
-        public bool isCreatedPerson { get; set; }
-        public bool isWinner { get; set; }
+        public Guid ParticipantId { get; set; }
+        public string? Fullname { get; set; }
+        public int Gender { get; set; }
+        public UserStatusEnum UserStatusEnum { get; set; }
+        public bool IsCreatedPerson { get; set; }
+        public bool IsWinner { get; set; }
         public int Point { get; set; }
     }
+    
 }

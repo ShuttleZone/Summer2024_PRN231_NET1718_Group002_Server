@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 using ShuttleZone.Application.Services;
 using ShuttleZone.Domain.WebResponses.Contest;
 
@@ -7,7 +8,7 @@ namespace ShuttleZone.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class ContestController : ControllerBase
+public sealed class ContestController : ODataController
 {
     private readonly IContestService _contestService;
 
@@ -27,5 +28,7 @@ public sealed class ContestController : ControllerBase
         var contests = _contestService.GetContests();
         return Ok(contests);
     }
+    
+    
 
 }
