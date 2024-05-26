@@ -4,6 +4,7 @@ using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using ShuttleZone.Api.Settings;
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.Domain.WebResponses.Contest;
 using ShuttleZone.Infrastructure.Data.Interfaces;
 
 namespace ShuttleZone.Api.DependencyInjection;
