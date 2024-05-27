@@ -1,9 +1,11 @@
-﻿using ShuttleZone.Domain.WebResponses.ReservationDetails;
+﻿using ShuttleZone.Common.Attributes;
+using ShuttleZone.Domain.WebResponses.ReservationDetails;
 
 namespace ShuttleZone.Application.Services.IServices
 {
+    [AutoRegister]
     public interface IReservationService
     {
-        //Task<ReservationDetailsResponse> GetMyReservationDetails(Guid currentUser);
+        IQueryable<ReservationDetailsResponse> GetMyReservationDetails(Guid currentUser);
     }
 }
