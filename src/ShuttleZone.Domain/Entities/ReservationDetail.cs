@@ -11,8 +11,9 @@ public class ReservationDetail : BaseEntity<int>
     public ReservationStatusEnum ReservationDetailStatus { get; set; }
     
     public Guid? CourtId { get; set; }
-    public Court? Court { get; set; }
+    public Court Court { get; set; } = null!;
     
     public Guid ReservationId { get; set; } 
     public  Reservation Reservation { get; set; } = null!;
 }
+

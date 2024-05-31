@@ -1,4 +1,5 @@
 ﻿using ShuttleZone.Domain.Enums;
+using ShuttleZone.Domain.WebResponses.ReservationDetails;
 
 namespace ShuttleZone.Domain.WebResponses.Court;
 
@@ -13,4 +14,7 @@ public class DtoCourtResponse
     public TimeOnly OpenTime { get; set; }
     public TimeOnly CloseTime { get; set; }
     public double MinDuration { get; set; }
+
+    public ICollection<DtoReservationDetail> ReservationDetails { get; set; } = new List<DtoReservationDetail>();
 }
+

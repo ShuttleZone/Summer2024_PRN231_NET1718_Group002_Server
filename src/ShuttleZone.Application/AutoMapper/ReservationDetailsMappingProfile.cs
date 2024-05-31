@@ -9,6 +9,7 @@ namespace ShuttleZone.Application.AutoMapper
         public ReservationDetailsMappingProfile()
         {
             CreateMap<ReservationDetail, ReservationDetailsResponse>();
+
         }
     }
 }

@@ -83,7 +83,7 @@ public static class DependencyInjection
 
         #endregion
 
-        #region Club Models
+        #region Court Models
 
         builder.EntitySet<DtoCourtResponse>(GetControllerShortName<CourtsController>());
 
