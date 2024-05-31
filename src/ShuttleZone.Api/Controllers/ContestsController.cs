@@ -8,11 +8,11 @@ namespace ShuttleZone.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class ContestController : ODataController
+public sealed class ContestsController : ODataController
 {
     private readonly IContestService _contestService;
 
-    public ContestController(IContestService contestService)
+    public ContestsController(IContestService contestService)
     {
         _contestService = contestService;
     }

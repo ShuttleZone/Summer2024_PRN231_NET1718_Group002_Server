@@ -2,10 +2,13 @@ using System.Reflection;
 using Microsoft.AspNetCore.OData;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
+using ShuttleZone.Api.Controllers;
 using ShuttleZone.Api.Settings;
 using ShuttleZone.Common.Attributes;
-using ShuttleZone.Domain.WebResponses.Contest;
+using ShuttleZone.Domain.WebResponses;
+using ShuttleZone.Domain.WebResponses.Court;
 using ShuttleZone.Infrastructure.Data.Interfaces;
+using ShuttleZone.Api.Controllers.BaseControllers;
 
 namespace ShuttleZone.Api.DependencyInjection;
 
@@ -13,12 +16,12 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddODataControllers(this IServiceCollection services)
     {
+        const string routePrefix = "api";
         services
             .AddControllers()
             .AddOData(opt => 
                 opt
-                // may not need this route component
-                .AddRouteComponents("odata", GetEdmModel())
+                .AddRouteComponents(routePrefix, GetEdmModel())
                 .EnableQueryFeatures());
 
         return services;
@@ -71,9 +74,26 @@ public static class DependencyInjection
     {
         var builder = new ODataConventionModelBuilder();
         
-        // may not need to add this
         // TODO: Add OData models
+        #region Club Models
+
+        builder.EntitySet<DtoClubResponse>(GetControllerShortName<ClubsController>());
+        builder.EntityType<DtoReviewResponse>();
+        builder.EntityType<DtoClubImageResponse>();
+
+        #endregion
+
+        #region Club Models
+
+        builder.EntitySet<DtoCourtResponse>(GetControllerShortName<CourtsController>());
+
+        #endregion
 
         return builder.GetEdmModel();
+    }
+
+    private static string GetControllerShortName<TController>() where TController : BaseApiController
+    {
+        return typeof(TController).Name.Replace("Controller", string.Empty);
     }
 }
