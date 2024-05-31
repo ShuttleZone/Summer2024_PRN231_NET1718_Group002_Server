@@ -11,5 +11,6 @@ public class ClubMappingProfile : Profile
         CreateMap<Club, DtoClubResponse>();
         CreateMap<Review, DtoReviewResponse>();
         CreateMap<ClubImage, DtoClubImageResponse>();
+        CreateMap<Court, DtoCourt>();
     }
 }

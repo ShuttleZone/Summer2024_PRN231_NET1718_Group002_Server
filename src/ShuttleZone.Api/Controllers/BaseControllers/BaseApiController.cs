@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace ShuttleZone.Api.Controllers.BaseControllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class BaseApiController : ControllerBase
+    public abstract class BaseApiController : ODataController
     {
     }
 }
