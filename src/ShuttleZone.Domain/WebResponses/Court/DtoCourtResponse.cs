@@ -15,3 +15,4 @@ public class DtoCourtResponse
     public TimeOnly CloseTime { get; set; }
     public double MinDuration { get; set; }
 }
+
