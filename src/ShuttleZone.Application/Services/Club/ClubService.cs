@@ -16,6 +16,16 @@ public class ClubService : IClubService
         _mapper = mapper;
     }
 
+    public DtoClubResponse? GetClub(Guid key)
+    {
+        var club = _clubRepository
+            .Find(c => c.Id == key)
+            .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider)
+            .FirstOrDefault();
+
+        return club;
+    }
+
     public IQueryable<DtoClubResponse> GetClubs()
     {
         var queryableClubs = _clubRepository

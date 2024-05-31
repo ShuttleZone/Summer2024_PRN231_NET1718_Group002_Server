@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
+using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services;
 using ShuttleZone.Domain.WebResponses;
 
@@ -8,9 +9,7 @@ namespace ShuttleZone.Api.Controllers;
 /// <summary>
 /// Handles HTTP request for club-related operations.
 /// </summary>
-[ApiController]
-[Route("api/[controller]")]
-public sealed class ClubsController : ControllerBase
+public class ClubsController : BaseApiController
 {
     private readonly IClubService _clubService;
 
@@ -27,19 +26,24 @@ public sealed class ClubsController : ControllerBase
     /// Gets a list of clubs.
     /// </summary>
     /// <returns>A list of clubs.</returns>
-    /// <response code="200">Returns the list of clubs.</response>
-    /// <response code="400">If the request is invalid.</response>
-    /// <response code="401">If the user is not authenticated.</response>
-    /// <response code="403">If the user is not authorized.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [EnableQuery]
-    [HttpGet]
-    public ActionResult<IQueryable<DtoClubResponse>> GetClubs()
+    public ActionResult<IQueryable<DtoClubResponse>> Get()
     {
         var clubs = _clubService.GetClubs();
         return Ok(clubs);
+    }
+
+    /// <summary>
+    /// Gets a club by its unique identifier.
+    /// </summary>
+    /// <returns>A club.</returns>
+    [EnableQuery]
+    public ActionResult<DtoClubResponse> Get([FromRoute] Guid key)
+    {
+        var club = _clubService.GetClub(key);
+        if (club is null)
+            return NotFound();
+
+        return Ok(club);
     }
 }

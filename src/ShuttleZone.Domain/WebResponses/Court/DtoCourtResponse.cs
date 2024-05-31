@@ -1,5 +1,4 @@
-﻿using ShuttleZone.Domain.Entities;
-using ShuttleZone.Domain.Enums;
+﻿using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.WebResponses.Court;
 
