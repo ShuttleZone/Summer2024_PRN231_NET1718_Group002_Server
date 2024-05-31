@@ -2,6 +2,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Domain.WebResponses;
+using ShuttleZone.Domain.WebResponses.Club;
 
 namespace ShuttleZone.Application.Services;
 
@@ -25,7 +26,7 @@ public class ClubService : IClubService
 
         return club;
     }
-
+    
     public IQueryable<DtoClubResponse> GetClubs()
     {
         var queryableClubs = _clubRepository
@@ -34,5 +35,23 @@ public class ClubService : IClubService
             .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider);
 
         return dtoClubs;
+    }
+
+    public IQueryable<CreateClubRequestResponse> GetCreateClubRequests()
+    {
+        var queryableClubs = _clubRepository
+            .GetAll();
+
+        return queryableClubs
+            .ProjectTo<CreateClubRequestResponse>(_mapper.ConfigurationProvider);        
+    }
+
+    public CreateClubRequestDetailReponse? GetClubRequestDetail(Guid clubId)
+    {
+        var club = _clubRepository.Find(c => c.Id == clubId)
+            .ProjectTo<CreateClubRequestDetailReponse>(_mapper.ConfigurationProvider)
+            .FirstOrDefault();
+
+        return club;
     }
 }
