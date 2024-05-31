@@ -12,11 +12,6 @@ public class ContestMappingProfile : Profile
             .ForMember(dest => dest.Participants, opt => opt.MapFrom(src => src.Participants));;
         CreateMap<UserContest, DtoContestResponse.UserContestDTO>();
         CreateMap<User, DtoContestResponse.UserContestDTO>();
-        
-        CreateMap<Contest, DtoMyContestResponse>()
-            .ForMember(dest => dest.Participants, opt => opt.MapFrom(src => src.Participants));;
-        CreateMap<UserContest, DtoContestResponse.UserContestDTO>();
-        CreateMap<User, DtoContestResponse.UserContestDTO>();
             
     }
     

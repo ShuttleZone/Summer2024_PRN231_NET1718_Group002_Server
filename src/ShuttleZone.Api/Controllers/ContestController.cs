@@ -7,7 +7,7 @@ using ShuttleZone.Domain.WebResponses.Contest;
 namespace ShuttleZone.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/Contest")]
 public sealed class ContestController : ODataController
 {
     private readonly IContestService _contestService;
