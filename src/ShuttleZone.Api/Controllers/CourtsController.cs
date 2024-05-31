@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Court;
+using ShuttleZone.Domain.WebResponses.Court;
 
 namespace ShuttleZone.Api.Controllers;
 
@@ -15,9 +16,16 @@ public sealed class CourtsController : BaseApiController
     }
 
     [EnableQuery]
-    public IActionResult Get()
+    public IQueryable<DtoCourtResponse> Get()
     {
         var courts = _courtService.GetAllCourts();
-        return Ok(courts);
+        return courts;
+    }
+    
+    [EnableQuery]
+    public DtoCourtResponse Get([FromRoute] Guid key)
+    {
+        var court =  _courtService.GetCourtById(key);
+        return court;
     }
 }
