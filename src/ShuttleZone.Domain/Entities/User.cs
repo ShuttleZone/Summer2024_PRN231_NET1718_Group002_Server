@@ -13,5 +13,5 @@ public class User : IdentityUser<Guid>
     public ICollection<UserRole> Roles { get; set; } = new List<UserRole>();
     public ICollection<Review> Reviews { get; set; } = new List<Review>();
     public ICollection<Club> Clubs { get; set; } = new List<Club>();
-    public ICollection<Contest> Contests { get; set; } = new List<Contest>();
+    public ICollection<UserContest> UserContests { get; set; } = new List<UserContest>();
 }

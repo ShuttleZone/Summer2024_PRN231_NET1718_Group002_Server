@@ -2,6 +2,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.DAL.Repositories;
+using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Contest;
 
@@ -28,12 +29,25 @@ public class ContestService : IContestService
         return dtoClubs;
     }
 
-    public IQueryable<DtoMyContestResponse> GetContestByUserId(Guid userId)
+    public IQueryable<DtoContestResponse> GetContestByUserId(Guid userId)
     {
-        var queryableContest = _contestRepository
-            .Find(c => c.Participants.Any(u => u.Id == userId));
-        var dtoContest = queryableContest.ProjectTo<DtoMyContestResponse>(_mapper.ConfigurationProvider);
+        var queryableContest = _contestRepository.GetAll()
+            .Include(c => c.UserContests.Where(uc => uc.ParticipantsId == userId))
+            .ThenInclude(uc => uc.Participant);
+           
+        var dtoContest = queryableContest.ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
 
         return dtoContest;
+    }
+
+    public IQueryable<Contest> GetContestDetail(Guid contestId)
+    {
+        var contest = _contestRepository.Find(c => c.Id == contestId)
+            .Include(c => c.UserContests)
+            .ThenInclude(uc => uc.Participant);
+
+        var dtoContest = contest.ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
+
+        return contest;
     }
 }

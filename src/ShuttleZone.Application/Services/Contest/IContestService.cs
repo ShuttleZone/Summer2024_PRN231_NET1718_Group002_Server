@@ -1,4 +1,5 @@
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebResponses.Contest;
 
 namespace ShuttleZone.Application.Services;
@@ -7,5 +8,7 @@ namespace ShuttleZone.Application.Services;
 public interface IContestService
 {
     IQueryable<DtoContestResponse> GetContests();
-    IQueryable<DtoMyContestResponse> GetContestByUserId(Guid userId);
+    IQueryable<DtoContestResponse> GetContestByUserId(Guid userId);
+
+    IQueryable<Contest> GetContestDetail(Guid contestId);
 }
