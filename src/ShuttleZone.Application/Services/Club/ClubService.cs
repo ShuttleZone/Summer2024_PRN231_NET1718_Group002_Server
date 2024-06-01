@@ -37,21 +37,14 @@ public class ClubService : IClubService
         return dtoClubs;
     }
 
-    public IQueryable<CreateClubRequestResponse> GetCreateClubRequests()
+    public IQueryable<CreateClubRequestDetailReponse> GetCreateClubRequests()
     {
         var queryableClubs = _clubRepository
             .GetAll();
 
         return queryableClubs
-            .ProjectTo<CreateClubRequestResponse>(_mapper.ConfigurationProvider);        
+            .ProjectTo<CreateClubRequestDetailReponse>(_mapper.ConfigurationProvider);        
     }
 
-    public CreateClubRequestDetailReponse? GetClubRequestDetail(Guid clubId)
-    {
-        var club = _clubRepository.Find(c => c.Id == clubId)
-            .ProjectTo<CreateClubRequestDetailReponse>(_mapper.ConfigurationProvider)
-            .FirstOrDefault();
-
-        return club;
-    }
+  
 }

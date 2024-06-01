@@ -22,7 +22,6 @@ public interface IClubService
     /// <returns>A <see cref="DtoClubResponse"/>.</returns>
     DtoClubResponse? GetClub(Guid key);
 
-    IQueryable<CreateClubRequestResponse> GetCreateClubRequests();
+    IQueryable<CreateClubRequestDetailReponse> GetCreateClubRequests();
 
-    CreateClubRequestDetailReponse? GetClubRequestDetail(Guid clubId);
 }

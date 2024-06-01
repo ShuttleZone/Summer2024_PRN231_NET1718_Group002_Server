@@ -9,6 +9,8 @@ using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Court;
 using ShuttleZone.Infrastructure.Data.Interfaces;
 using ShuttleZone.Api.Controllers.BaseControllers;
+using ShuttleZone.Domain.WebResponses.Club;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ShuttleZone.Api.DependencyInjection;
 
@@ -77,11 +79,14 @@ public static class DependencyInjection
         // TODO: Add OData models
         #region Club Models
 
-        builder.EntitySet<DtoClubResponse>(GetControllerShortName<ClubsController>());
+        builder.EntitySet<DtoClubResponse>(GetControllerShortName<ClubsController>());        
         builder.EntityType<DtoReviewResponse>();
         builder.EntityType<DtoClubImageResponse>();
 
         #endregion
+
+        builder.EntitySet<CreateClubRequestDetailReponse>(GetControllerShortName<ClubRequestsController>());
+        builder.EntityType<OpenDateInWeekResponse>();
 
         #region Court Models
 
