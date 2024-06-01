@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services;
@@ -23,18 +24,18 @@ public class ContestsController : BaseApiController
         return Ok(contests);
     }
 
-    // [EnableQuery]
-    // public ActionResult<DtoContestResponse> Get([FromRoute]Guid key)
-    // {
-    //     var contest = _contestService.GetContestByUserId(key);
-    //     return Ok(contest);
-    // }
-    
     [EnableQuery]
-    public ActionResult<Contest> Get([FromRoute]Guid key)
+    public ActionResult<DtoContestResponse> Get([FromRoute]Guid key)
     {
-        var contest = _contestService.GetContestDetail(key);
+        var contest = _contestService.GetContestByContestId(key);
         return Ok(contest);
     }
+    
+    // [EnableQuery]
+    // public ActionResult<Contest> Get([FromRoute]Guid key)
+    // {
+    //     var contest = _contestService.GetContestDetail(key);
+    //     return Ok(contest);
+    // }
 
 }

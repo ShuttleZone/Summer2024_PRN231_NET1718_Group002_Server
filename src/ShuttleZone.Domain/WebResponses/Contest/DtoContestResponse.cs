@@ -11,7 +11,7 @@ public record DtoContestResponse
     public string? Policy { get; set; }
     public ContestStatusEnum ContestStatus { get; set; }
 
-    public ICollection<UserContestDto> UserContests = new List<UserContestDto>();
+    public ICollection<UserContestDto> UserContests { get; set; } = new List<UserContestDto>() ;
 }
 
 public record UserContestDto

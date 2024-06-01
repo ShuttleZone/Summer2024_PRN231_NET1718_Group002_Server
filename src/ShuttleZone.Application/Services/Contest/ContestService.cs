@@ -29,15 +29,16 @@ public class ContestService : IContestService
         return dtoClubs;
     }
 
-    public IQueryable<DtoContestResponse> GetContestByUserId(Guid userId)
+    public DtoContestResponse? GetContestByContestId(Guid userId)
     {
-        var queryableContest = _contestRepository.GetAll()
-            .Include(c => c.UserContests.Where(uc => uc.ParticipantsId == userId))
-            .ThenInclude(uc => uc.Participant);
+        var queryableContest = _contestRepository.Find(c => c.Id == userId)
+            .Include(c => c.UserContests)
+            .ThenInclude(uc => uc.Participant)
+            .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider).FirstOrDefault();
            
-        var dtoContest = queryableContest.ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
-
-        return dtoContest;
+        // var dtoContest = queryableContest.ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
+    
+        return queryableContest;
     }
 
     public IQueryable<Contest> GetContestDetail(Guid contestId)

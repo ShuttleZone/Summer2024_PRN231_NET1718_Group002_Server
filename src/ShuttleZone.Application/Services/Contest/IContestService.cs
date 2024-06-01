@@ -8,7 +8,7 @@ namespace ShuttleZone.Application.Services;
 public interface IContestService
 {
     IQueryable<DtoContestResponse> GetContests();
-    IQueryable<DtoContestResponse> GetContestByUserId(Guid userId);
+    DtoContestResponse? GetContestByContestId(Guid contestId);
 
     IQueryable<Contest> GetContestDetail(Guid contestId);
 }
