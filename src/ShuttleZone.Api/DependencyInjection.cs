@@ -84,7 +84,7 @@ public static class DependencyInjection
 
         #endregion
 
-        #region Club Models
+        #region Court Models
 
         builder.EntitySet<DtoCourtResponse>(GetControllerShortName<CourtsController>());
 
@@ -94,6 +94,9 @@ public static class DependencyInjection
         builder.EntityType<UserContestDto>();
         
         
+
+        builder.EnableLowerCamelCase();
+
         return builder.GetEdmModel();
     }
 
