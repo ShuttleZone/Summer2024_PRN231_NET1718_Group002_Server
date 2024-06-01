@@ -1,14 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
-using Microsoft.AspNetCore.OData.Routing.Controllers;
+using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services;
+using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebResponses.Contest;
 
 namespace ShuttleZone.Api.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public sealed class ContestsController : ODataController
+public class ContestsController : BaseApiController
 {
     private readonly IContestService _contestService;
 
@@ -17,23 +16,24 @@ public sealed class ContestsController : ODataController
         _contestService = contestService;
     }
     
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [EnableQuery]
-    [HttpGet]
-    public ActionResult<IQueryable<DtoContestResponse>> GetContests()
+    public ActionResult<IQueryable<DtoContestResponse>> Get()
     {
         var contests = _contestService.GetContests();
         return Ok(contests);
     }
 
+    // [EnableQuery]
+    // public ActionResult<DtoContestResponse> Get([FromRoute]Guid key)
+    // {
+    //     var contest = _contestService.GetContestByUserId(key);
+    //     return Ok(contest);
+    // }
+    
     [EnableQuery]
-    [HttpGet("/GetContestByUserId/{userId}")]
-    public ActionResult<IQueryable<DtoMyContestResponse>> GetMyContest(Guid userId)
+    public ActionResult<Contest> Get([FromRoute]Guid key)
     {
-        var contest = _contestService.GetContestByUserId(userId);
+        var contest = _contestService.GetContestDetail(key);
         return Ok(contest);
     }
 

@@ -9,6 +9,7 @@ using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Court;
 using ShuttleZone.Infrastructure.Data.Interfaces;
 using ShuttleZone.Api.Controllers.BaseControllers;
+using ShuttleZone.Domain.WebResponses.Contest;
 
 namespace ShuttleZone.Api.DependencyInjection;
 
@@ -89,7 +90,13 @@ public static class DependencyInjection
 
         #endregion
 
+        builder.EntitySet<DtoContestResponse>(GetControllerShortName<ContestsController>());
+        builder.EntityType<UserContestDto>();
+        
+        
+
         builder.EnableLowerCamelCase();
+
         return builder.GetEdmModel();
     }
 
