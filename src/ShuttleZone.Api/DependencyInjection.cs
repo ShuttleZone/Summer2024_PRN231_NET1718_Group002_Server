@@ -89,6 +89,7 @@ public static class DependencyInjection
 
         #endregion
 
+        builder.EnableLowerCamelCase();
         return builder.GetEdmModel();
     }
 
