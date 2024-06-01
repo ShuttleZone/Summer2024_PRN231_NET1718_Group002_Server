@@ -9,10 +9,9 @@ public class ContestMappingProfile : Profile
     public ContestMappingProfile()
     {
         CreateMap<Contest, DtoContestResponse>()
-            .ForMember(c => c.UserContests,
-                opt => opt.MapFrom(src => src.UserContests));
-        CreateMap<UserContest, UserContestDto>()
-            .ForMember(c => c.ParticipantsId, opt => opt.MapFrom(src => src.ParticipantsId));
+            .ForMember(dest => dest.UserContests, opt => opt.MapFrom(src => src.UserContests));
+
+        CreateMap<UserContest, UserContestDto>();
     }
     
 }
