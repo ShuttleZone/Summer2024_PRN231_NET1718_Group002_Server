@@ -1,8 +1,3 @@
-
-using Microsoft.AspNetCore.Identity;
-using ShuttleZone.Api.DependencyInjection;
-using ShuttleZone.Application.DependencyInjection;
-
 var builder = WebApplication.CreateBuilder(args);
 ApplicationEnvironment.SetEnvironment(builder.Environment.EnvironmentName);
 
