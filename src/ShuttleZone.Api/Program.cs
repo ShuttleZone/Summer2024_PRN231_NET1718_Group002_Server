@@ -11,7 +11,7 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddDALServices();
 builder.Services.AddAppCors(builder.Configuration);
-
+builder.Services.AddVNPaySettings(builder.Configuration);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
