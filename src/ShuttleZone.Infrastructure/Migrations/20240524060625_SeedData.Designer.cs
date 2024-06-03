@@ -487,21 +487,6 @@ namespace ShuttleZone.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ShuttleZone.Domain.Entities.Foo", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Foo", (string)null);
-                });
-
             modelBuilder.Entity("ShuttleZone.Domain.Entities.Maintenance", b =>
                 {
                     b.Property<Guid>("Id")
