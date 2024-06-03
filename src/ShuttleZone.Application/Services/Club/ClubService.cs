@@ -1,11 +1,13 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Club;
 
 namespace ShuttleZone.Application.Services;
 
+[AutoRegister]
 public class ClubService : IClubService
 {
     private readonly IClubRepository _clubRepository;

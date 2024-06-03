@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+using ShuttleZone.Common.Attributes;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests.Account;
 
 namespace ShuttleZone.Application.Services.Account;
 
+[AutoRegister]
 public class AccountService : IAccountService
 {
     private readonly UserManager<User> _userManager;
