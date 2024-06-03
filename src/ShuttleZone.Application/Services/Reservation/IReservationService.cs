@@ -1,7 +1,7 @@
 ﻿using ShuttleZone.Common.Attributes;
 using ShuttleZone.Domain.WebResponses.ReservationDetails;
 
-namespace ShuttleZone.Application.Services.IServices
+namespace ShuttleZone.Application.Services.Reservation
 {
     [AutoRegister]
     public interface IReservationService

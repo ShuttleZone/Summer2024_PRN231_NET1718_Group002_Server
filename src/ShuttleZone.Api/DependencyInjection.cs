@@ -12,6 +12,7 @@ using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Domain.WebResponses.Club;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ShuttleZone.Domain.WebResponses.Contest;
+using ShuttleZone.Common.Settings;
 
 namespace ShuttleZone.Api.DependencyInjection;
 
@@ -107,5 +108,11 @@ public static class DependencyInjection
     private static string GetControllerShortName<TController>() where TController : BaseApiController
     {
         return typeof(TController).Name.Replace("Controller", string.Empty);
+    }
+
+    public static IServiceCollection AddVNPaySettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<VNPaySettings>(configuration.GetSection(nameof(VNPaySettings)));
+        return services;
     }
 }
