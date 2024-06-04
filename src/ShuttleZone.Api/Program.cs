@@ -1,10 +1,7 @@
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using ShuttleZone.Api.DependencyInjection;
-using ShuttleZone.Application.DependencyInjection;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Infrastructure.Data;
 
@@ -83,8 +80,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
-
+builder.Services.AddVNPaySettings(builder.Configuration);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
