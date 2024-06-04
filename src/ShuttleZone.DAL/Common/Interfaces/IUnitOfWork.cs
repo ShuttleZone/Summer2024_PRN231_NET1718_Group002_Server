@@ -6,5 +6,6 @@ namespace ShuttleZone.DAL.Common.Interfaces
     {
         IReservationRepository ReservationRepository { get; }
         Task<bool> Complete();
+        Task<bool> Complete(CancellationToken cancellationToken = default);
     }
 }
