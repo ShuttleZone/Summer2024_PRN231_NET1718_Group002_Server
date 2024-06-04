@@ -35,4 +35,5 @@ public record DtoCourt
     public required string Name { get; set; }
     public CourtType CourtType { get; set; }
     public CourtStatus CourtStatus { get; set; }
+    public double Price { get; set; }
 }
