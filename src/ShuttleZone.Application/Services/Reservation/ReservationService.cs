@@ -13,7 +13,7 @@ namespace ShuttleZone.Application.Services.Reservation
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public ReservationService(IUnitOfWork unitOfWork, IMapper mapper, IReservationRepository reservationRepository)
+        public ReservationService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
