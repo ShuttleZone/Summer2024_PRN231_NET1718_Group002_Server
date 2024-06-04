@@ -12,6 +12,7 @@ namespace ShuttleZone.Api.Controllers;
 public class AccountController : BaseApiController
 {
     private readonly IAccountService _accountService;
+    
     public AccountController(IAccountService accountService)
     {
         _accountService = accountService;
@@ -21,5 +22,11 @@ public class AccountController : BaseApiController
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     {
       return Ok(await _accountService.Register(registerDto));
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(LoginDto loginDto)
+    {
+        return Ok(await _accountService.Login(loginDto));
     }
 }

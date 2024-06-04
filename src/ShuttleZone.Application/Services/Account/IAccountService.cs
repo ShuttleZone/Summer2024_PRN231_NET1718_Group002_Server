@@ -4,5 +4,7 @@ namespace ShuttleZone.Application.Services.Account;
 
 public interface IAccountService
 { 
-    Task<RegisterDto> Register(RegisterDto registerDto);
+    Task<NewAccountDto?> Register(RegisterDto registerDto);
+
+    Task<NewAccountDto> Login(LoginDto loginDto);
 }

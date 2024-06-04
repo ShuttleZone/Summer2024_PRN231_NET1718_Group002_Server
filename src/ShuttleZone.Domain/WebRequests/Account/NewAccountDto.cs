@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ShuttleZone.Domain.WebRequests.Account;
 
-public class RegisterDto
+public class NewAccountDto
 {
     [Required]
     public required string Fullname { get; set; }
@@ -11,9 +11,6 @@ public class RegisterDto
     [Required]
     [EmailAddress]
     public string? Email { get; set; }
-    [Required]
-    [Phone]
-    public string? PhoneNumber { get; set; }
-    [Required]
-    public required string Password { get; set; }
+    
+    public  string? Token { get; set; }
 }

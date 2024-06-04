@@ -11,8 +11,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     Guid id2 = Guid.Parse("26a7cc4e-3f9b-4923-809e-2f9b771d994f");
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.ToTable(nameof(User));
-        builder.HasKey(u => u.Id);
         builder.HasMany(u => u.Roles)
                 .WithOne(u => u.User)
                 .HasForeignKey(u => u.UserId)
