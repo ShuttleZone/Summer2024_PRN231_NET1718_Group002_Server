@@ -10,9 +10,13 @@ using ShuttleZone.Domain.WebResponses.Court;
 using ShuttleZone.Infrastructure.Data.Interfaces;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Domain.WebResponses.Club;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ShuttleZone.Domain.WebResponses.Contest;
 using ShuttleZone.Common.Settings;
+using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebResponses.ReservationDetails;
+using ShuttleZone.Domain.WebRequests;
+using ShuttleZone.Domain.Enums;
+
 
 namespace ShuttleZone.Api.DependencyInjection;
 
@@ -93,13 +97,18 @@ public static class DependencyInjection
         #region Court Models
 
         builder.EntitySet<DtoCourtResponse>(GetControllerShortName<CourtsController>());
-
+        builder.EntityType<DtoReservationDetail>();
+        builder.EntityType<CreateCourtRequest>();
+        // builder.EnumType<CourtType>();
+        // builder.EnumType<CourtStatus>();
         #endregion
 
         builder.EntitySet<DtoContestResponse>(GetControllerShortName<ContestsController>());
         builder.EntityType<UserContestDto>().HasKey(cr => new{cr.ContestId, cr.ParticipantsId});
-        
 
+        builder.EntitySet<DtoReservationDetail>(GetControllerShortName<ReservationDetailsController>());
+
+        
         builder.EnableLowerCamelCase();
 
         return builder.GetEdmModel();
