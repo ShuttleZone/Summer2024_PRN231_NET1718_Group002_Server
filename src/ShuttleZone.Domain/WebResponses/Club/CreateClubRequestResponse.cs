@@ -1,7 +1,4 @@
-﻿using ShuttleZone.Domain.Entities;
-using ShuttleZone.Domain.Enums;
-
-namespace ShuttleZone.Domain.WebResponses.Club
+﻿namespace ShuttleZone.Domain.WebResponses.Club
 {
     public class CreateClubRequestResponse
     {
