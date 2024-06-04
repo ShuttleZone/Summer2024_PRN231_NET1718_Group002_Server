@@ -10,7 +10,6 @@ using ShuttleZone.Domain.WebResponses.Court;
 using ShuttleZone.Infrastructure.Data.Interfaces;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Domain.WebResponses.Club;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ShuttleZone.Domain.WebResponses.Contest;
 using ShuttleZone.Common.Settings;
 

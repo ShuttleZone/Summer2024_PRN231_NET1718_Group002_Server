@@ -13,17 +13,16 @@ public static class DependencyInjection
             .GetAssemblies()
             .SelectMany(t => t.GetTypes())
             .Where(t => t.GetCustomAttributes<AutoRegisterAttribute>().Any())
-            .Where(t => t.IsInterface);
+            .Where(t => t.IsClass && !t.IsAbstract);
         foreach (var registerableType in autoRegisterableTypes)
         {
-            var implementationType = typeof(DependencyInjection).Assembly
+            var interfaceType = typeof(DependencyInjection).Assembly
                 .GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract)
-                .FirstOrDefault(x => x.GetInterfaces().Contains(registerableType));
+                .Where(t => t.IsInterface && t.IsAssignableFrom(registerableType));
             var attribute = registerableType.GetCustomAttribute<AutoRegisterAttribute>() as AutoRegisterAttribute;
             var lifeTime = attribute?.ServiceLifetime ?? ServiceLifetime.Scoped;
-            if (implementationType != null)
-                services.Add(new ServiceDescriptor(registerableType, implementationType, lifeTime));
+            foreach (var iType in interfaceType)
+                services.Add(new ServiceDescriptor(iType, registerableType, lifeTime));
         }
 
         return services;

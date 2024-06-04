@@ -1,9 +1,11 @@
+using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Infrastructure.Data.Interfaces;
 
 namespace ShuttleZone.DAL.Common.Implementations
 {
+    [AutoRegister]
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
         private readonly IApplicationDbContext _context;

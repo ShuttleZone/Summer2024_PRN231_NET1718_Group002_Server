@@ -1,8 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
 namespace ShuttleZone.Infrastructure.Migrations
 {
     /// <inheritdoc />
@@ -170,8 +168,6 @@ namespace ShuttleZone.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            
-
             migrationBuilder.UpdateData(
                 table: "Club",
                 keyColumn: "Id",
