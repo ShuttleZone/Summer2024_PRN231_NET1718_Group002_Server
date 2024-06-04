@@ -13,6 +13,7 @@ public class DtoCourtResponse
     public TimeOnly OpenTime { get; set; }
     public TimeOnly CloseTime { get; set; }
     public double MinDuration { get; set; }
+    public double Price { get; set; }
     public ICollection<DtoReservationDetail> ReservationDetails { get; set; } = new List<DtoReservationDetail>();
 }
 

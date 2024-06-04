@@ -8,22 +8,31 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddDALServices(this IServiceCollection services)
     {
-        var autoRegisterableTypes = AppDomain
+        var assemblyTypes = AppDomain
             .CurrentDomain
             .GetAssemblies()
-            .SelectMany(t => t.GetTypes())
+            .SelectMany(t => t.GetTypes());
+        var autoRegisterableTypes = assemblyTypes
             .Where(t => t.GetCustomAttributes<AutoRegisterAttribute>().Any())
-            .Where(t => t.IsInterface);
+            .Where(t => t.IsClass && !t.IsAbstract);
+        var autoRegisterableAsConcreteClassTypes = assemblyTypes
+            .Where(t => t.GetCustomAttributes<AutoRegisterAsConcreteClassAttribute>().Any())
+            .Where(t => t.IsClass && !t.IsAbstract);
         foreach (var registerableType in autoRegisterableTypes)
         {
-            var implementationType = typeof(DependencyInjection).Assembly
+            var interfaceType = typeof(DependencyInjection).Assembly
                 .GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract)
-                .FirstOrDefault(x => x.GetInterfaces().Contains(registerableType));
+                .Where(t => t.IsInterface && t.IsAssignableFrom(registerableType));
             var attribute = registerableType.GetCustomAttribute<AutoRegisterAttribute>() as AutoRegisterAttribute;
             var lifeTime = attribute?.ServiceLifetime ?? ServiceLifetime.Scoped;
-            if (implementationType != null)
-                services.Add(new ServiceDescriptor(registerableType, implementationType, lifeTime));
+            foreach (var iType in interfaceType)
+                services.Add(new ServiceDescriptor(iType, registerableType, lifeTime));
+        }
+        foreach (var registerableType in autoRegisterableAsConcreteClassTypes)
+        {
+            var attribute = registerableType.GetCustomAttribute<AutoRegisterAsConcreteClassAttribute>() as AutoRegisterAsConcreteClassAttribute;
+            var lifeTime = attribute?.ServiceLifetime ?? ServiceLifetime.Scoped;
+            services.Add(new ServiceDescriptor(registerableType, registerableType, lifeTime));
         }
 
         return services;

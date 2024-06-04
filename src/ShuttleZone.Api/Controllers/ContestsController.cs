@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
@@ -18,6 +19,7 @@ public class ContestsController : BaseApiController
     }
     
     [EnableQuery]
+    [Authorize]
     public ActionResult<IQueryable<DtoContestResponse>> Get()
     {
         var contests = _contestService.GetContests();

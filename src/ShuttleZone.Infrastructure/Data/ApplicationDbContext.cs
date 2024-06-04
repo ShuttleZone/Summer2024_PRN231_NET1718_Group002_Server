@@ -6,9 +6,11 @@ using ShuttleZone.Domain.Entities;
 using ShuttleZone.Common.Constants;
 using ShuttleZone.Infrastructure.Helpers;
 using ShuttleZone.Infrastructure.Data.Interfaces;
+using ShuttleZone.Common.Attributes;
 
 namespace ShuttleZone.Infrastructure.Data;
 
+[AutoRegisterAsConcreteClass]
 public class ApplicationDbContext : IdentityDbContext<User, Role,
     Guid, IdentityUserClaim<Guid>, UserRole, IdentityUserLogin<Guid>,
     IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>, IApplicationDbContext, IReadOnlyApplicationDbContext

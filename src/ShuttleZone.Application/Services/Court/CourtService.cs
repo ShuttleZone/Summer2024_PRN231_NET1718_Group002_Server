@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Repositories.Court;
-using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Court;
 
 namespace ShuttleZone.Application.Services.Court;
 
+[AutoRegister]
 public class CourtService : ICourtService
 {
     private readonly ICourtRepository _courtRepository;
