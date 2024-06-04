@@ -1,12 +1,11 @@
-using ShuttleZone.Common.Attributes;
 using ShuttleZone.Domain.WebResponses;
+using ShuttleZone.Domain.WebResponses.Club;
 
 namespace ShuttleZone.Application.Services;
 
 /// <summary>
 /// Handles CRUD operations for clubs.
 /// </summary>
-[AutoRegister]
 public interface IClubService
 {
     /// <summary>
@@ -20,4 +19,7 @@ public interface IClubService
     /// </summary>
     /// <returns>A <see cref="DtoClubResponse"/>.</returns>
     DtoClubResponse? GetClub(Guid key);
+
+    IQueryable<CreateClubRequestDetailReponse> GetCreateClubRequests();
+
 }

@@ -1,13 +1,14 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Domain.Entities;
-using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Contest;
 
 namespace ShuttleZone.Application.Services;
 
+[AutoRegister]
 public class ContestService : IContestService
 {
     private readonly IContestRepository _contestRepository;

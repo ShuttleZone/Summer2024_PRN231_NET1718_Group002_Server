@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services;
 using ShuttleZone.Domain.WebResponses;
+using ShuttleZone.Domain.WebResponses.Club;
+
 
 namespace ShuttleZone.Api.Controllers;
 
@@ -46,4 +48,5 @@ public class ClubsController : BaseApiController
 
         return Ok(club);
     }
+   
 }
