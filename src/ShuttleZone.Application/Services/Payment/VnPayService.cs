@@ -6,9 +6,11 @@ using ShuttleZone.Domain.WebRequests.Payment;
 using ShuttleZone.Domain.WebResponses.Payment;
 using Microsoft.AspNetCore.Http;
 using System.Reflection;
+using ShuttleZone.Common.Attributes;
 
 namespace ShuttleZone.Application.Services.Payment
 {
+    [AutoRegister]
     public class VnPayService : IVnPayService
     {
         private readonly VNPaySettings _vnPaySettings;

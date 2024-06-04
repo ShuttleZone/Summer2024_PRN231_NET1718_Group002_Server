@@ -12,6 +12,8 @@ using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Domain.WebResponses.Club;
 using ShuttleZone.Domain.WebResponses.Contest;
 using ShuttleZone.Common.Settings;
+using ShuttleZone.Domain.WebRequests;
+using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Api.DependencyInjection;
 
@@ -92,6 +94,9 @@ public static class DependencyInjection
         #region Court Models
 
         builder.EntitySet<DtoCourtResponse>(GetControllerShortName<CourtsController>());
+        builder.EntityType<CreateCourtRequest>();
+        // builder.EnumType<CourtType>();
+        // builder.EnumType<CourtStatus>();
 
         #endregion
 

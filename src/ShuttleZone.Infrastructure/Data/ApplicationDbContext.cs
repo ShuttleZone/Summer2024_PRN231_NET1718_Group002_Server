@@ -10,7 +10,7 @@ using ShuttleZone.Common.Attributes;
 
 namespace ShuttleZone.Infrastructure.Data;
 
-[AutoRegister]
+[AutoRegisterAsConcreteClass]
 public class ApplicationDbContext : IdentityDbContext<User, Role,
     Guid, IdentityUserClaim<Guid>, UserRole, IdentityUserLogin<Guid>,
     IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>, IApplicationDbContext, IReadOnlyApplicationDbContext

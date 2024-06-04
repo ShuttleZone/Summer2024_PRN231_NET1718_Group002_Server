@@ -22,7 +22,8 @@ public class CourtConfiguaration : IEntityTypeConfiguration<Court>
                 CreatedBy = "Club Owner 1",
                 Created = DateTime.Now,
                 LastModified = DateTime.Now,
-                LastModifiedBy = "Admin"
+                LastModifiedBy = "Admin",
+                Price = 100
             },
             new Court
             {
@@ -32,7 +33,8 @@ public class CourtConfiguaration : IEntityTypeConfiguration<Court>
                 CreatedBy = "Club Owner 1",
                 Created = DateTime.Now,
                 LastModified = DateTime.Now,
-                LastModifiedBy = "Admin"
+                LastModifiedBy = "Admin",
+                Price = 100
             },
             new Court
             {
@@ -42,7 +44,8 @@ public class CourtConfiguaration : IEntityTypeConfiguration<Court>
                 CreatedBy = "Club Owner 1",
                 Created = DateTime.Now,
                 LastModified = DateTime.Now,
-                LastModifiedBy = "Admin"
+                LastModifiedBy = "Admin",
+                Price = 100
             },
             new Court
             {
@@ -52,7 +55,8 @@ public class CourtConfiguaration : IEntityTypeConfiguration<Court>
                 CreatedBy = "Club Owner 1",
                 Created = DateTime.Now,
                 LastModified = DateTime.Now,
-                LastModifiedBy = "Admin"
+                LastModifiedBy = "Admin",
+                Price = 100
             },
             //Club 2
             new Court
@@ -63,7 +67,8 @@ public class CourtConfiguaration : IEntityTypeConfiguration<Court>
                 CreatedBy = "Club Owner 2",
                 Created = DateTime.Now,
                 LastModified = DateTime.Now,
-                LastModifiedBy = "Admin"
+                LastModifiedBy = "Admin",
+                Price = 100
             },
             new Court
             {
@@ -73,7 +78,8 @@ public class CourtConfiguaration : IEntityTypeConfiguration<Court>
                 CreatedBy = "Club Owner 2",
                 Created = DateTime.Now,
                 LastModified = DateTime.Now,
-                LastModifiedBy = "Admin"
+                LastModifiedBy = "Admin",
+                Price = 100
             },
             new Court
             {
@@ -83,7 +89,8 @@ public class CourtConfiguaration : IEntityTypeConfiguration<Court>
                 CreatedBy = "Club Owner 2",
                 Created = DateTime.Now,
                 LastModified = DateTime.Now,
-                LastModifiedBy = "Admin"
+                LastModifiedBy = "Admin",
+                Price = 100
             },
             new Court
             {
@@ -93,7 +100,8 @@ public class CourtConfiguaration : IEntityTypeConfiguration<Court>
                 CreatedBy = "Club Owner 2",
                 Created = DateTime.Now,
                 LastModified = DateTime.Now,
-                LastModifiedBy = "Admin"
+                LastModifiedBy = "Admin",
+                Price = 100
             },
             
             //Club 3
@@ -105,7 +113,8 @@ public class CourtConfiguaration : IEntityTypeConfiguration<Court>
                 CreatedBy = "Club Owner 3",
                 Created = DateTime.Now,
                 LastModified = DateTime.Now,
-                LastModifiedBy = "Admin"
+                LastModifiedBy = "Admin",
+                Price = 100
             },
             new Court
             {
@@ -115,7 +124,8 @@ public class CourtConfiguaration : IEntityTypeConfiguration<Court>
                 CreatedBy = "Club Owner 3",
                 Created = DateTime.Now,
                 LastModified = DateTime.Now,
-                LastModifiedBy = "Admin"
+                LastModifiedBy = "Admin",
+                Price = 100
             },
             new Court
             {
@@ -125,7 +135,8 @@ public class CourtConfiguaration : IEntityTypeConfiguration<Court>
                 CreatedBy = "Club Owner 3",
                 Created = DateTime.Now,
                 LastModified = DateTime.Now,
-                LastModifiedBy = "Admin"
+                LastModifiedBy = "Admin",
+                Price = 100
             },
             new Court
             {
@@ -135,7 +146,8 @@ public class CourtConfiguaration : IEntityTypeConfiguration<Court>
                 CreatedBy = "Club Owner 3",
                 Created = DateTime.Now,
                 LastModified = DateTime.Now,
-                LastModifiedBy = "Admin"
+                LastModifiedBy = "Admin",
+                Price = 100
             });
     }
 }
