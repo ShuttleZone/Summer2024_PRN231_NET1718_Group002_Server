@@ -2,6 +2,8 @@
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.DAL.Common.Interfaces;
+using ShuttleZone.DAL.Repositories;
+using ShuttleZone.Domain.WebResponses.Court;
 using ShuttleZone.Domain.WebResponses.ReservationDetails;
 
 namespace ShuttleZone.Application.Services.Reservation
@@ -10,7 +12,7 @@ namespace ShuttleZone.Application.Services.Reservation
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public ReservationService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ReservationService(IUnitOfWork unitOfWork, IMapper mapper, IReservationRepository reservationRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -27,5 +29,7 @@ namespace ShuttleZone.Application.Services.Reservation
 
             return reservationDetailsResponse;
         }
+
+       
     }
 }

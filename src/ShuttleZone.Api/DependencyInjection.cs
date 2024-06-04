@@ -13,6 +13,8 @@ using ShuttleZone.Domain.WebResponses.Club;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ShuttleZone.Domain.WebResponses.Contest;
 using ShuttleZone.Common.Settings;
+using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebResponses.ReservationDetails;
 
 namespace ShuttleZone.Api.DependencyInjection;
 
@@ -93,13 +95,16 @@ public static class DependencyInjection
         #region Court Models
 
         builder.EntitySet<DtoCourtResponse>(GetControllerShortName<CourtsController>());
-
+        builder.EntityType<DtoReservationDetail>();
+        
         #endregion
 
         builder.EntitySet<DtoContestResponse>(GetControllerShortName<ContestsController>());
         builder.EntityType<UserContestDto>().HasKey(cr => new{cr.ContestId, cr.ParticipantsId});
-        
 
+        builder.EntitySet<DtoReservationDetail>(GetControllerShortName<ReservationDetailsController>());
+
+        
         builder.EnableLowerCamelCase();
 
         return builder.GetEdmModel();
