@@ -95,8 +95,8 @@ public static class DependencyInjection
 
         builder.EntitySet<DtoCourtResponse>(GetControllerShortName<CourtsController>());
         builder.EntityType<CreateCourtRequest>();
-        // builder.EnumType<CourtType>();
-        // builder.EnumType<CourtStatus>();
+        builder.EnumType<CourtType>();
+        builder.EnumType<CourtStatus>();
 
         #endregion
 

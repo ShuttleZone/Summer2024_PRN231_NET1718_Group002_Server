@@ -1,6 +1,6 @@
-﻿using System.Xml;
-using AutoMapper;
+﻿using AutoMapper;
 using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebResponses.Court;
 using ShuttleZone.Domain.WebResponses.ReservationDetails;
 
@@ -20,5 +20,6 @@ public class CourtMappingProfile : Profile
             .ForMember(dto => dto.EndTime, opt => opt.MapFrom(x => x.EndTime))
             .ForMember(dto => dto.CourtName, opt => opt.MapFrom(x => x.Court.Name))
             .ForMember(dto => dto.Date, opt => opt.MapFrom(x => x.StartTime.Date));
+        CreateMap<CreateCourtRequest, Court>();
     }
 }
