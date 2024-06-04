@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
+using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Domain.WebRequests.Reservations;
 using ShuttleZone.Domain.WebResponses.ReservationDetails;
 
@@ -24,7 +25,7 @@ namespace ShuttleZone.Application.Services.Reservation
             var requestEntity = _mapper.Map<ShuttleZone.Domain.Entities.Reservation>(request);
             await _unitOfWork.ReservationRepository.AddAsync(requestEntity);
             var addSuccess = await _unitOfWork.Complete();
-            return addSuccess;
+            return addSuccess; 
         }
 
         public IQueryable<ReservationDetailsResponse> GetMyReservationDetails(Guid currentUser)
