@@ -2,7 +2,6 @@
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Reservation;
 using ShuttleZone.Domain.WebRequests.Reservations;
-using ShuttleZone.Domain.WebResponses.Club;
 
 namespace ShuttleZone.Api.Controllers
 {
@@ -16,10 +15,24 @@ namespace ShuttleZone.Api.Controllers
         }
 
         [HttpPost("make-booking")]
-        public async Task<IActionResult> CreateBooking(CreateReservationRequest request)
+        public async Task<IActionResult> CreateBooking([FromBody] CreateReservationRequest request)
         {
-            await _reservationService.CreateReservation(request);
-            return Ok();
+            try
+            {
+                var result = await _reservationService.CreateReservation(request);
+                if (result)
+                    return Ok();
+                else
+                    return BadRequest();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
         }
     }
 }

@@ -9,6 +9,8 @@ public class Reservation : BaseAuditableEntity<Guid>
     public double TotalPrice { get; set; }
     public ReservationStatusEnum ReservationStatusEnum { get; set; } = ReservationStatusEnum.VALID;
     public string? Note { get; set; }
+    public string? Phone { get; set; }
+    public string? FullName { get; set; }
     
     public Guid CustomerId { get; set; }
     public User? Customer { get; set; }

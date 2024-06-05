@@ -10,5 +10,7 @@ namespace ShuttleZone.Application.Services.Reservation
         IQueryable<ReservationDetailsResponse> GetMyReservationDetails(Guid currentUser);
 
         Task<bool> CreateReservation(CreateReservationRequest request);
+
+        bool HasOverlappingReservation(Guid? courtId, DateTime startTime, DateTime endTime);
     }
 }
