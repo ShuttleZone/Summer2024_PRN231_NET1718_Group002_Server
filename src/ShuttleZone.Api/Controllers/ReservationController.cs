@@ -17,10 +17,22 @@ namespace ShuttleZone.Api.Controllers
         [HttpPost("make-booking")]
         public async Task<IActionResult> CreateBooking([FromBody] CreateReservationRequest request)
         {
-            var result = await _reservationService.CreateReservation(request);
-            if (result)
-                return Ok();
-            return BadRequest();
+            try
+            {
+                var result = await _reservationService.CreateReservation(request);
+                if (result)
+                    return Ok();
+                else
+                    return BadRequest();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
         }
     }
 }
