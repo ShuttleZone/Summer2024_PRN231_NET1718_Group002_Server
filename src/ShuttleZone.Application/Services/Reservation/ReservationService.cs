@@ -38,7 +38,7 @@ namespace ShuttleZone.Application.Services.Reservation
                     }
 
                     var courtExisted = _unitOfWork.CourtRepository.Exists(c => c.Id == detail.CourtId);
-                    if (courtExisted)
+                    if (!courtExisted)
                     {
                         throw new InvalidOperationException($"Court {detail.CourtId} does not exist.");
                     }

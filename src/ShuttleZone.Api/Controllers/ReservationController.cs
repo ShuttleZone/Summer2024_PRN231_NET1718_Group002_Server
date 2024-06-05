@@ -33,6 +33,10 @@ namespace ShuttleZone.Api.Controllers
             {
                 return BadRequest(new { Message = ex.Message });
             }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
         }
     }
 }
