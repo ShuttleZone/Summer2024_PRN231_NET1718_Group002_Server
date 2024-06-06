@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.Common.Exceptions;
+using ShuttleZone.Common.Helpers;
 using ShuttleZone.Common.Settings;
 
 namespace ShuttleZone.Application.Services.File;
@@ -10,7 +11,7 @@ namespace ShuttleZone.Application.Services.File;
 public class FileService : IFileService
 {
     private readonly BlobServiceClient _blobServiceClient;
-    private readonly AzureSettings _azureSettings;g
+    private readonly AzureSettings _azureSettings;
 
     public FileService(IConfiguration config)
     {
@@ -22,18 +23,21 @@ public class FileService : IFileService
     {
         var containerInstance = _blobServiceClient.GetBlobContainerClient(_azureSettings.BlobContainer);
         var blobInstance =
-            containerInstance.GetBlobClient(file.FileName);
+            containerInstance.GetBlobClient(StringInterpolationHelper.GenerateUniqueName(file.FileName));
         await blobInstance.UploadAsync(file.OpenReadStream());
         return blobInstance.Uri.ToString();
     }
 
-    public async Task<ICollection<string>> UploadMultipleFileAsync(List<IFormFile> files)
+    public async Task<ICollection<string>> UploadMultipleFileAsync(ICollection<IFormFile> files)
     {
         var urlList = new List<string>();
+        if (files.Count == 0)
+            return urlList;
+        
         var containerInstance = _blobServiceClient.GetBlobContainerClient(_azureSettings.BlobContainer);
         foreach (var file in files)
         {
-            var blobInstance = containerInstance.GetBlobClient(file.FileName);
+            var blobInstance = containerInstance.GetBlobClient(StringInterpolationHelper.GenerateUniqueName(file.FileName));
             await blobInstance.UploadAsync(file.OpenReadStream());
             urlList.Add(blobInstance.Uri.ToString());
         }

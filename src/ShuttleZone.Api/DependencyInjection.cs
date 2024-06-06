@@ -29,10 +29,12 @@ public static class DependencyInjection
         const string routePrefix = "api";
         services
             .AddControllers()
-            .AddOData(opt => 
+            .AddOData(opt =>
+            {
                 opt
-                .AddRouteComponents(routePrefix, GetEdmModel())
-                .EnableQueryFeatures())
+                    .AddRouteComponents(routePrefix, GetEdmModel())
+                    .EnableQueryFeatures();
+            })
             .AddJsonOptions(opt =>
             {
                 opt.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
@@ -94,6 +96,7 @@ public static class DependencyInjection
         builder.EntitySet<DtoClubResponse>(GetControllerShortName<ClubsController>());        
         builder.EntityType<DtoReviewResponse>();
         builder.EntityType<DtoClubImageResponse>();
+        builder.EntityType<DtoOpenDateInWeek>();
 
         #endregion
 
