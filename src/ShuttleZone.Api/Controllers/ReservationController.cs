@@ -15,7 +15,8 @@ namespace ShuttleZone.Api.Controllers
         }
 
         [HttpPost("make-booking")]
-        public async Task<IActionResult> CreateBooking([FromBody] CreateReservationRequest request)
+
+        public async Task<IActionResult> CreateBooking([FromForm] CreateReservationRequest request)
         {
             //placeholder for logined user
             var userId = new Guid("26A7CC4E-3F9B-4923-809E-2F9B771D994F");
