@@ -1,4 +1,6 @@
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.OData;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
@@ -30,7 +32,11 @@ public static class DependencyInjection
             .AddOData(opt => 
                 opt
                 .AddRouteComponents(routePrefix, GetEdmModel())
-                .EnableQueryFeatures());
+                .EnableQueryFeatures())
+            .AddJsonOptions(opt =>
+            {
+                opt.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
+            });
 
         return services;
     }
@@ -124,5 +130,21 @@ public static class DependencyInjection
     {
         services.Configure<VNPaySettings>(configuration.GetSection(nameof(VNPaySettings)));
         return services;
+    }
+
+    private class TimeOnlyJsonConverter : JsonConverter<TimeOnly>
+    {
+        private const string TimeFormat = "HH:mm";
+
+
+        public override TimeOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return TimeOnly.ParseExact(reader.GetString()!, TimeFormat);
+        }
+
+        public override void Write(Utf8JsonWriter writer, TimeOnly value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString(TimeFormat));
+        }
     }
 }
