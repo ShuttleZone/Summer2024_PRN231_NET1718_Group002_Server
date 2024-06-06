@@ -8,7 +8,7 @@ public class Reservation : BaseAuditableEntity<Guid>
     public DateTime BookingDate { get; set; }
     public int TotalHours { get; set; }
     public double TotalPrice { get; set; }
-    public ReservationStatusEnum ReservationStatusEnum { get; set; }
+    public ReservationStatusEnum ReservationStatusEnum { get; set; } = ReservationStatusEnum.PENDING;
     public string? Note { get; set; }
     
     public Guid CustomerId { get; set; }

@@ -15,8 +15,7 @@ namespace ShuttleZone.Api.Controllers
         }
 
         [EnableQuery]
-        [HttpGet("my-reservations")]
-        public IActionResult GetMyReservationDetails()
+        public IActionResult Get()
         {
             //placeholder for logined user
             var userId = new Guid("26A7CC4E-3F9B-4923-809E-2F9B771D994F");
