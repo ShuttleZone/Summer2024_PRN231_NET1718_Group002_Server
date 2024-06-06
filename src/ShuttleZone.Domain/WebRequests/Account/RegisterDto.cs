@@ -7,10 +7,10 @@ public class RegisterDto
     [Required]
     public required string Fullname { get; set; }
     [Required]
-    public string? Username { get; set; }
+    public required string Username { get; set; }
     [Required]
     [EmailAddress]
-    public string? Email { get; set; }
+    public required string Email { get; set; }
     [Required]
     [Phone]
     public string? PhoneNumber { get; set; }
