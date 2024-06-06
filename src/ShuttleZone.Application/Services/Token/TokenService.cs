@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using ShuttleZone.Application.DependencyInjection.Common;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.Domain.Entities;
 
@@ -30,7 +31,7 @@ public class TokenService : ITokenService
         {
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
             new Claim(JwtRegisteredClaimNames.GivenName, user.UserName!),
-            
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
         };
         
         claims.AddRange(roles.Select(c => new Claim(ClaimTypes.Role, c)));
@@ -51,5 +52,61 @@ public class TokenService : ITokenService
         var token = tokenHandle.CreateToken(tokenDescriptor);
 
         return tokenHandle.WriteToken(token);
+    }
+
+    public object? GetTokenClaim(string token, string claimName)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidIssuer = _configuration["JWT:Issuer"],
+            ValidAudience = _configuration["JWT:Audience"],
+            ValidateAudience = true,
+            ValidateIssuer = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SigningKey"]!))
+        };
+        try
+        {
+            tokenHandler.ValidateToken(token, tokenValidationParameters, out var validatedToken);
+            var jwtSecurityToken = (JwtSecurityToken)validatedToken;
+            var propInfo = typeof(JwtSecurityToken).GetProperties().FirstOrDefault(x => x.Name == claimName);
+            return propInfo?.GetValue(jwtSecurityToken);
+        }
+        catch (Exception e)
+        {
+            throw new Exception("Invalid Token Exception", e.InnerException);
+        }
+    }
+
+    public AuthModel GetAuthModel(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidIssuer = _configuration["JWT:Issuer"],
+            ValidAudience = _configuration["JWT:Audience"],
+            ValidateAudience = true,
+            ValidateIssuer = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SigningKey"]!))
+        };
+        try
+        {
+            tokenHandler.ValidateToken(token, tokenValidationParameters, out var validatedToken);
+            var jwtSecurityToken = (JwtSecurityToken)validatedToken;
+            var userName = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == "name")?.Value;
+            var userId = jwtSecurityToken.Subject;
+            var role = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == "role")!.Value;
+            var authModel = new AuthModel
+            {
+                UserId = Guid.Parse(userId),
+                UserName = userId,
+                Role = role,
+            };
+            return authModel;
+        }
+        catch (Exception e)
+        {
+            throw new Exception("Invalid Token Exception", e.InnerException);
+        }
     }
 }

@@ -57,7 +57,7 @@ public class ClubService : IClubService
         return queryableClubs
             .ProjectTo<CreateClubRequestDetailReponse>(_mapper.ConfigurationProvider);        
     }
-
+    
     public async Task<DtoClubResponse> AddClubAsync(CreateClubRequest request)
     {
         var owner = _userRepository.GetAll().FirstOrDefault() ?? throw new Exception("not have user");
