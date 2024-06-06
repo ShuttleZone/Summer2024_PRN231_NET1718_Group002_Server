@@ -8,6 +8,7 @@ namespace ShuttleZone.Api.Controllers
     public class ReservationDetailsController : BaseApiController
     {
         private readonly IReservationService _reservationService;
+        
 
         public ReservationDetailsController(IReservationService reservationService)
         {

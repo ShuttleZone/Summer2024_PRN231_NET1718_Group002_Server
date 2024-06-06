@@ -9,6 +9,8 @@ public interface IGenericRepository<T> where T : class
     void AddMany(IEnumerable<T> entities);
     Task AddManyAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 
+    void Update(T entity);
+
     IQueryable<T> GetAll();
     T? Get(Expression<Func<T, bool>> predicate);
     Task<T?> GetAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
