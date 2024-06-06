@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Account;
+using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests.Account;
 
 namespace ShuttleZone.Api.Controllers;

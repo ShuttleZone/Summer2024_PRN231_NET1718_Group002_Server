@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Reservation;
+using ShuttleZone.Application.Services.Token;
 using ShuttleZone.Domain.WebRequests.Reservations;
 
 namespace ShuttleZone.Api.Controllers
@@ -8,10 +9,19 @@ namespace ShuttleZone.Api.Controllers
     public class ReservationController : BaseApiController
     {
         private readonly IReservationService _reservationService;
+        private readonly ITokenService _tokenService;
 
-        public ReservationController(IReservationService reservationService)
+        public ReservationController(IReservationService reservationService, ITokenService tokenService)
         {
             _reservationService = reservationService;
+            _tokenService = tokenService;
+        }
+        
+        private string GetJwtToken()
+        {
+            var authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
+            var token = authorizationHeader.Replace("bearer", "", StringComparison.OrdinalIgnoreCase).Trim();
+            return token;
         }
 
         [HttpPost("make-booking")]
@@ -19,10 +29,11 @@ namespace ShuttleZone.Api.Controllers
         public async Task<IActionResult> CreateBooking([FromForm] CreateReservationRequest request)
         {
             //placeholder for logined user
-            var userId = new Guid("26A7CC4E-3F9B-4923-809E-2F9B771D994F");
+            // var userId = new Guid("26A7CC4E-3F9B-4923-809E-2F9B771D994F");
+            var authModel = _tokenService.GetAuthModel(GetJwtToken());
             try
             {
-                var result = await _reservationService.CreateReservation(request, userId, false);
+                var result = await _reservationService.CreateReservation(request, authModel.UserId, false);
                 if (result)
                     return Ok();
                 else
