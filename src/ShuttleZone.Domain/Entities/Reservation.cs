@@ -12,7 +12,7 @@ public class Reservation : BaseAuditableEntity<Guid>
     public string? Phone { get; set; }
     public string? FullName { get; set; }
     
-    public Guid CustomerId { get; set; }
+    public Guid? CustomerId { get; set; }
     public User? Customer { get; set; }
 
     public ICollection<ReservationDetail> ReservationDetails = new List<ReservationDetail>();
