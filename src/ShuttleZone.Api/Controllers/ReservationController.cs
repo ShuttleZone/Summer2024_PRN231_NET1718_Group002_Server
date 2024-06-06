@@ -17,6 +17,33 @@ namespace ShuttleZone.Api.Controllers
         [HttpPost("make-booking")]
         public async Task<IActionResult> CreateBooking([FromBody] CreateReservationRequest request)
         {
+            //placeholder for logined user
+            var userId = new Guid("26A7CC4E-3F9B-4923-809E-2F9B771D994F");
+            try
+            {
+                var result = await _reservationService.CreateReservation(request, userId, false);
+                if (result)
+                    return Ok();
+                else
+                    return BadRequest();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
+        }
+
+        [HttpPost("staff/make-booking")]
+        public async Task<IActionResult> StaffCreateBooking([FromBody] CreateReservationRequest request)
+        {           
             try
             {
                 var result = await _reservationService.CreateReservation(request);
