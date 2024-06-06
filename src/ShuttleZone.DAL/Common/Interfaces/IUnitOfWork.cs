@@ -10,5 +10,6 @@ namespace ShuttleZone.DAL.Common.Interfaces
         IReservationDetailRepository ReservationDetailRepository { get; }
         ICourtRepository CourtRepository { get; }
         Task<bool> Complete();
+        Task<bool> Complete(CancellationToken cancellationToken = default);
     }
 }

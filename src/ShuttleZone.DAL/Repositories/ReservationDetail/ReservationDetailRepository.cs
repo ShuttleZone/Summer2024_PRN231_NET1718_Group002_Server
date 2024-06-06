@@ -1,8 +1,9 @@
-﻿using ShuttleZone.DAL.Common.Implementations;
-using ShuttleZone.DAL.Common.Interfaces;
+﻿using ShuttleZone.Common.Attributes;
+using ShuttleZone.DAL.Common.Implementations;
 using ShuttleZone.Infrastructure.Data.Interfaces;
 
 namespace ShuttleZone.DAL.Repositories.ReservationDetail;
+[AutoRegister]
 
 public class ReservationDetailRepository : GenericRepository<Domain.Entities.ReservationDetail>, IReservationDetailRepository
 {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services;
 using ShuttleZone.Application.Services.ReservationDetail;
+using ShuttleZone.Domain.WebRequests.Club;
 using ShuttleZone.Domain.WebResponses;
 
 
@@ -57,5 +58,12 @@ public class ClubsController : BaseApiController
     {
         var reservationDetail = _reservationDetailService.GetClubReservationDetails(key);
         return Ok(reservationDetail);
+    }
+    [HttpPost]
+    public async Task<IActionResult> Post([FromForm] CreateClubRequest request)
+    {
+        return await HandleResultAsync(
+            async () => await _clubService.AddClubAsync(request).ConfigureAwait(false)
+        ).ConfigureAwait(false);
     }
 }

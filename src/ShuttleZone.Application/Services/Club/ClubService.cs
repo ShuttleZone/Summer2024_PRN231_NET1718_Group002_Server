@@ -1,7 +1,12 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using ShuttleZone.Application.Services.File;
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.DAL.Common.Interfaces;
+using ShuttleZone.DAL.DependencyInjection.Repositories.User;
 using ShuttleZone.DAL.Repositories;
+using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebRequests.Club;
 using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Club;
 
@@ -11,12 +16,18 @@ namespace ShuttleZone.Application.Services;
 public class ClubService : IClubService
 {
     private readonly IClubRepository _clubRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly IFileService _fileService;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    public ClubService(IClubRepository clubRepository, IMapper mapper)
+    public ClubService(IClubRepository clubRepository, IMapper mapper, IUnitOfWork unitOfWork, IUserRepository userRepository, IFileService fileService)
     {
         _clubRepository = clubRepository;
         _mapper = mapper;
+        _unitOfWork = unitOfWork;
+        _userRepository = userRepository;
+        _fileService = fileService;
     }
 
     public DtoClubResponse? GetClub(Guid key)
@@ -35,7 +46,6 @@ public class ClubService : IClubService
             .GetAll();
         var dtoClubs = queryableClubs
             .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider);
-
         return dtoClubs;
     }
 
@@ -48,5 +58,23 @@ public class ClubService : IClubService
             .ProjectTo<CreateClubRequestDetailReponse>(_mapper.ConfigurationProvider);        
     }
 
-  
+    public async Task<DtoClubResponse> AddClubAsync(CreateClubRequest request)
+    {
+        var owner = _userRepository.GetAll().FirstOrDefault() ?? throw new Exception("not have user");
+        var club = _mapper.Map<Club>(request);
+        club.OwnerId = owner.Id;
+        await _clubRepository.AddAsync(club);
+        await _unitOfWork.Complete();
+        // club.OpenDateInWeeks
+        var daysInWeek = request.DaysInWeekOpen
+            .Select(x => new OpenDateInWeek { Date = x});
+        var images = await _fileService.UploadMultipleFileAsync(request.Files);
+        var clubImages = images.Select(x => new ClubImage() { ImageUrl = x});
+        club.OpenDateInWeeks = daysInWeek.ToList();
+        club.ClubImages = clubImages.ToList();
+        _clubRepository.Update(club);
+        await _unitOfWork.Complete();
+        return _mapper.Map<DtoClubResponse>(club);
+    }
 }
+ 

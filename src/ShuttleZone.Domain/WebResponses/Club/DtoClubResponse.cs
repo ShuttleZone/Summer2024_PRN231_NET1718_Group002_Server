@@ -15,6 +15,7 @@ public record DtoClubResponse
     public ICollection<DtoCourt> Courts { get; set; }= new List<DtoCourt>();
     public ICollection<DtoReviewResponse> Reviews { get; set; } = new List<DtoReviewResponse>();
     public ICollection<DtoClubImageResponse> ClubImages { get; set; } = new List<DtoClubImageResponse>();
+    public ICollection<DtoOpenDateInWeek> OpenDateInWeeks { get; set; } = new List<DtoOpenDateInWeek>();
 }
 
 public record DtoReviewResponse
@@ -35,4 +36,11 @@ public record DtoCourt
     public required string Name { get; set; }
     public CourtType CourtType { get; set; }
     public CourtStatus CourtStatus { get; set; }
+    public double Price { get; set; }
+}
+
+public record DtoOpenDateInWeek
+{
+    public int Id { get; set; }
+    public string Date { get; set; } = null!;
 }
