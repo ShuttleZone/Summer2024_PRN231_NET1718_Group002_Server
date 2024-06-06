@@ -4,6 +4,8 @@ namespace ShuttleZone.Domain.WebRequests.Account;
 
 public class NewAccountDto
 {
+    public required Guid Id { get; set; }
+
     [Required]
     public required string Fullname { get; set; }
     [Required]
