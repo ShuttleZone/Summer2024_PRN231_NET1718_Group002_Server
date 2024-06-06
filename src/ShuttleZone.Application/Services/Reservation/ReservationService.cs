@@ -7,6 +7,7 @@ using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests.Reservations;
 using ShuttleZone.Domain.WebResponses.ReservationDetails;
+using ShuttleZone.Domain.WebResponses.Reservations;
 
 namespace ShuttleZone.Application.Services.Reservation
 {
@@ -65,6 +66,19 @@ namespace ShuttleZone.Application.Services.Reservation
             await _unitOfWork.ReservationRepository.AddAsync(requestEntity);
             var addSuccess = await _unitOfWork.Complete();
             return addSuccess; 
+        }
+
+        public IQueryable<ReservationResponse> GetMyReservation(Guid currentUser)
+        {
+            var reservationsQuery = _unitOfWork.ReservationRepository.GetAll()
+                .Where(r => r.CustomerId == currentUser)
+                .Include(r => r.ReservationDetails)
+                .ThenInclude(rd => rd.Court);
+
+            var reservationsResponse = reservationsQuery
+                .ProjectTo<ReservationResponse>(_mapper.ConfigurationProvider);
+
+            return reservationsResponse;
         }
 
         public IQueryable<ReservationDetailsResponse> GetMyReservationDetails(Guid currentUser)

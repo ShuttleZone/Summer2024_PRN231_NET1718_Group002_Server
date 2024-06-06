@@ -17,6 +17,7 @@ using ShuttleZone.Common.Settings;
 using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.Enums;
 using ShuttleZone.Domain.WebResponses.ReservationDetails;
+using ShuttleZone.Domain.WebResponses.Reservations;
 
 
 namespace ShuttleZone.Api.DependencyInjection;
@@ -118,6 +119,7 @@ public static class DependencyInjection
         #region Reservation Models
         builder.EntityType<DtoReservationDetail>();
         builder.EntitySet<ReservationDetailsResponse>(GetControllerShortName<ReservationDetailsController>());
+        builder.EntitySet<ReservationResponse>(GetControllerShortName<ReservationController>());
         #endregion
 
         builder.EnableLowerCamelCase();
