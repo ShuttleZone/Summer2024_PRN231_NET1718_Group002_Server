@@ -5,7 +5,7 @@ using ShuttleZone.Infrastructure.Data.Interfaces;
 
 namespace ShuttleZone.DAL.Common.Implementations;
 
-public class GenericRepository<T> : IGenericRepository<T> where T : class
+public abstract class GenericRepository<T> : IGenericRepository<T> where T : class
 {
     private readonly IApplicationDbContext _context;
     private readonly IReadOnlyApplicationDbContext _readOnlyContext;

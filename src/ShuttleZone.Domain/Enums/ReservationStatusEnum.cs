@@ -5,5 +5,5 @@ public enum ReservationStatusEnum
     PENDING,
     PAYSUCCEED,
     PAYFAIL,
-    CANCEL
+    CANCELLED
 }

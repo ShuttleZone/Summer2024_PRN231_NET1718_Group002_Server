@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
-using ShuttleZone.Application.Services.IServices;
+using ShuttleZone.Application.Services.Reservation;
 
 namespace ShuttleZone.Api.Controllers
 {
     public class ReservationDetailsController : BaseApiController
     {
         private readonly IReservationService _reservationService;
+        
 
         public ReservationDetailsController(IReservationService reservationService)
         {

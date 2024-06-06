@@ -1,10 +1,23 @@
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.OData;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
+using ShuttleZone.Api.Controllers;
 using ShuttleZone.Api.Settings;
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.Domain.WebResponses;
+using ShuttleZone.Domain.WebResponses.Court;
 using ShuttleZone.Infrastructure.Data.Interfaces;
+using ShuttleZone.Api.Controllers.BaseControllers;
+using ShuttleZone.Domain.WebResponses.Club;
+using ShuttleZone.Domain.WebResponses.Contest;
+using ShuttleZone.Common.Settings;
+using ShuttleZone.Domain.WebRequests;
+using ShuttleZone.Domain.Enums;
+using ShuttleZone.Domain.WebResponses.ReservationDetails;
+
 
 namespace ShuttleZone.Api.DependencyInjection;
 
@@ -12,13 +25,19 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddODataControllers(this IServiceCollection services)
     {
+        const string routePrefix = "api";
         services
             .AddControllers()
-            .AddOData(opt => 
+            .AddOData(opt =>
+            {
                 opt
-                // may not need this route component
-                .AddRouteComponents("odata", GetEdmModel())
-                .EnableQueryFeatures());
+                    .AddRouteComponents(routePrefix, GetEdmModel())
+                    .EnableQueryFeatures();
+            })
+            .AddJsonOptions(opt =>
+            {
+                opt.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
+            });
 
         return services;
     }
@@ -70,9 +89,66 @@ public static class DependencyInjection
     {
         var builder = new ODataConventionModelBuilder();
         
-        // may not need to add this
         // TODO: Add OData models
+        #region Club Models
+
+        builder.EntitySet<DtoClubResponse>(GetControllerShortName<ClubsController>());        
+        builder.EntityType<DtoReviewResponse>();
+        builder.EntityType<DtoClubImageResponse>();
+        builder.EntityType<DtoOpenDateInWeek>();
+
+        #endregion
+
+        builder.EntitySet<CreateClubRequestDetailReponse>(GetControllerShortName<ClubRequestsController>());
+        builder.EntityType<OpenDateInWeekResponse>();
+
+        #region Court Models
+
+        builder.EntitySet<DtoCourtResponse>(GetControllerShortName<CourtsController>());
+        builder.EntityType<DtoReservationDetail>();
+        builder.EntityType<CreateCourtRequest>();
+        builder.EnumType<CourtType>();
+        builder.EnumType<CourtStatus>();
+      
+        #endregion
+
+        builder.EntitySet<DtoContestResponse>(GetControllerShortName<ContestsController>());
+        builder.EntityType<UserContestDto>().HasKey(cr => new{cr.ContestId, cr.ParticipantsId});
+
+        #region Reservation Models
+        builder.EntityType<DtoReservationDetail>();
+        builder.EntitySet<ReservationDetailsResponse>(GetControllerShortName<ReservationDetailsController>());
+        #endregion
+
+        builder.EnableLowerCamelCase();
 
         return builder.GetEdmModel();
+    }
+
+    private static string GetControllerShortName<TController>() where TController : BaseApiController
+    {
+        return typeof(TController).Name.Replace("Controller", string.Empty);
+    }
+
+    public static IServiceCollection AddVNPaySettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<VNPaySettings>(configuration.GetSection(nameof(VNPaySettings)));
+        return services;
+    }
+
+    private class TimeOnlyJsonConverter : JsonConverter<TimeOnly>
+    {
+        private const string TimeFormat = "HH:mm";
+
+
+        public override TimeOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return TimeOnly.ParseExact(reader.GetString()!, TimeFormat);
+        }
+
+        public override void Write(Utf8JsonWriter writer, TimeOnly value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString(TimeFormat));
+        }
     }
 }

@@ -3,9 +3,10 @@ using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.Entities;
 
-public class OpenDateInWeek : BaseEntity<int>
+public class OpenDateInWeek 
 {
-    public List<DateInWeekEnum> Date { get; set; } = new List<DateInWeekEnum>();
-    public required Guid ClubId { get; set; }
-    public Club? Club { get; set; }
+    public int Id { get; set; }
+    public string Date { get; set; } = null!;
+    public Guid ClubId { get; set; }
+    public Club Club { get; set; } = null!;
 }

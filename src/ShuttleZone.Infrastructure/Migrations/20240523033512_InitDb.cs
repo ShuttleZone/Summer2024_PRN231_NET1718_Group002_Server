@@ -32,18 +32,6 @@ namespace ShuttleZone.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Foo",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Foo", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Role",
                 columns: table => new
                 {
@@ -568,9 +556,6 @@ namespace ShuttleZone.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "ClubImage");
-
-            migrationBuilder.DropTable(
-                name: "Foo");
 
             migrationBuilder.DropTable(
                 name: "Maintenance");

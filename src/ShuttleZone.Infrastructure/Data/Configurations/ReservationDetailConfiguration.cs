@@ -17,6 +17,6 @@ public class ReservationDetailConfiguration : IEntityTypeConfiguration<Reservati
             .WithMany(rd => rd.ReservationDetails)
             .HasForeignKey(rd => rd.CourtId)
             .IsRequired(false);
-
+        
     }
 }
