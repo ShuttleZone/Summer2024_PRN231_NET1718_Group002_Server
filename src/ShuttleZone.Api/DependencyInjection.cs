@@ -100,7 +100,7 @@ public static class DependencyInjection
 
         #endregion
 
-        builder.EntitySet<CreateClubRequestDetailReponse>(GetControllerShortName<ClubRequestsController>());
+        builder.EntitySet<ClubRequestDetailReponse>(GetControllerShortName<ClubRequestsController>());
         builder.EntityType<OpenDateInWeekResponse>();
 
         #region Court Models

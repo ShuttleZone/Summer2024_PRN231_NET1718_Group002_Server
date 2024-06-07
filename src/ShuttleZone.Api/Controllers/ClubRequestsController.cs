@@ -15,13 +15,13 @@ namespace ShuttleZone.Api.Controllers
         }
 
         [EnableQuery]
-        public ActionResult<IQueryable<CreateClubRequestDetailReponse>> Get()
+        public ActionResult<IQueryable<ClubRequestDetailReponse>> Get()
         {
             return Ok(_clubService.GetCreateClubRequests());
         }
 
         [EnableQuery]
-        public ActionResult<CreateClubRequestDetailReponse> Get([FromRoute] Guid key)
+        public ActionResult<ClubRequestDetailReponse> Get([FromRoute] Guid key)
         {
             return Ok(_clubService.GetCreateClubRequests().FirstOrDefault(x=>x.Id==key));
         }
