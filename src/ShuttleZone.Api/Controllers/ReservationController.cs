@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Reservation;
@@ -29,11 +30,13 @@ namespace ShuttleZone.Api.Controllers
         public IActionResult Get()
         {
             //placeholder for logined user
-            var userId = new Guid("26A7CC4E-3F9B-4923-809E-2F9B771D994F");
-            return Ok(_reservationService.GetMyReservation(userId));
+            // var userId = new Guid("26A7CC4E-3F9B-4923-809E-2F9B771D994F");
+            var authModel = _tokenService.GetAuthModel(GetJwtToken());
+            return Ok(_reservationService.GetMyReservation(authModel.UserId));
         }
 
         [HttpPost("make-booking")]
+        [Authorize]
 
         public async Task<IActionResult> CreateBooking([FromForm] CreateReservationRequest request)
         {
