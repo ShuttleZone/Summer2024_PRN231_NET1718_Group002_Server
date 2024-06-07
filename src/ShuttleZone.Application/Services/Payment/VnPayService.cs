@@ -71,18 +71,26 @@ namespace ShuttleZone.Application.Services.Payment
             if (isIPN)
             {
                 Double.TryParse(response.vnp_Amount, out double result);
+                var reservationId = new Guid(response.vnp_OrderInfo ?? throw new Exception("Invalid reservation"));
+                var reservation = _unitOfWork.ReservationRepository.Get(r => r.Id == reservationId) ?? throw new Exception("Invalid reservation");
+
+                var isPaySucceed = (response.vnp_ResponseCode?.Equals("00") ?? false)
+                    && (response.vnp_TransactionStatus?.Equals("00") ?? false);
+
                 _unitOfWork.TransactionRepository.Add(new Domain.Entities.Transaction()
                 {
                     Id = new Guid(),
                     PaymentMethod = PaymentMethod.VNPAY,
                     Amount = result,
-                    TransactionStatus = (response.vnp_ResponseCode?.Equals("00") ?? false)
-                    && (response.vnp_TransactionStatus?.Equals("00") ?? false)
+                    TransactionStatus = isPaySucceed
                     ? TransactionStatusEnum.SUCCESS : TransactionStatusEnum.FAIL,
-                    ReservationId = new Guid(response.vnp_OrderInfo ?? throw new Exception("Invalid reservation"))
+                    ReservationId = reservationId
                 });
+                reservation.ReservationStatusEnum = isPaySucceed ? ReservationStatusEnum.PAYSUCCEED : ReservationStatusEnum.PAYFAIL;
+
+                _unitOfWork.Complete();
             }
-            
+
             return response;
         }
     }

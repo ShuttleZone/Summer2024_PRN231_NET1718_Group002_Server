@@ -5,7 +5,7 @@ namespace ShuttleZone.Domain.WebRequests.Reservations
 {
     public class CreateReservationRequest
     {
-        [Range(0.01, double.MaxValue, ErrorMessage = "TotalPrice must be greater than zero.")]
+        [Range(5000, double.MaxValue, ErrorMessage = "TotalPrice must be greater than zero.")]
         public double TotalPrice { get; set; }       
         public string? Note { get; set; }
         public string? Phone { get; set; }

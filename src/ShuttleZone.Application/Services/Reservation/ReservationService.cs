@@ -44,6 +44,11 @@ namespace ShuttleZone.Application.Services.Reservation
             {
                 foreach (var detail in request.ReservationDetails)
                 {
+
+                    if (detail.StartTime < DateTime.Now.AddMinutes(30))
+                    {
+                        throw new ArgumentException("That reservations can only be made for a time at least 30 minutes in the future.");
+                    }
                     if (detail.StartTime >= detail.EndTime)
                     {
                         throw new ArgumentException("StartTime must be less than EndTime for ReservationDetails.");
@@ -65,7 +70,7 @@ namespace ShuttleZone.Application.Services.Reservation
             requestEntity.ExpiredTime = requestEntity.BookingDate.AddMinutes(10);
             await _unitOfWork.ReservationRepository.AddAsync(requestEntity);
             var addSuccess = await _unitOfWork.Complete();
-            return addSuccess; 
+            return addSuccess;
         }
 
         public IQueryable<ReservationResponse> GetMyReservation(Guid currentUser)
@@ -96,7 +101,10 @@ namespace ShuttleZone.Application.Services.Reservation
 
         public bool HasOverlappingReservation(Guid? courtId, DateTime startTime, DateTime endTime)
         {
-            return _unitOfWork.ReservationDetailRepository.GetAll().Any(d => d.CourtId == courtId &&
+            return _unitOfWork.ReservationDetailRepository.GetAll().Include(d => d.Reservation).
+                                Any(d => (d.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.PAYSUCCEED 
+                                || (d.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.PENDING
+                                && d.Reservation.ExpiredTime < DateTime.Now)) && d.CourtId == courtId &&
                                                          d.StartTime < endTime &&
                                                          d.EndTime > startTime);
         }

@@ -60,13 +60,13 @@ public class ClubService : IClubService
         return dtoClubs;
     }
 
-    public IQueryable<CreateClubRequestDetailReponse> GetCreateClubRequests()
+    public IQueryable<ClubRequestDetailReponse> GetCreateClubRequests()
     {
         var queryableClubs = _clubRepository
             .GetAll();
 
         return queryableClubs
-            .ProjectTo<CreateClubRequestDetailReponse>(_mapper.ConfigurationProvider);        
+            .ProjectTo<ClubRequestDetailReponse>(_mapper.ConfigurationProvider);        
     }
 
 
