@@ -2,8 +2,9 @@ namespace ShuttleZone.Domain.Enums;
 
 public enum ClubStatusEnum
 {
-    Open,
     Closed,
+    Open,
+    RequestPending,
     CreateRequestAccepted,
     CreateRequestDenied
 

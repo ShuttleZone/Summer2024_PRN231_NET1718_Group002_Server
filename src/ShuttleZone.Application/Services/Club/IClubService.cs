@@ -1,4 +1,6 @@
+
 using ShuttleZone.Domain.WebRequests.Club;
+
 using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Club;
 
@@ -21,8 +23,9 @@ public interface IClubService
     /// <returns>A <see cref="DtoClubResponse"/>.</returns>
     DtoClubResponse? GetClub(Guid key);
 
-    IQueryable<ClubRequestDetailReponse> GetCreateClubRequests();
-
+    IQueryable<CreateClubRequestDetailReponse> GetCreateClubRequests();
+    bool AcceptClubRequest(Guid ClubId);
     Task<DtoClubResponse> AddClubAsync(CreateClubRequest request);
+
 
 }

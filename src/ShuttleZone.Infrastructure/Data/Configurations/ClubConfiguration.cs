@@ -24,7 +24,7 @@ public class ClubConfiguration : IEntityTypeConfiguration<Club>
             ClubAddress = "123 Main St",
             ClubPhone = "555-1234",
             ClubDescription = "A premier fitness club.",
-            ClubStatusEnum = ClubStatusEnum.Open,
+            ClubStatusEnum = ClubStatusEnum.RequestPending,
             OpenTime = TimeOnly.Parse("06:00:00"),
             CloseTime = TimeOnly.Parse("22:00:00"),
             MinDuration = 1.5,
@@ -58,7 +58,7 @@ public class ClubConfiguration : IEntityTypeConfiguration<Club>
             ClubAddress = "789 Oak St",
             ClubPhone = "555-9012",
             ClubDescription = "A vibrant dance studio.",
-            ClubStatusEnum = ClubStatusEnum.Open,
+            ClubStatusEnum = ClubStatusEnum.RequestPending,
             OpenTime = TimeOnly.Parse("08:00:00"),
             CloseTime = TimeOnly.Parse("21:00:00"),
             MinDuration = 2,
@@ -67,6 +67,57 @@ public class ClubConfiguration : IEntityTypeConfiguration<Club>
             CreatedBy = "Admin",
             LastModified = DateTime.Now,
             LastModifiedBy = "Admin"
-        });
+        },new Club
+        {
+            Id = Guid.Parse("1c9e8457-4a2d-4b93-b71b-1b6876cbcf78"),
+            ClubName = "Health Club B",
+            ClubAddress = "456 Oak Ave",
+            ClubPhone = "555-5678",
+            ClubDescription = "A state-of-the-art health club.",
+            ClubStatusEnum = ClubStatusEnum.Open,
+            OpenTime = TimeOnly.Parse("05:30:00"),
+            CloseTime = TimeOnly.Parse("21:00:00"),
+            MinDuration = 1.0,
+            OwnerId = Guid.Parse("b9a4d872-f450-4c33-836e-11d383ad2bc2"),
+            Created = DateTime.Now,
+            CreatedBy = "Admin",
+            LastModified = DateTime.Now,
+            LastModifiedBy = "Admin"
+        },
+        new Club
+        {
+            Id = Guid.Parse("3d7a6244-e920-4e9e-9e97-5c6f0a5d539e"),
+            ClubName = "Yoga Center C",
+            ClubAddress = "789 Pine St",
+            ClubPhone = "555-7890",
+            ClubDescription = "A peaceful yoga center.",
+            ClubStatusEnum = ClubStatusEnum.RequestPending,
+            OpenTime = TimeOnly.Parse("07:00:00"),
+            CloseTime = TimeOnly.Parse("20:00:00"),
+            MinDuration = 2.0,
+            OwnerId = Guid.Parse("b9a4d872-f450-4c33-836e-11d383ad2bc2"),
+            Created = DateTime.Now,
+            CreatedBy = "Admin",
+            LastModified = DateTime.Now,
+            LastModifiedBy = "Admin"
+        },
+        new Club
+        {
+            Id = Guid.Parse("7ac14b60-7e89-4e2a-a6ad-6ff6de3d88e7"),
+            ClubName = "Swimming Club D",
+            ClubAddress = "321 Elm St",
+            ClubPhone = "555-3210",
+            ClubDescription = "A club with excellent swimming facilities.",
+            ClubStatusEnum = ClubStatusEnum.RequestPending,
+            OpenTime = TimeOnly.Parse("06:30:00"),
+            CloseTime = TimeOnly.Parse("22:30:00"),
+            MinDuration = 1.5,
+            OwnerId = Guid.Parse("40e8ca6a-06c0-4deb-8bec-c3919817b8cf"),
+            Created = DateTime.Now,
+            CreatedBy = "Admin",
+            LastModified = DateTime.Now,
+            LastModifiedBy = "Admin"
+        }
+        );
     }
 }

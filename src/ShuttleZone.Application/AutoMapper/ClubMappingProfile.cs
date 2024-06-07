@@ -18,6 +18,7 @@ public class ClubMappingProfile : Profile
         CreateMap<Review, DtoReviewResponse>();
         CreateMap<ClubImage, DtoClubImageResponse>();
         CreateMap<Court, DtoCourt>();
+        CreateMap<Club, AcceptClubRequestDto>();
         CreateMap<OpenDateInWeek, DtoOpenDateInWeek>();
         CreateMap<CreateClubRequest, Club>()
             .ForMember(club => club.ClubDescription, opt => opt.MapFrom(x => x.ClubDescription))
@@ -27,5 +28,6 @@ public class ClubMappingProfile : Profile
             .ForMember(club => club.OpenTime, opt => opt.MapFrom(x => DateTimeHelper.FormatToTimeOnly(x.Settings.OpenTime)))
             .ForMember(club => club.CloseTime, opt => opt.MapFrom(x => DateTimeHelper.FormatToTimeOnly(x.Settings.CloseTime)))
             .ForMember(club => club.MinDuration, opt => opt.MapFrom(x => x.Settings.MinDuration));
+
     }
 }

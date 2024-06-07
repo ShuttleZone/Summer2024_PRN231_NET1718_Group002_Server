@@ -40,10 +40,12 @@ public class AccountService : IAccountService
         }
 
         var roleResult = await _userManager.AddToRoleAsync(appUser, "Customer");
+       
         if (roleResult.Succeeded)
         {
             var createdAccount =  new NewAccountDto
             {
+                Id = appUser.Id,
                 Username = appUser.UserName,
                 Email = appUser.Email,
                 Fullname = appUser.Fullname,
@@ -51,10 +53,11 @@ public class AccountService : IAccountService
             };
             return createdAccount;
         }
-        if (!roleResult.Succeeded) throw new Exception("Register role failed!");
-
-        return null;
-
+        else
+        {
+                await _userManager.DeleteAsync(appUser);
+            throw new Exception("Register role failed!");
+        }
     }
 
     public async Task<NewAccountDto> Login(LoginDto loginDto)
@@ -72,6 +75,7 @@ public class AccountService : IAccountService
 
         var loginAcc = new NewAccountDto
         {
+            Id = user.Id,
             Username = user.UserName,
             Fullname = user.Fullname,
             Email = user.Email,

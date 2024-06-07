@@ -1,5 +1,13 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+
+using Microsoft.AspNetCore.Http.HttpResults;
+using ShuttleZone.Common.Attributes;
+using ShuttleZone.DAL.Common.Interfaces;
+using ShuttleZone.DAL.Repositories;
+using ShuttleZone.Domain.Enums;
+using ShuttleZone.Domain.WebRequests;
+
 using ShuttleZone.Application.Services.File;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
@@ -7,6 +15,7 @@ using ShuttleZone.DAL.DependencyInjection.Repositories.User;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests.Club;
+
 using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Club;
 
@@ -20,6 +29,8 @@ public class ClubService : IClubService
     private readonly IFileService _fileService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
+
 
     public ClubService(IClubRepository clubRepository, IMapper mapper, IUnitOfWork unitOfWork, IUserRepository userRepository, IFileService fileService)
     {
@@ -58,6 +69,19 @@ public class ClubService : IClubService
             .ProjectTo<ClubRequestDetailReponse>(_mapper.ConfigurationProvider);        
     }
 
+
+    public bool AcceptClubRequest(Guid ClubId)
+    {
+        var club = _clubRepository.Get(c => c.Id == ClubId);
+        if (club != null)
+        {
+            club.ClubStatusEnum = ClubStatusEnum.CreateRequestDenied;
+            _clubRepository.Update(club);
+            return true;
+        }
+        return false;
+     }
+    
     public async Task<DtoClubResponse> AddClubAsync(CreateClubRequest request)
     {
         var owner = _userRepository.GetAll().FirstOrDefault() ?? throw new Exception("not have user");
