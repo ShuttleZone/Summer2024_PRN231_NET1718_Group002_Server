@@ -1,4 +1,6 @@
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.OData;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
@@ -12,10 +14,10 @@ using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Domain.WebResponses.Club;
 using ShuttleZone.Domain.WebResponses.Contest;
 using ShuttleZone.Common.Settings;
-using ShuttleZone.Domain.Entities;
-using ShuttleZone.Domain.WebResponses.ReservationDetails;
 using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.Enums;
+using ShuttleZone.Domain.WebResponses.ReservationDetails;
+using ShuttleZone.Domain.WebResponses.Reservations;
 
 
 namespace ShuttleZone.Api.DependencyInjection;
@@ -27,10 +29,16 @@ public static class DependencyInjection
         const string routePrefix = "api";
         services
             .AddControllers()
-            .AddOData(opt => 
+            .AddOData(opt =>
+            {
                 opt
-                .AddRouteComponents(routePrefix, GetEdmModel())
-                .EnableQueryFeatures());
+                    .AddRouteComponents(routePrefix, GetEdmModel())
+                    .EnableQueryFeatures();
+            })
+            .AddJsonOptions(opt =>
+            {
+                opt.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
+            });
 
         return services;
     }
@@ -88,6 +96,7 @@ public static class DependencyInjection
         builder.EntitySet<DtoClubResponse>(GetControllerShortName<ClubsController>());        
         builder.EntityType<DtoReviewResponse>();
         builder.EntityType<DtoClubImageResponse>();
+        builder.EntityType<DtoOpenDateInWeek>();
 
         #endregion
 
@@ -99,16 +108,20 @@ public static class DependencyInjection
         builder.EntitySet<DtoCourtResponse>(GetControllerShortName<CourtsController>());
         builder.EntityType<DtoReservationDetail>();
         builder.EntityType<CreateCourtRequest>();
-        // builder.EnumType<CourtType>();
-        // builder.EnumType<CourtStatus>();
+        builder.EnumType<CourtType>();
+        builder.EnumType<CourtStatus>();
+      
         #endregion
 
         builder.EntitySet<DtoContestResponse>(GetControllerShortName<ContestsController>());
         builder.EntityType<UserContestDto>().HasKey(cr => new{cr.ContestId, cr.ParticipantsId});
 
-        builder.EntitySet<DtoReservationDetail>(GetControllerShortName<ReservationDetailsController>());
+        #region Reservation Models
+        builder.EntityType<DtoReservationDetail>();
+        builder.EntitySet<ReservationDetailsResponse>(GetControllerShortName<ReservationDetailsController>());
+        builder.EntitySet<ReservationResponse>(GetControllerShortName<ReservationController>());
+        #endregion
 
-        
         builder.EnableLowerCamelCase();
 
         return builder.GetEdmModel();
@@ -123,5 +136,21 @@ public static class DependencyInjection
     {
         services.Configure<VNPaySettings>(configuration.GetSection(nameof(VNPaySettings)));
         return services;
+    }
+
+    private class TimeOnlyJsonConverter : JsonConverter<TimeOnly>
+    {
+        private const string TimeFormat = "HH:mm";
+
+
+        public override TimeOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return TimeOnly.ParseExact(reader.GetString()!, TimeFormat);
+        }
+
+        public override void Write(Utf8JsonWriter writer, TimeOnly value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString(TimeFormat));
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using ShuttleZone.Common.Attributes;
+using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Implementations;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Infrastructure.Data.Interfaces;

@@ -30,24 +30,10 @@ public sealed class CourtsController : BaseApiController
         return court;
     }
 
-    public ActionResult Post([FromBody] CreateCourtRequest createCourtRequest)
+    public async Task<IActionResult> Post([FromForm] CreateCourtRequest request, CancellationToken cancellationToken)
     {
-        // var court =  _courtService.GetCourtById(key);
-        Console.WriteLine(createCourtRequest);
-        // if (createCourtRequest == null)
-        // {
-        //     return BadRequest();
-        // }
-
-        return Created(
-            new CreateCourtRequest()
-            {
-                Name = "",
-                ClubId = Guid.NewGuid(),
-                CourtType = Domain.Enums.CourtType.Date,
-                CourtStatus = Domain.Enums.CourtStatus.Available,
-                Price = 0.0
-            }
-        );
+        return await HandleResultAsync(
+            async () => await _courtService.CreateCourtAsync(request, cancellationToken).ConfigureAwait(false)
+        ).ConfigureAwait(false);
     }
 }

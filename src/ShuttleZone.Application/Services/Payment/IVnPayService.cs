@@ -7,5 +7,5 @@ namespace ShuttleZone.Application.Services.Payment;
 public interface IVnPayService
 {
     string CreatePaymentUrl(HttpContext context, VnPayRequest request);
-    VnPayResponse PaymentExecute(VnPayResponse response);
+    VnPayResponse PaymentExecute(VnPayResponse response, bool isIPN = false);
 }

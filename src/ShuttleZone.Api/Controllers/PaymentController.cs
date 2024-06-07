@@ -36,5 +36,19 @@ namespace ShuttleZone.Api.Controllers
             
         }
 
+        [HttpGet("/IPN")]
+        public IActionResult IPN([FromQuery] VnPayResponse response)
+        {
+            try
+            {
+                return Ok(_vnPayService.PaymentExecute(response, true));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+        }
+
     }
 }

@@ -1,6 +1,9 @@
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.Repositories;
+using ShuttleZone.DAL.Repositories.Court;
+using ShuttleZone.DAL.Repositories.ReservationDetail;
+using ShuttleZone.DAL.Repositories.Transaction;
 using ShuttleZone.Infrastructure.Data.Interfaces;
 
 namespace ShuttleZone.DAL.Common.Implementations
@@ -18,9 +21,19 @@ namespace ShuttleZone.DAL.Common.Implementations
 
         public IReservationRepository ReservationRepository => new ReservationRepository(_context, _readOnlyContext);
         public IClubRepository ClubRepository => new ClubRepository(_context, _readOnlyContext);
+        public IReservationDetailRepository ReservationDetailRepository => new ReservationDetailRepository(_context, _readOnlyContext);
+        public ICourtRepository CourtRepository => new CourtRepository(_context, _readOnlyContext);
+        public ITransactionRepository TransactionRepository => new TransactionRepository(_context, _readOnlyContext);
         public async Task<bool> Complete()
         {
             return await Task.Run(() => _context.SaveChanges()) > 0;
+        }
+
+        public async Task<bool> Complete(CancellationToken cancellationToken = default)
+        {
+            var changes = await _context.SaveChangesAsync(cancellationToken);
+            var saveChangesSuccessfully = changes > 0;
+            return saveChangesSuccessfully;
         }
 
         public void Dispose()

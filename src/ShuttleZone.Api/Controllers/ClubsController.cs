@@ -1,11 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
-using Microsoft.AspNetCore.OData.Routing.Attributes;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services;
 using ShuttleZone.Application.Services.ReservationDetail;
-using ShuttleZone.Domain.WebRequests;
+using ShuttleZone.Domain.WebRequests.Club;
 using ShuttleZone.Domain.WebResponses;
+using SystemRole = ShuttleZone.Domain.Constants.SystemRole;
 
 
 namespace ShuttleZone.Api.Controllers;
@@ -56,11 +57,13 @@ public class ClubsController : BaseApiController
     
     [EnableQuery]
     [HttpGet("Clubs({key:Guid})/reservations-details")]
+    // [Authorize(Roles = SystemRole.Manager)]
     public ActionResult<DtoClubResponse> GetReservation([FromRoute]Guid key)
     {
         var reservationDetail = _reservationDetailService.GetClubReservationDetails(key);
         return Ok(reservationDetail);
     }
+
 
     public ActionResult Put([FromRoute] Guid key)
     {
@@ -68,5 +71,14 @@ public class ClubsController : BaseApiController
         if (club == false)
             return NotFound();
         return Updated(club);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Post([FromForm] CreateClubRequest request)
+    {
+        return await HandleResultAsync(
+            async () => await _clubService.AddClubAsync(request).ConfigureAwait(false)
+        ).ConfigureAwait(false);
+
     }
 }
