@@ -1,4 +1,6 @@
-﻿namespace ShuttleZone.Domain.WebResponses.Club
+﻿using ShuttleZone.Domain.Enums;
+
+namespace ShuttleZone.Domain.WebResponses.Club
 {
     public class CreateClubRequestDetailReponse
     {
@@ -7,7 +9,7 @@
         public string ClubAddress { get; set; } = null!;
         public string ClubPhone { get; set; } = null!;
         public string ClubDescription { get; set; } = null!;
-        public string? Status { get; set; } 
+        public ClubStatusEnum Status { get; set; } 
 
         public TimeOnly OpenTime { get; set; }
         public TimeOnly CloseTime { get; set; }
