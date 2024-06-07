@@ -44,6 +44,11 @@ namespace ShuttleZone.Application.Services.Reservation
             {
                 foreach (var detail in request.ReservationDetails)
                 {
+
+                    if (detail.StartTime < DateTime.Now.AddMinutes(30))
+                    {
+                        throw new ArgumentException("That reservations can only be made for a time at least 30 minutes in the future.");
+                    }
                     if (detail.StartTime >= detail.EndTime)
                     {
                         throw new ArgumentException("StartTime must be less than EndTime for ReservationDetails.");

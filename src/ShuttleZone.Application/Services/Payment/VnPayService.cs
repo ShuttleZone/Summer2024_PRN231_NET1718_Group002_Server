@@ -72,7 +72,7 @@ namespace ShuttleZone.Application.Services.Payment
             {
                 Double.TryParse(response.vnp_Amount, out double result);
                 var reservationId = new Guid(response.vnp_OrderInfo ?? throw new Exception("Invalid reservation"));
-                var reservation = _unitOfWork.ReservationRepository.Get(r => r.Id == reservationId) ?? throw new Exception("Invalid reservation"));
+                var reservation = _unitOfWork.ReservationRepository.Get(r => r.Id == reservationId) ?? throw new Exception("Invalid reservation");
 
                 var isPaySucceed = (response.vnp_ResponseCode?.Equals("00") ?? false)
                     && (response.vnp_TransactionStatus?.Equals("00") ?? false);
