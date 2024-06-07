@@ -23,7 +23,7 @@ public interface IClubService
     /// <returns>A <see cref="DtoClubResponse"/>.</returns>
     DtoClubResponse? GetClub(Guid key);
 
-    IQueryable<CreateClubRequestDetailReponse> GetCreateClubRequests();
+    IQueryable<ClubRequestDetailReponse> GetCreateClubRequests();
     bool AcceptClubRequest(Guid ClubId);
     Task<DtoClubResponse> AddClubAsync(CreateClubRequest request);
 
