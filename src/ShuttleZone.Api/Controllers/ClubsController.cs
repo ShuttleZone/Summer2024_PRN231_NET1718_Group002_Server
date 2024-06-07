@@ -56,7 +56,7 @@ public class ClubsController : BaseApiController
     
     [EnableQuery]
     [HttpGet("Clubs({key:Guid})/reservations-details")]
-    [Authorize(Roles = SystemRole.Manager)]
+    // [Authorize(Roles = SystemRole.Manager)]
     public ActionResult<DtoClubResponse> GetReservation([FromRoute]Guid key)
     {
         var reservationDetail = _reservationDetailService.GetClubReservationDetails(key);
