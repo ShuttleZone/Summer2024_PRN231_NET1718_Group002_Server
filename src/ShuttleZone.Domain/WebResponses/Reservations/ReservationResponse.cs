@@ -6,6 +6,7 @@ namespace ShuttleZone.Domain.WebResponses.Reservations
     {
         public Guid Id { get; set; } 
         public DateTime BookingDate { get; set; } 
+        public DateTime ExpiredTime { get; set; } 
         public double TotalPrice { get; set; }
         public string? ReservationStatusEnum { get; set; }    
         public ICollection<string>? CourtNames { get; set; }       

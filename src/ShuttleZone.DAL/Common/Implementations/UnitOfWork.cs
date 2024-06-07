@@ -3,6 +3,7 @@ using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.DAL.Repositories.Court;
 using ShuttleZone.DAL.Repositories.ReservationDetail;
+using ShuttleZone.DAL.Repositories.Transaction;
 using ShuttleZone.Infrastructure.Data.Interfaces;
 
 namespace ShuttleZone.DAL.Common.Implementations
@@ -21,6 +22,7 @@ namespace ShuttleZone.DAL.Common.Implementations
         public IReservationRepository ReservationRepository => new ReservationRepository(_context, _readOnlyContext);
         public IReservationDetailRepository ReservationDetailRepository => new ReservationDetailRepository(_context, _readOnlyContext);
         public ICourtRepository CourtRepository => new CourtRepository(_context, _readOnlyContext);
+        public ITransactionRepository TransactionRepository => new TransactionRepository(_context, _readOnlyContext);
 
         public async Task<bool> Complete()
         {

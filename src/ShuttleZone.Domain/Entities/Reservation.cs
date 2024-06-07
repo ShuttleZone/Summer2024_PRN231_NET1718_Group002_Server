@@ -5,7 +5,8 @@ namespace ShuttleZone.Domain.Entities;
 
 public class Reservation : BaseAuditableEntity<Guid>
 {
-    public DateTime BookingDate { get; set; } = DateTime.UtcNow;    
+    public DateTime BookingDate { get; set; } = DateTime.Now;    
+    public DateTime ExpiredTime { get; set; } = DateTime.Now;    
     public double TotalPrice { get; set; }
     public ReservationStatusEnum ReservationStatusEnum { get; set; } = ReservationStatusEnum.PENDING;
     public string? Note { get; set; }

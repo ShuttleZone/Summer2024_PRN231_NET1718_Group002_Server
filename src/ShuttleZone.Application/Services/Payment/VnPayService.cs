@@ -7,6 +7,8 @@ using ShuttleZone.Domain.WebResponses.Payment;
 using Microsoft.AspNetCore.Http;
 using System.Reflection;
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.DAL.Common.Interfaces;
+using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Application.Services.Payment
 {
@@ -14,9 +16,12 @@ namespace ShuttleZone.Application.Services.Payment
     public class VnPayService : IVnPayService
     {
         private readonly VNPaySettings _vnPaySettings;
-        public VnPayService(IOptions<VNPaySettings> vnPaySettings)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public VnPayService(IOptions<VNPaySettings> vnPaySettings, IUnitOfWork unitOfWork)
         {
             _vnPaySettings = vnPaySettings.Value;
+            _unitOfWork = unitOfWork;
         }
 
         public string CreatePaymentUrl(HttpContext context, VnPayRequest vnPayRequest)
@@ -29,7 +34,7 @@ namespace ShuttleZone.Application.Services.Payment
             vnpay.AddRequestData(VnPayConstansts.COMMAND, VnPayConstansts.PAY_COMMAND);
             vnpay.AddRequestData(VnPayConstansts.TMN_CODE, _vnPaySettings.TmnCode);
             vnpay.AddRequestData(VnPayConstansts.AMOUNT, (vnPayRequest.Amount * 100).ToString());
-            vnpay.AddRequestData(VnPayConstansts.CREATE_DATE, vnPayRequest.CreatedDate.ToString("yyyyMMddHHmmss"));
+            vnpay.AddRequestData(VnPayConstansts.CREATE_DATE, DateTime.Now.ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData(VnPayConstansts.CURR_CODE, _vnPaySettings.CurrencyCode);
             vnpay.AddRequestData(VnPayConstansts.IP_ADDRESS, Utils.GetIpAddress(context));
             vnpay.AddRequestData(VnPayConstansts.LOCALE, _vnPaySettings.Locale);
@@ -44,7 +49,7 @@ namespace ShuttleZone.Application.Services.Payment
             return paymentUrl;
         }
 
-        public VnPayResponse PaymentExecute(VnPayResponse response)
+        public VnPayResponse PaymentExecute(VnPayResponse response, bool isIPN = false)
         {
             var vnpay = new VnPayLibrary();
 
@@ -63,7 +68,21 @@ namespace ShuttleZone.Application.Services.Payment
             {
                 throw new Exception("SecureHash does not match");
             }
-
+            if (isIPN)
+            {
+                Double.TryParse(response.vnp_Amount, out double result);
+                _unitOfWork.TransactionRepository.Add(new Domain.Entities.Transaction()
+                {
+                    Id = new Guid(),
+                    PaymentMethod = PaymentMethod.VNPAY,
+                    Amount = result,
+                    TransactionStatus = (response.vnp_ResponseCode?.Equals("00") ?? false)
+                    && (response.vnp_TransactionStatus?.Equals("00") ?? false)
+                    ? TransactionStatusEnum.SUCCESS : TransactionStatusEnum.FAIL,
+                    ReservationId = new Guid(response.vnp_OrderInfo ?? throw new Exception("Invalid reservation"))
+                });
+            }
+            
             return response;
         }
     }
