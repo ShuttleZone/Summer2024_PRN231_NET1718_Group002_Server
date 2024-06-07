@@ -23,6 +23,6 @@ public interface IClubService
 
     IQueryable<CreateClubRequestDetailReponse> GetCreateClubRequests();
 
-    AcceptClubRequestDto AcceptClubRequest(Guid ClubId);
+    bool AcceptClubRequest(Guid ClubId);
 
 }

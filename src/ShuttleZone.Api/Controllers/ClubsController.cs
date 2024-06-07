@@ -26,6 +26,7 @@ public class ClubsController : BaseApiController
     {
         _clubService = clubService;
         _reservationDetailService = reservationDetailService;
+
     }
 
     /// <summary>
@@ -61,15 +62,11 @@ public class ClubsController : BaseApiController
         return Ok(reservationDetail);
     }
 
-    // public ActionResult Put([FromRoute] Guid key, [FromBody] AcceptClubRequestDto dto)
-    // {
-    //     var club = _clubService.AcceptClubRequest(key);
-    //
-    //     if (club != null)
-    //     {
-    //         club.ClubStatusEnum = dto.ClubStatusEnum;
-    //     }
-    //
-    //     return Updated(club);
-    // }
+    public ActionResult Put([FromRoute] Guid key)
+    {
+        var club = _clubService.AcceptClubRequest(key);
+        if (club == false)
+            return NotFound();
+        return Updated(club);
+    }
 }

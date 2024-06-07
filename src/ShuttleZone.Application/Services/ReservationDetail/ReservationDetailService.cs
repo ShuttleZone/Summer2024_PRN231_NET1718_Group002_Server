@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
+using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Repositories.ReservationDetail;
 using ShuttleZone.Domain.WebResponses.Court;
 
 namespace ShuttleZone.Application.Services.ReservationDetail;
-
+[AutoRegister]
 public class ReservationDetailService : IReservationDetailService
 {
     private readonly IReservationDetailRepository _reservationDetailRepository;

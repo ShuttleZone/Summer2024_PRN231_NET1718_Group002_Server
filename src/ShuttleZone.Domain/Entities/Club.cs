@@ -9,7 +9,7 @@ public class Club : BaseAuditableEntity<Guid>
     public required string ClubAddress { get; set; }
     public required string ClubPhone { get; set; }
     public required string ClubDescription { get; set; }
-    public ClubStatusEnum ClubStatusEnum { get; set; }
+    public ClubStatusEnum ClubStatusEnum { get; set; } = ClubStatusEnum.RequestPending;
     public TimeOnly OpenTime { get; set; }
     public TimeOnly CloseTime { get; set; }
     public double MinDuration { get; set; }

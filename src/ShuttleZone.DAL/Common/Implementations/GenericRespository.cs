@@ -88,6 +88,7 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : cla
     public void Update(T entity)
     {
         _entities.Update(entity);
+        _context.SaveChanges();
     }
 
     public void UpdateMany(IEnumerable<T> entities)

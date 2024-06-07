@@ -1,6 +1,8 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Http.HttpResults;
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Domain.Enums;
 using ShuttleZone.Domain.WebRequests;
@@ -14,11 +16,13 @@ public class ClubService : IClubService
 {
     private readonly IClubRepository _clubRepository;
     private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public ClubService(IClubRepository clubRepository, IMapper mapper)
+    public ClubService(IClubRepository clubRepository, IMapper mapper, IUnitOfWork unitOfWork)
     {
         _clubRepository = clubRepository;
         _mapper = mapper;
+        _unitOfWork = unitOfWork;
     }
 
     public DtoClubResponse? GetClub(Guid key)
@@ -50,10 +54,15 @@ public class ClubService : IClubService
             .ProjectTo<CreateClubRequestDetailReponse>(_mapper.ConfigurationProvider);        
     }
 
-    public AcceptClubRequestDto AcceptClubRequest(Guid ClubId)
+    public bool AcceptClubRequest(Guid ClubId)
     {
         var club = _clubRepository.Get(c => c.Id == ClubId);
-        var clubRequestDto =  _mapper.Map<AcceptClubRequestDto>(club);
-        return clubRequestDto;
+        if (club != null)
+        {
+            club.ClubStatusEnum = ClubStatusEnum.CreateRequestDenied;
+            _clubRepository.Update(club);
+            return true;
+        }
+        return false;
     }
 }
