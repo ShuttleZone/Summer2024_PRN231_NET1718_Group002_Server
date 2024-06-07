@@ -102,7 +102,7 @@ namespace ShuttleZone.Application.Services.Reservation
         public bool HasOverlappingReservation(Guid? courtId, DateTime startTime, DateTime endTime)
         {
             return _unitOfWork.ReservationDetailRepository.GetAll().Include(d => d.Reservation).
-                                Any(d => (d.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.PAYSUCCEED 
+                                Any(d => (d.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.PAYSUCCEED
                                 || (d.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.PENDING
                                 && d.Reservation.ExpiredTime < DateTime.Now)) && d.CourtId == courtId &&
                                                          d.StartTime < endTime &&
