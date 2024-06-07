@@ -1,5 +1,6 @@
 using AutoMapper;
 using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Club;
 
@@ -16,5 +17,6 @@ public class ClubMappingProfile : Profile
         CreateMap<Review, DtoReviewResponse>();
         CreateMap<ClubImage, DtoClubImageResponse>();
         CreateMap<Court, DtoCourt>();
+        CreateMap<Club, AcceptClubRequestDto>();
     }
 }

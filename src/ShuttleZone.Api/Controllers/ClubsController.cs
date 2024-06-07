@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.OData.Routing.Attributes;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services;
 using ShuttleZone.Application.Services.ReservationDetail;
+using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebResponses;
 
 
@@ -59,4 +60,16 @@ public class ClubsController : BaseApiController
         var reservationDetail = _reservationDetailService.GetClubReservationDetails(key);
         return Ok(reservationDetail);
     }
+
+    // public ActionResult Put([FromRoute] Guid key, [FromBody] AcceptClubRequestDto dto)
+    // {
+    //     var club = _clubService.AcceptClubRequest(key);
+    //
+    //     if (club != null)
+    //     {
+    //         club.ClubStatusEnum = dto.ClubStatusEnum;
+    //     }
+    //
+    //     return Updated(club);
+    // }
 }

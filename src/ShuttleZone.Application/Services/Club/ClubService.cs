@@ -2,6 +2,8 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Repositories;
+using ShuttleZone.Domain.Enums;
+using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Club;
 
@@ -48,5 +50,10 @@ public class ClubService : IClubService
             .ProjectTo<CreateClubRequestDetailReponse>(_mapper.ConfigurationProvider);        
     }
 
-  
+    public AcceptClubRequestDto AcceptClubRequest(Guid ClubId)
+    {
+        var club = _clubRepository.Get(c => c.Id == ClubId);
+        var clubRequestDto =  _mapper.Map<AcceptClubRequestDto>(club);
+        return clubRequestDto;
+    }
 }

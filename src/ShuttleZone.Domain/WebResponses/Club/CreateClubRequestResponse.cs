@@ -10,7 +10,7 @@ namespace ShuttleZone.Domain.WebResponses.Club
         public string ClubAddress { get; set; } = null!;
         public string ClubPhone { get; set; } = null!;
         public string ClubDescription { get; set; } = null!;
-        public string Status { get; set; } = null!;
+        public ClubStatusEnum Status { get; set; } 
       
     }
     
