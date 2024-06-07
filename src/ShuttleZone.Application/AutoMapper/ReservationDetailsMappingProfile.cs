@@ -9,10 +9,12 @@ namespace ShuttleZone.Application.AutoMapper
     {
         public ReservationDetailsMappingProfile()
         {
-            CreateMap<ReservationDetail, ReservationDetailsResponse>();
+            
             CreateMap<ReservationDetail, DtoReservationDetail>()
                 .ForMember(dto => dto.Date, opt => opt.MapFrom(x 
                     => x.StartTime.Date));
+            CreateMap<ReservationDetail, ReservationDetailsResponse>()
+                .ForMember(dest=>dest.ReservationDetailStatus, opt=>opt.MapFrom(src=>src.ReservationDetailStatus.ToString()));
         }
     }
 }

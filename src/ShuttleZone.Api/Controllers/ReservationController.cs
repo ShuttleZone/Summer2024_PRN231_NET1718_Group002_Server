@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Reservation;
 using ShuttleZone.Application.Services.Token;
@@ -22,6 +23,14 @@ namespace ShuttleZone.Api.Controllers
             var authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
             var token = authorizationHeader.Replace("bearer", "", StringComparison.OrdinalIgnoreCase).Trim();
             return token;
+        }
+
+        [EnableQuery]
+        public IActionResult Get()
+        {
+            //placeholder for logined user
+            var userId = new Guid("26A7CC4E-3F9B-4923-809E-2F9B771D994F");
+            return Ok(_reservationService.GetMyReservation(userId));
         }
 
         [HttpPost("make-booking")]

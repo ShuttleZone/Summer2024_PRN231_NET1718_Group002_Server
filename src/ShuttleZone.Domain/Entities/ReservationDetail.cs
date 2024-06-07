@@ -8,7 +8,7 @@ public class ReservationDetail : BaseEntity<int>
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public double Price { get; set; }
-    public ReservationStatusEnum ReservationDetailStatus { get; set; }
+    public ReservationStatusEnum ReservationDetailStatus { get; set; } = ReservationStatusEnum.PENDING;
     
     public Guid? CourtId { get; set; }
     public Court Court { get; set; } = null!;

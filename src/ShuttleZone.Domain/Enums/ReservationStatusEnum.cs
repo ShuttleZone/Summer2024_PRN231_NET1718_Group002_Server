@@ -2,6 +2,7 @@ namespace ShuttleZone.Domain.Enums;
 
 public enum ReservationStatusEnum
 {
-    VALID,
-    CANCEL
+    PENDING,
+    PAYSUCCEED, //if reservation is expired and not paysucceed, it payfail   
+    CANCELLED
 }
