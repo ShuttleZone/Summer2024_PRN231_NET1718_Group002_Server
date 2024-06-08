@@ -1,23 +1,17 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-
-using Microsoft.AspNetCore.Http.HttpResults;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Domain.Enums;
-using ShuttleZone.Domain.WebRequests;
-
 using ShuttleZone.Application.Services.File;
-using ShuttleZone.Common.Attributes;
-using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.DependencyInjection.Repositories.User;
-using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests.Club;
-
 using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Club;
+using ShuttleZone.Application.Services.Token;
+using ShuttleZone.Application.Common.Interfaces;
 
 namespace ShuttleZone.Application.Services;
 
@@ -28,44 +22,55 @@ public class ClubService : IClubService
     private readonly IUserRepository _userRepository;
     private readonly IFileService _fileService;
     private readonly IMapper _mapper;
+    private readonly ITokenService _tokenService;
+    private readonly IUser _currentUser;
     private readonly IUnitOfWork _unitOfWork;
 
-
-    public ClubService(IClubRepository clubRepository, IMapper mapper, IUnitOfWork unitOfWork, IUserRepository userRepository, IFileService fileService)
+    public ClubService(
+        IClubRepository clubRepository,
+        IMapper mapper,
+        IUnitOfWork unitOfWork,
+        IUserRepository userRepository,
+        IFileService fileService,
+        ITokenService tokenService,
+        IUser currentUser
+    )
     {
         _clubRepository = clubRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _userRepository = userRepository;
         _fileService = fileService;
+        _tokenService = tokenService;
+        _currentUser = currentUser;
     }
 
     public DtoClubResponse? GetClub(Guid key)
     {
         var club = _clubRepository
-            .Find(c => c.Id == key)
+            .Find(c => c.Id == key && (c.ClubStatusEnum == ClubStatusEnum.Open || c.ClubStatusEnum == ClubStatusEnum.CreateRequestAccepted))
             .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider)
             .FirstOrDefault();
 
         return club;
     }
-    
+
     public IQueryable<DtoClubResponse> GetClubs()
     {
         var queryableClubs = _clubRepository
-            .GetAll();
+            .Find(c => c.ClubStatusEnum == ClubStatusEnum.Open || c.ClubStatusEnum == ClubStatusEnum.CreateRequestAccepted);
         var dtoClubs = queryableClubs
             .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider);
         return dtoClubs;
     }
 
-    public IQueryable<CreateClubRequestDetailReponse> GetCreateClubRequests()
+    public IQueryable<ClubRequestDetailReponse> GetCreateClubRequests()
     {
         var queryableClubs = _clubRepository
             .GetAll();
 
         return queryableClubs
-            .ProjectTo<CreateClubRequestDetailReponse>(_mapper.ConfigurationProvider);        
+            .ProjectTo<ClubRequestDetailReponse>(_mapper.ConfigurationProvider);
     }
 
 
@@ -79,8 +84,8 @@ public class ClubService : IClubService
             return true;
         }
         return false;
-     }
-    
+    }
+
     public async Task<DtoClubResponse> AddClubAsync(CreateClubRequest request)
     {
         var owner = _userRepository.GetAll().FirstOrDefault() ?? throw new Exception("not have user");
@@ -90,14 +95,26 @@ public class ClubService : IClubService
         await _unitOfWork.Complete();
         // club.OpenDateInWeeks
         var daysInWeek = request.DaysInWeekOpen
-            .Select(x => new OpenDateInWeek { Date = x});
+            .Select(x => new OpenDateInWeek { Date = x });
         var images = await _fileService.UploadMultipleFileAsync(request.Files);
-        var clubImages = images.Select(x => new ClubImage() { ImageUrl = x});
+        var clubImages = images.Select(x => new ClubImage() { ImageUrl = x });
         club.OpenDateInWeeks = daysInWeek.ToList();
         club.ClubImages = clubImages.ToList();
         _clubRepository.Update(club);
         await _unitOfWork.Complete();
         return _mapper.Map<DtoClubResponse>(club);
     }
+
+    public IQueryable<DtoClubResponse> GetMyClubs()
+    {
+        var userId = _currentUser.Id;
+        ArgumentNullException.ThrowIfNull(userId, nameof(userId));
+        var queryableClubs = _clubRepository
+            .Find(c => c.OwnerId == new Guid(userId) && (c.ClubStatusEnum == ClubStatusEnum.Open || c.ClubStatusEnum == ClubStatusEnum.CreateRequestAccepted))
+            // .GetAll()
+            // .Where(c => c.OwnerId == new Guid(userId))
+            .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider);
+
+        return queryableClubs;
+    }
 }
- 

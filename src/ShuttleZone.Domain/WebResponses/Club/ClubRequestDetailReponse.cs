@@ -2,14 +2,14 @@
 
 namespace ShuttleZone.Domain.WebResponses.Club
 {
-    public class CreateClubRequestDetailReponse
+    public class ClubRequestDetailReponse
     {
         public Guid Id { get; set; }
         public string ClubName { get; set; } = null!;
         public string ClubAddress { get; set; } = null!;
         public string ClubPhone { get; set; } = null!;
         public string ClubDescription { get; set; } = null!;
-        public ClubStatusEnum Status { get; set; } 
+        public string? Status { get; set; } 
 
         public TimeOnly OpenTime { get; set; }
         public TimeOnly CloseTime { get; set; }

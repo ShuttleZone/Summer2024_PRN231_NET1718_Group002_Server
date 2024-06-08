@@ -25,6 +25,7 @@ namespace ShuttleZone.Api.Controllers
         [HttpGet("payment-callback")]
         public IActionResult PaymentCallBack([FromQuery] VnPayResponse response)
         {
+            Console.WriteLine("PaymentCallBack");
             try
             {
                 return Ok(_vnPayService.PaymentExecute(response));
