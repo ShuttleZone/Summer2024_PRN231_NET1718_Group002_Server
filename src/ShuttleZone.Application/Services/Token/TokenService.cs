@@ -94,7 +94,7 @@ public class TokenService : ITokenService
             var jwtSecurityToken = (JwtSecurityToken)validatedToken;
             var userName = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == "name")?.Value;
             var userId = jwtSecurityToken.Subject;
-            var role = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == "role")!.Value;
+            var role = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == "role")?.Value ?? "";
             var authModel = new AuthModel
             {
                 UserId = Guid.Parse(userId),

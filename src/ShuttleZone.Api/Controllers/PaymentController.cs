@@ -28,7 +28,7 @@ namespace ShuttleZone.Api.Controllers
             Console.WriteLine("PaymentCallBack");
             try
             {
-                return Ok(_vnPayService.PaymentExecute(response));
+                return Ok(_vnPayService.PaymentExecute(response, true));
             }
             catch(Exception e) 
             {

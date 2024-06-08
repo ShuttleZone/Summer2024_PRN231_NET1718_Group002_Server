@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
+using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.Services;
 using ShuttleZone.Application.Services.ReservationDetail;
 using ShuttleZone.Domain.WebRequests.Club;
@@ -18,15 +19,17 @@ public class ClubsController : BaseApiController
 {
     private readonly IClubService _clubService;
     private readonly IReservationDetailService _reservationDetailService;
+    private readonly IUser _currentUser;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ClubsController"/> class.
     /// </summary>
     /// <param name="clubService">The service for club management.</param>
-    public ClubsController(IClubService clubService, IReservationDetailService reservationDetailService)
+    public ClubsController(IClubService clubService, IReservationDetailService reservationDetailService, IUser currentUser)
     {
         _clubService = clubService;
         _reservationDetailService = reservationDetailService;
+        _currentUser = currentUser;
 
     }
 
