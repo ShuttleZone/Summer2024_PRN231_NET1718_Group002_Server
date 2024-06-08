@@ -64,6 +64,16 @@ public class ClubsController : BaseApiController
         return Ok(reservationDetail);
     }
 
+    [EnableQuery]
+    // [Authorize(Roles = SystemRole.Manager)]
+    [Authorize]
+    [HttpGet("/api/Clubs/my-clubs")]
+    public IActionResult GetMyClubs()
+    {
+        return base.HandleResult(
+            () => _clubService.GetMyClubs()
+        );
+    }
 
     public ActionResult Put([FromRoute] Guid key)
     {

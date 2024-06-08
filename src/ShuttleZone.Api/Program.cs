@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using ShuttleZone.Api.Services;
+using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Infrastructure.Data;
 
@@ -44,6 +46,8 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddDALServices();
 builder.Services.AddAppCors(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUser, CurrentUser>();
 
 builder.Services.AddIdentity<User, Role>(options =>
 {
