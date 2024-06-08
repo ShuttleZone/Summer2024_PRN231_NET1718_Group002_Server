@@ -93,7 +93,7 @@ public static class DependencyInjection
         // TODO: Add OData models
         #region Club Models
 
-        builder.EntitySet<DtoClubResponse>(GetControllerShortName<ClubsController>());        
+        builder.EntitySet<DtoClubResponse>(GetControllerShortName<ClubsController>());
         builder.EntityType<DtoReviewResponse>();
         builder.EntityType<DtoClubImageResponse>();
         builder.EntityType<DtoOpenDateInWeek>();

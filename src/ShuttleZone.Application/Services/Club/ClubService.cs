@@ -10,6 +10,8 @@ using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests.Club;
 using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Club;
+using ShuttleZone.Application.Services.Token;
+using ShuttleZone.Application.Common.Interfaces;
 
 namespace ShuttleZone.Application.Services;
 
@@ -21,15 +23,26 @@ public class ClubService : IClubService
     private readonly IFileService _fileService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly ITokenService _tokenService;
+    private readonly IUser _currentUser;
 
-
-    public ClubService(IClubRepository clubRepository, IMapper mapper, IUnitOfWork unitOfWork, IUserRepository userRepository, IFileService fileService)
+    public ClubService(
+        IClubRepository clubRepository,
+        IMapper mapper,
+        IUnitOfWork unitOfWork,
+        IUserRepository userRepository,
+        IFileService fileService,
+        ITokenService tokenService,
+        IUser currentUser
+    )
     {
         _clubRepository = clubRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _userRepository = userRepository;
         _fileService = fileService;
+        _tokenService = tokenService;
+        _currentUser = currentUser;
     }
 
     public DtoClubResponse? GetClub(Guid key)
@@ -90,5 +103,17 @@ public class ClubService : IClubService
         _clubRepository.Update(club);
         await _unitOfWork.Complete();
         return _mapper.Map<DtoClubResponse>(club);
+    }
+
+    public IQueryable<DtoClubResponse> GetMyClubs()
+    {
+        var userId = _currentUser.Id;
+        ArgumentNullException.ThrowIfNull(userId, nameof(userId));
+        var queryableClubs = _clubRepository
+            .GetAll()
+            .Where(c => c.OwnerId == new Guid(userId))
+            .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider);
+
+        return queryableClubs;
     }
 }
