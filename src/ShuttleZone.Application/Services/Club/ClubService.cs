@@ -48,7 +48,9 @@ public class ClubService : IClubService
     public DtoClubResponse? GetClub(Guid key)
     {
         var club = _clubRepository
-            .Find(c => c.Id == key && (c.ClubStatusEnum == ClubStatusEnum.Open || c.ClubStatusEnum == ClubStatusEnum.CreateRequestAccepted))
+            //.Find(c => c.Id == key && (c.ClubStatusEnum == ClubStatusEnum.Open || c.ClubStatusEnum == ClubStatusEnum.CreateRequestAccepted))
+            .Find(c => c.Id == key)
+
             .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider)
             .FirstOrDefault();
 
@@ -58,7 +60,9 @@ public class ClubService : IClubService
     public IQueryable<DtoClubResponse> GetClubs()
     {
         var queryableClubs = _clubRepository
-            .Find(c => c.ClubStatusEnum == ClubStatusEnum.Open || c.ClubStatusEnum == ClubStatusEnum.CreateRequestAccepted);
+            //.Find(c => c.ClubStatusEnum == ClubStatusEnum.Open || c.ClubStatusEnum == ClubStatusEnum.CreateRequestAccepted);
+            .Find(c => true);
+
         var dtoClubs = queryableClubs
             .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider);
         return dtoClubs;
@@ -88,7 +92,9 @@ public class ClubService : IClubService
 
     public async Task<DtoClubResponse> AddClubAsync(CreateClubRequest request)
     {
-        var owner = _userRepository.GetAll().FirstOrDefault() ?? throw new Exception("not have user");
+        if (_currentUser.Id == null)
+            throw new Exception("Not found ID");
+        var owner = _userRepository.Find(x => x.Id == Guid.Parse(_currentUser.Id)).FirstOrDefault() ?? throw new Exception("not have user");
         var club = _mapper.Map<Club>(request);
         club.OwnerId = owner.Id;
         await _clubRepository.AddAsync(club);
@@ -110,7 +116,7 @@ public class ClubService : IClubService
         var userId = _currentUser.Id;
         ArgumentNullException.ThrowIfNull(userId, nameof(userId));
         var queryableClubs = _clubRepository
-            .Find(c => c.OwnerId == new Guid(userId) && (c.ClubStatusEnum == ClubStatusEnum.Open || c.ClubStatusEnum == ClubStatusEnum.CreateRequestAccepted))
+            .Find(c => c.OwnerId == new Guid(userId) )
             // .GetAll()
             // .Where(c => c.OwnerId == new Guid(userId))
             .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider);
