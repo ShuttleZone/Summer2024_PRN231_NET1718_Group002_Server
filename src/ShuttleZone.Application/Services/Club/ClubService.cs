@@ -27,7 +27,6 @@ public class ClubService : IClubService
     private readonly IClubRepository _clubRepository;
     private readonly IUserRepository _userRepository;
     private readonly IFileService _fileService;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
 

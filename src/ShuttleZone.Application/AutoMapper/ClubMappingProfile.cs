@@ -1,6 +1,7 @@
 using AutoMapper;
 using ShuttleZone.Common.Helpers;
 using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebRequests.Club;
 using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Club;
