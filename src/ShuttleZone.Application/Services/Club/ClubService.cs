@@ -48,7 +48,7 @@ public class ClubService : IClubService
     public DtoClubResponse? GetClub(Guid key)
     {
         var club = _clubRepository
-            .Find(c => c.Id == key)
+            .Find(c => c.Id == key && (c.ClubStatusEnum == ClubStatusEnum.Open || c.ClubStatusEnum == ClubStatusEnum.CreateRequestAccepted))
             .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider)
             .FirstOrDefault();
 
@@ -58,7 +58,7 @@ public class ClubService : IClubService
     public IQueryable<DtoClubResponse> GetClubs()
     {
         var queryableClubs = _clubRepository
-            .GetAll();
+            .Find(c => c.ClubStatusEnum == ClubStatusEnum.Open || c.ClubStatusEnum == ClubStatusEnum.CreateRequestAccepted);
         var dtoClubs = queryableClubs
             .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider);
         return dtoClubs;
@@ -110,8 +110,9 @@ public class ClubService : IClubService
         var userId = _currentUser.Id;
         ArgumentNullException.ThrowIfNull(userId, nameof(userId));
         var queryableClubs = _clubRepository
-            .GetAll()
-            .Where(c => c.OwnerId == new Guid(userId))
+            .Find(c => c.OwnerId == new Guid(userId) && (c.ClubStatusEnum == ClubStatusEnum.Open || c.ClubStatusEnum == ClubStatusEnum.CreateRequestAccepted))
+            // .GetAll()
+            // .Where(c => c.OwnerId == new Guid(userId))
             .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider);
 
         return queryableClubs;
