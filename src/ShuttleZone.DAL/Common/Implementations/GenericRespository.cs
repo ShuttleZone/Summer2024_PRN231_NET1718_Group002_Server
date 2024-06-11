@@ -67,20 +67,40 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : cla
 
     public IQueryable<T> Find(Expression<Func<T, bool>> predicate)
     {
+        return _entities.Where(predicate);
+    }
+
+    public IQueryable<T> FindAsNoTracking(Expression<Func<T, bool>> predicate)
+    {
         return _readOnlyEntities.Where(predicate);
     }
 
     public T? Get(Expression<Func<T, bool>> predicate)
     {
-        return _readOnlyEntities.FirstOrDefault(predicate);
+        return _entities.FirstOrDefault(predicate);
     }
 
     public IQueryable<T> GetAll()
     {
+        return _entities;
+    }
+
+    public IQueryable<T> GetAllAsNoTracking()
+    {
         return _readOnlyEntities;
     }
 
+    public T? GetAsNoTracking(Expression<Func<T, bool>> predicate)
+    {
+        return _readOnlyEntities.FirstOrDefault(predicate);
+    }
+
     public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+    {
+        return await _entities.FirstOrDefaultAsync(predicate, cancellationToken);
+    }
+
+    public async Task<T?> GetAsyncAsNoTracking(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
     {
         return await _readOnlyEntities.FirstOrDefaultAsync(predicate, cancellationToken);
     }

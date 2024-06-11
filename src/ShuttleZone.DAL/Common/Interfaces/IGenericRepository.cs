@@ -11,9 +11,13 @@ public interface IGenericRepository<T> where T : class
     void Update(T entity);
 
     IQueryable<T> GetAll();
+    IQueryable<T> GetAllAsNoTracking();
     T? Get(Expression<Func<T, bool>> predicate);
+    T? GetAsNoTracking(Expression<Func<T, bool>> predicate);
     Task<T?> GetAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<T?> GetAsyncAsNoTracking(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
     IQueryable<T> Find(Expression<Func<T, bool>> predicate);
+    IQueryable<T> FindAsNoTracking(Expression<Func<T, bool>> predicate);
 
     long Count(Expression<Func<T, bool>> predicate);
     Task<long> CountAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
