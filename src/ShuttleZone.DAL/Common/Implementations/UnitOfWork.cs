@@ -29,7 +29,7 @@ namespace ShuttleZone.DAL.Common.Implementations
             return await Task.Run(() => _context.SaveChanges()) > 0;
         }
 
-        public async Task<bool> Complete(CancellationToken cancellationToken = default)
+        public async Task<bool> CompleteAsync(CancellationToken cancellationToken = default)
         {
             var changes = await _context.SaveChangesAsync(cancellationToken);
             var saveChangesSuccessfully = changes > 0;
