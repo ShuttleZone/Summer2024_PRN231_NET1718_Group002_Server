@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services;
-using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebResponses.Contest;
 
 namespace ShuttleZone.Api.Controllers;
@@ -40,4 +39,11 @@ public class ContestsController : BaseApiController
     //     return Ok(contest);
     // }
 
+    [Authorize]
+    public async Task<IActionResult> Post([FromBody] CreateContestRequest request, CancellationToken cancellationToken = default)
+    {
+        return await HandleResultAsync(
+            async () => await _contestService.CreateContestAsync(request, cancellationToken).ConfigureAwait(false)
+        ).ConfigureAwait(false);
+    }
 }

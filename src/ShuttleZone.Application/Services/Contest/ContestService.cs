@@ -2,8 +2,10 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebResponses.Contest;
 
 namespace ShuttleZone.Application.Services;
@@ -12,11 +14,13 @@ namespace ShuttleZone.Application.Services;
 public class ContestService : IContestService
 {
     private readonly IContestRepository _contestRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    public ContestService(IContestRepository contestRepository, IMapper mapper)
+    public ContestService(IContestRepository contestRepository, IMapper mapper, IUnitOfWork unitOfWork)
     {
         _contestRepository = contestRepository;
+        _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
 
@@ -51,5 +55,15 @@ public class ContestService : IContestService
         var dtoContest = contest.ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
 
         return contest;
+    }
+
+    public async Task<DtoContestResponse> CreateContestAsync(CreateContestRequest request, CancellationToken cancellationToken)
+    {
+        var contest = _mapper.Map<Contest>(request);
+
+        await _contestRepository.AddAsync(contest, cancellationToken);
+        await _unitOfWork.CompleteAsync(cancellationToken);
+        var response = _mapper.Map<DtoContestResponse>(contest);
+        return response;
     }
 }

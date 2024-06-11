@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Common.Attributes;
@@ -44,7 +43,7 @@ public class CourtService : ICourtService
         court.CreatedBy = "Admin";
         court.LastModified = DateTime.Now;
         await _courtRepository.AddAsync(court, cancellationToken);
-        await _unitOfWork.Complete(cancellationToken);
+        await _unitOfWork.CompleteAsync(cancellationToken);
 
         var createdCourt = await _courtRepository.Find(x => x.Id == court.Id)
             .ProjectTo<DtoCourtResponse>(_mapper.ConfigurationProvider)
