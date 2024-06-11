@@ -1,10 +1,13 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.Common.Exceptions;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.Enums;
 using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebResponses.Contest;
 
@@ -16,12 +19,14 @@ public class ContestService : IContestService
     private readonly IContestRepository _contestRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IUser _currentUser;
 
-    public ContestService(IContestRepository contestRepository, IMapper mapper, IUnitOfWork unitOfWork)
+    public ContestService(IContestRepository contestRepository, IMapper mapper, IUnitOfWork unitOfWork, IUser currentUser)
     {
         _contestRepository = contestRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _currentUser = currentUser;
     }
 
     public IQueryable<DtoContestResponse> GetContests()
@@ -59,7 +64,26 @@ public class ContestService : IContestService
 
     public async Task<DtoContestResponse> CreateContestAsync(CreateContestRequest request, CancellationToken cancellationToken)
     {
+        HttpException.New()
+            .WithStatusCode(401)
+            .WithErrorMessage("You are not authorized to create a contest")
+            .ThrowIfNull(_currentUser.Id)
+            .ThrowIf(!Guid.TryParse(_currentUser.Id, out var userIdAsGuid));
+
+        var contestCreator = new UserContest
+        {
+            ParticipantsId = userIdAsGuid,
+            isCreatedPerson = true,
+            isWinner = false,
+            Point = 0
+        };
         var contest = _mapper.Map<Contest>(request);
+        contest.MaxPlayer = 2;
+        contest.ContestStatus = ContestStatusEnum.Open;
+        contest.CreatedBy = _currentUser.Id;
+        contest.Created = DateTime.UtcNow;
+        contest.LastModified = DateTime.UtcNow;
+        contest.UserContests.Add(contestCreator);
 
         await _contestRepository.AddAsync(contest, cancellationToken);
         await _unitOfWork.CompleteAsync(cancellationToken);
