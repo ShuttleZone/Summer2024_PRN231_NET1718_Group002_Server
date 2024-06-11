@@ -14,6 +14,7 @@ public class AccountService : IAccountService
     private readonly UserManager<User> _userManager;
     private readonly ITokenService _tokenService;
     private readonly SignInManager<User> _signInManager;
+     
     public AccountService(UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager)
     {
         _userManager = userManager;
@@ -36,7 +37,7 @@ public class AccountService : IAccountService
         var result = await _userManager.CreateAsync(appUser, registerDto.Password);
         if (!result.Succeeded)
         {
-            throw new Exception("Register failed!");
+            throw new Exception(result.Errors.First().Description);
         }
 
         var roleResult = await _userManager.AddToRoleAsync(appUser, "Customer");

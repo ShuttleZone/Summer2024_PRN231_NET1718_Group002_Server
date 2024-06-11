@@ -42,8 +42,6 @@ public class TokenService : ITokenService
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.Now.AddDays(30),
             SigningCredentials = creds,
-            Issuer = _configuration["JWT:Issuer"],
-            Audience = _configuration["JWT:Audience"]
         };
 
         var tokenHandle = new JwtSecurityTokenHandler();
@@ -58,10 +56,6 @@ public class TokenService : ITokenService
         var tokenHandler = new JwtSecurityTokenHandler();
         var tokenValidationParameters = new TokenValidationParameters()
         {
-            ValidIssuer = _configuration["JWT:Issuer"],
-            ValidAudience = _configuration["JWT:Audience"],
-            ValidateAudience = true,
-            ValidateIssuer = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SigningKey"]!))
         };
         try
@@ -82,10 +76,6 @@ public class TokenService : ITokenService
         var tokenHandler = new JwtSecurityTokenHandler();
         var tokenValidationParameters = new TokenValidationParameters()
         {
-            ValidIssuer = _configuration["JWT:Issuer"],
-            ValidAudience = _configuration["JWT:Audience"],
-            ValidateAudience = true,
-            ValidateIssuer = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SigningKey"]!))
         };
         try
