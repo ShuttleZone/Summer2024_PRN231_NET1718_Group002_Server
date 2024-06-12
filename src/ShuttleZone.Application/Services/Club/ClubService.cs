@@ -83,6 +83,18 @@ public class ClubService : IClubService
         var club = _clubRepository.Get(c => c.Id == ClubId);
         if (club != null)
         {
+            club.ClubStatusEnum = ClubStatusEnum.CreateRequestAccepted;
+            _clubRepository.Update(club);
+            return true;
+        }
+        return false;
+    }
+    
+    public bool RejectClubRequest(Guid ClubId)
+    {
+        var club = _clubRepository.Get(c => c.Id == ClubId);
+        if (club != null)
+        {
             club.ClubStatusEnum = ClubStatusEnum.CreateRequestDenied;
             _clubRepository.Update(club);
             return true;
