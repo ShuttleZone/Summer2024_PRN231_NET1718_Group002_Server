@@ -13,7 +13,7 @@ namespace ShuttleZone.DAL.Common.Interfaces
         ITransactionRepository TransactionRepository { get; }
         Task<bool> Complete();
         IClubRepository ClubRepository { get; }
-        Task<bool> Complete(CancellationToken cancellationToken = default);
+        Task<bool> CompleteAsync(CancellationToken cancellationToken = default);
 
     }
 }
