@@ -30,7 +30,7 @@ public class TokenService : ITokenService
         {
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
             new Claim(JwtRegisteredClaimNames.GivenName, user.UserName!),
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
         };
         
         claims.AddRange(roles.Select(c => new Claim(ClaimTypes.Role, c)));
