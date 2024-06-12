@@ -33,18 +33,15 @@ namespace ShuttleZone.Api.Controllers
         public IActionResult Get()
         {
             //placeholder for logined user
-            // var userId = new Guid("26A7CC4E-3F9B-4923-809E-2F9B771D994F");
-            var authModel = _tokenService.GetAuthModel(GetJwtToken());
-            return Ok(_reservationService.GetMyReservation(authModel.UserId));
+            var context = HttpContext.User;
+            var userId = new Guid(_currentUser.Id?? throw new ArgumentNullException());
+            return Ok(_reservationService.GetMyReservation(userId));
         }
 
         [HttpPost("make-booking")]
         [Authorize]
         public async Task<IActionResult> CreateBooking([FromForm] CreateReservationRequest request)
         {
-            //placeholder for logined user
-            // var userId = new Guid("26A7CC4E-3F9B-4923-809E-2F9B771D994F");
-            // var authModel = _tokenService.GetAuthModel(GetJwtToken());
             try
             {
                 ArgumentNullException.ThrowIfNull(_currentUser.Id, nameof(request)); // should throw other exception type and handle it in the catch block

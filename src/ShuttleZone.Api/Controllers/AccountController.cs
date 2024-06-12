@@ -89,7 +89,7 @@ public class AccountController : BaseApiController
         };
 
         // Set the token in cookies
-        SetCookiesToken(createdAccount.Token);
+        // SetCookiesToken(createdAccount.Token);
 
         // Return success response with the token
         return Ok($"User created: {createdAccount.Token}");
