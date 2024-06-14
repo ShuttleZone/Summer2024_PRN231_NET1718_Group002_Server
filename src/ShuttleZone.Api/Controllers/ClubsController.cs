@@ -85,6 +85,15 @@ public class ClubsController : BaseApiController
             return NotFound();
         return Updated(club);
     }
+    
+    [HttpPut("/api/Clubs/rejectRequest/{key}")]
+    public ActionResult RejectRequestPut([FromRoute] Guid key)
+    {
+        var club = _clubService.RejectClubRequest(key);
+        if (club == false)
+            return NotFound();
+        return Updated(club);
+    }
 
     [HttpPost]
     public async Task<IActionResult> Post([FromForm] CreateClubRequest request)
