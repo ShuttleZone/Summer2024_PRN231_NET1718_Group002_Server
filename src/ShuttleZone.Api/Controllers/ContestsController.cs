@@ -46,4 +46,12 @@ public class ContestsController : BaseApiController
             async () => await _contestService.CreateContestAsync(request, cancellationToken).ConfigureAwait(false)
         ).ConfigureAwait(false);
     }
+
+    [Authorize]
+    public async Task<IActionResult> Put([FromRoute] Guid key)
+    {
+        return await HandleResultAsync(
+            async () => await _contestService.JoinContest(key, UserId).ConfigureAwait(false)
+        ).ConfigureAwait(false);
+    }
 }

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Reservation;
-using ShuttleZone.Application.Services.Token;
 using ShuttleZone.Domain.WebRequests.Reservations;
 
 namespace ShuttleZone.Api.Controllers

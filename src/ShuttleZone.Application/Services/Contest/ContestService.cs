@@ -62,9 +62,9 @@ public class ContestService : IContestService
             .Include(c => c.UserContests)
             .ThenInclude(uc => uc.Participant)
             .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider).FirstOrDefault();
-           
+
         // var dtoContest = queryableContest.ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
-    
+
         return queryableContest;
     }
 
@@ -94,6 +94,7 @@ public class ContestService : IContestService
 
         var minTimeToStart = DateTime.Now.AddMinutes(30);
         var minDuration = TimeSpan.FromMinutes(30);
+        
         var court = await _courtRepository
             .FindAsNoTracking(c => c.Id == request.CourtId)
             .Include(c => c.Club)
@@ -173,5 +174,29 @@ public class ContestService : IContestService
         await _unitOfWork.CompleteAsync(cancellationToken);
         var response = _mapper.Map<DtoContestResponse>(contest);
         return response;
+    }
+
+    public async Task JoinContest(Guid contestId, Guid userId)
+    {
+        var contest = _unitOfWork.ContestRepository.Find(c => c.Id == contestId).Include(c => c.UserContests).FirstOrDefault()
+            ?? throw new HttpException(400, $"Contest with id {contestId} is not existed");
+
+        var isJoined = contest.UserContests.Exists(c => c.ParticipantsId == userId);
+        if (isJoined)
+            throw new HttpException(400, $"You are already in this contest");
+
+        var isSlotRemaining = contest.MaxPlayer > contest.UserContests.Count();
+        if (!isSlotRemaining)
+            throw new HttpException(400, $"The contest is full slot");
+
+        contest.UserContests.Add(
+            new UserContest
+            {
+                ParticipantsId = userId,
+                ContestId = contestId
+            });
+
+        await _unitOfWork.CompleteAsync();
+
     }
 }
