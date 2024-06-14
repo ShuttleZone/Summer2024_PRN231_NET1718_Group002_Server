@@ -1,3 +1,4 @@
+using ShuttleZone.DAL.DependencyInjection.Repositories.Review;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.DAL.Repositories.Court;
 using ShuttleZone.DAL.Repositories.ReservationDetail;
@@ -14,6 +15,7 @@ namespace ShuttleZone.DAL.Common.Interfaces
         Task<bool> Complete();
         IClubRepository ClubRepository { get; }
         Task<bool> CompleteAsync(CancellationToken cancellationToken = default);
+        IReviewRepository ReviewRepository { get; }
 
     }
 }

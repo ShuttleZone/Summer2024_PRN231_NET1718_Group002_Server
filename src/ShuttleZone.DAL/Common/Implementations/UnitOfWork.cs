@@ -1,5 +1,6 @@
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
+using ShuttleZone.DAL.DependencyInjection.Repositories.Review;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.DAL.Repositories.Court;
 using ShuttleZone.DAL.Repositories.ReservationDetail;
@@ -24,6 +25,8 @@ namespace ShuttleZone.DAL.Common.Implementations
         public IReservationDetailRepository ReservationDetailRepository => new ReservationDetailRepository(_context, _readOnlyContext);
         public ICourtRepository CourtRepository => new CourtRepository(_context, _readOnlyContext);
         public ITransactionRepository TransactionRepository => new TransactionRepository(_context, _readOnlyContext);
+        public IReviewRepository ReviewRepository  => new ReviewRepository(_context,_readOnlyContext);
+
         public async Task<bool> Complete()
         {
             return await Task.Run(() => _context.SaveChanges()) > 0;
@@ -35,6 +38,7 @@ namespace ShuttleZone.DAL.Common.Implementations
             var saveChangesSuccessfully = changes > 0;
             return saveChangesSuccessfully;
         }
+
 
         public void Dispose()
         {
