@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
-using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.Services.Reservation;
 using ShuttleZone.Application.Services.Token;
 using ShuttleZone.Domain.WebRequests.Reservations;
@@ -11,41 +10,27 @@ namespace ShuttleZone.Api.Controllers
 {
     public class ReservationController : BaseApiController
     {
-        private readonly IReservationService _reservationService;
-        private readonly ITokenService _tokenService;
-        private readonly IUser _currentUser;
+        private readonly IReservationService _reservationService;        
 
-        public ReservationController(IReservationService reservationService, ITokenService tokenService, IUser currentUser)
+        public ReservationController(IReservationService reservationService)
         {
             _reservationService = reservationService;
-            _tokenService = tokenService;
-            _currentUser = currentUser;
-        }
-        
-        private string GetJwtToken()
-        {
-            var authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            var token = authorizationHeader.Replace("bearer", "", StringComparison.OrdinalIgnoreCase).Trim();
-            return token;
-        }
+        }       
+    
 
         [EnableQuery]
         public IActionResult Get()
-        {
-            //placeholder for logined user
-            var userId = new Guid(_currentUser.Id ?? throw new ArgumentNullException());            
-            return Ok(_reservationService.GetMyReservation(userId));
+        {      
+            return Ok(_reservationService.GetMyReservation(UserId));
         }
 
         [HttpPost("make-booking")]
         [Authorize]
         public async Task<IActionResult> CreateBooking([FromForm] CreateReservationRequest request)
-        {
-            
+        {            
             try
-            {
-                ArgumentNullException.ThrowIfNull(_currentUser.Id, nameof(request)); // should throw other exception type and handle it in the catch block
-                var result = await _reservationService.CreateReservation(request, new Guid(_currentUser.Id), false);
+            {                
+                var result = await _reservationService.CreateReservation(request, UserId, false);
                 if (result)
                     return Ok();
                 else

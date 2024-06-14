@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using ShuttleZone.Common.Exceptions;
+using System.Security.Claims;
 
 namespace ShuttleZone.Api.Controllers.BaseControllers
 {
     public abstract class BaseApiController : ODataController
     {
+        protected Guid UserId => Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) ? userId : throw new ArgumentNullException();
+      
         /// <summary>
         /// Handles the result of an HTTP action without a return value.
         /// </summary>
