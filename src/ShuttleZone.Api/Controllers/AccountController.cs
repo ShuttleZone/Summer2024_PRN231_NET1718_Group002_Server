@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +6,7 @@ using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Account;
 using ShuttleZone.Application.Services.Token;
 using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebRequests.Account;
 
 namespace ShuttleZone.Api.Controllers;
@@ -121,6 +123,15 @@ public class AccountController : BaseApiController
             Token = _tokenService.CreateToken(user)
         };
         return Ok(loginAcc);
+    }
+
+    [Authorize]
+    [HttpPatch("password")]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request, CancellationToken cancellationToken)
+    {
+        return await HandleResultAsync(
+            async () => await _accountService.ChangePasswordAsync(request, cancellationToken).ConfigureAwait(false)
+        ).ConfigureAwait(false);
     }
 
     private void SetCookiesToken(string token)
