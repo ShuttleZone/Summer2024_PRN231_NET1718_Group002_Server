@@ -1,9 +1,11 @@
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.Services.Token;
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.Common.Exceptions;
 using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebRequests.Account;
 
 namespace ShuttleZone.Application.Services.Account;
@@ -14,12 +16,14 @@ public class AccountService : IAccountService
     private readonly UserManager<User> _userManager;
     private readonly ITokenService _tokenService;
     private readonly SignInManager<User> _signInManager;
+    private readonly IUser _currentUser;
      
-    public AccountService(UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager)
+    public AccountService(UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager, IUser currentUser)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _signInManager = signInManager;
+        _currentUser = currentUser;
     }
     
     public async Task<NewAccountDto?> Register(RegisterDto registerDto)
@@ -85,5 +89,27 @@ public class AccountService : IAccountService
 
         return loginAcc;
 
+    }
+
+    public async Task ChangePasswordAsync(ChangePasswordRequest request, CancellationToken cancellationToken)
+    {
+        HttpException.New()
+            .WithStatusCode(401)
+            .WithErrorMessage("Unauthorized")
+            .ThrowIfNull(_currentUser.Id);
+
+        var user = await _userManager.FindByIdAsync(_currentUser.Id.ToString());
+
+        HttpException.New()
+            .WithStatusCode(404)
+            .WithErrorMessage("User not found!")
+            .ThrowIfNull(user);
+
+        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+
+        HttpException.New()
+            .WithStatusCode(400)
+            .WithErrorMessage(result.Errors.FirstOrDefault()?.Description ?? "An error occurred while processing your request")
+            .ThrowIf(!result.Succeeded);
     }
 }
