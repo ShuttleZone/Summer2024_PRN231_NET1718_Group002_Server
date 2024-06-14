@@ -24,6 +24,7 @@ namespace ShuttleZone.DAL.Common.Implementations
         public IReservationDetailRepository ReservationDetailRepository => new ReservationDetailRepository(_context, _readOnlyContext);
         public ICourtRepository CourtRepository => new CourtRepository(_context, _readOnlyContext);
         public ITransactionRepository TransactionRepository => new TransactionRepository(_context, _readOnlyContext);
+        public IContestRepository ContestRepository => new ContestRepository(_context, _readOnlyContext);
         public async Task<bool> Complete()
         {
             return await Task.Run(() => _context.SaveChanges()) > 0;
