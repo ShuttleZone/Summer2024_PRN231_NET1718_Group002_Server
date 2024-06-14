@@ -8,5 +8,7 @@
         public DateTime EndTime { get; set; }
         public double Price { get; set; }
         public string? ReservationDetailStatus { get; set; }
+
+        public Guid ClubId { get; set; }
     }
 }
