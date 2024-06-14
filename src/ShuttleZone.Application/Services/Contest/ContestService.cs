@@ -25,6 +25,7 @@ public class ContestService : IContestService
     private readonly IReservationRepository _reservationRepository;
     private readonly IReservationDetailRepository _reservationDetailRepository;
     private readonly ICourtRepository _courtRepository;
+    private readonly IClubRepository _clubRepository;
 
     public ContestService
     (
@@ -34,7 +35,8 @@ public class ContestService : IContestService
         IUser currentUser,
         IReservationRepository reservationRepository,
         IReservationDetailRepository reservationDetailRepository,
-        ICourtRepository courtRepository
+        ICourtRepository courtRepository,
+        IClubRepository clubRepository
     )
     {
         _contestRepository = contestRepository;
@@ -44,6 +46,7 @@ public class ContestService : IContestService
         _reservationRepository = reservationRepository;
         _reservationDetailRepository = reservationDetailRepository;
         _courtRepository = courtRepository;
+        _clubRepository = clubRepository;
     }
 
     public IQueryable<DtoContestResponse> GetContests()
@@ -173,5 +176,29 @@ public class ContestService : IContestService
         await _unitOfWork.CompleteAsync(cancellationToken);
         var response = _mapper.Map<DtoContestResponse>(contest);
         return response;
+    }
+
+    // TODO: check if the user role is a club owner
+    // I'll do it later, maybe tomorrow 😴😴
+    public IQueryable<DtoContestResponse> GetMyClubContests(Guid clubId)
+    {
+        HttpException.New()
+            .WithStatusCode(401)
+            .WithErrorMessage("You are not authorized to view this page.")
+            .ThrowIfNull(_currentUser.Id)
+            .ThrowIf(!Guid.TryParse(_currentUser.Id, out var userIdAsGuid));
+
+        var contestsResponse = _clubRepository
+            .FindAsNoTracking(c => c.OwnerId == userIdAsGuid && c.Id == clubId)
+            .SelectMany(c => c.Courts)
+            .SelectMany(c => c.ReservationDetails)
+            .Where(r => r.Reservation != null)
+            .Select(r => r.Reservation)
+            .Where(r => r.Contest != null)
+            .Select(r => r.Contest)
+            .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider)
+            .AsSplitQuery();
+
+        return contestsResponse;
     }
 }

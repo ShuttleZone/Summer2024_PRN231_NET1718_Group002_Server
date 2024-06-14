@@ -10,4 +10,5 @@ public interface IContestService
     DtoContestResponse? GetContestByContestId(Guid contestId);
     IQueryable<Contest> GetContestDetail(Guid contestId);
     Task<DtoContestResponse> CreateContestAsync(CreateContestRequest request, CancellationToken cancellationToken);
+    IQueryable<DtoContestResponse> GetMyClubContests(Guid clubId);
 }
