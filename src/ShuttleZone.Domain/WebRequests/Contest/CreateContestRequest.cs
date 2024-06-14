@@ -4,7 +4,8 @@ public record CreateContestRequest
 (
     string? Policy,
     IReadOnlyCollection<ContestSlot> ContestSlots,
-    Guid CourtId
+    Guid CourtId,
+    uint MaxPlayer
 );
 
 public record ContestSlot

@@ -82,6 +82,11 @@ public class ContestService : IContestService
     public async Task<DtoContestResponse> CreateContestAsync(CreateContestRequest request, CancellationToken cancellationToken)
     {
         HttpException.New()
+            .WithStatusCode(400)
+            .WithErrorMessage("Number of players is invalid.")
+            .ThrowIf(request.MaxPlayer % 2 != 0);
+
+        HttpException.New()
             .WithStatusCode(401)
             .WithErrorMessage("You are not authorized to create a contest")
             .ThrowIfNull(_currentUser.Id)
@@ -89,11 +94,16 @@ public class ContestService : IContestService
 
         var minTimeToStart = DateTime.Now.AddMinutes(30);
         var minDuration = TimeSpan.FromMinutes(30);
-        var court = await _courtRepository.GetAsyncAsNoTracking(c => c.Id == request.CourtId, cancellationToken);
+        var court = await _courtRepository
+            .FindAsNoTracking(c => c.Id == request.CourtId)
+            .Include(c => c.Club)
+            .FirstOrDefaultAsync(cancellationToken);
+
         HttpException.New()
             .WithStatusCode(404)
             .WithErrorMessage($"Court {request.CourtId} does not exist.")
             .ThrowIfNull(court);
+
         foreach (var slot in request.ContestSlots)
         {
             var courtBooked = await _reservationDetailRepository
@@ -112,6 +122,8 @@ public class ContestService : IContestService
                 );
             HttpException.New()
                 .WithStatusCode(409)
+                .WithErrorMessage($"Court is not open at the selected time ({slot.StartTime} - {slot.EndTime}).")
+                .ThrowIf(slot.StartTime.TimeOfDay < court.Club.OpenTime.ToTimeSpan() || slot.EndTime.TimeOfDay > court.Club.CloseTime.ToTimeSpan())
                 .WithErrorMessage($"Court can only be booked in at least 30 minutes in the future.")
                 .ThrowIf(slot.StartTime < minTimeToStart)
                 .WithErrorMessage($"Contest duration must be at least {minDuration} minutes.")
@@ -150,7 +162,6 @@ public class ContestService : IContestService
         };
         var contest = _mapper.Map<Contest>(request);
         contest.ContestDate = request.ContestSlots.First().StartTime.Date;
-        contest.MaxPlayer = 2;
         contest.ContestStatus = ContestStatusEnum.Open;
         contest.CreatedBy = _currentUser.Id;
         contest.Created = DateTime.UtcNow;
