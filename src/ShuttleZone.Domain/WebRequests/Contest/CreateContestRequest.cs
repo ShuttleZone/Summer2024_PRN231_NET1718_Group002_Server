@@ -3,7 +3,12 @@ namespace ShuttleZone.Domain.WebRequests;
 public record CreateContestRequest
 (
     string? Policy,
-    DateTime StartTime,
-    DateTime EndTime,
+    IReadOnlyCollection<ContestSlot> ContestSlots,
     Guid CourtId
+);
+
+public record ContestSlot
+(
+    DateTime StartTime,
+    DateTime EndTime
 );

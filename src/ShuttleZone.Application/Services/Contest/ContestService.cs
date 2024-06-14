@@ -90,41 +90,36 @@ public class ContestService : IContestService
         var minTimeToStart = DateTime.Now.AddMinutes(30);
         var minDuration = TimeSpan.FromMinutes(30);
         var court = await _courtRepository.GetAsyncAsNoTracking(c => c.Id == request.CourtId, cancellationToken);
-        var courtBooked = await _reservationDetailRepository
-            .ExistsAsync(d => 
-                (
-                    // check if reservation is already paid or still pending but not expired
-                    d.ReservationDetailStatus == ReservationStatusEnum.PAYSUCCEED || 
-                    (d.ReservationDetailStatus == ReservationStatusEnum.PENDING && d.Reservation.ExpiredTime > DateTime.Now)
-                ) &&
-                (
-                    // check if time overlaps
-                    d.StartTime < request.EndTime &&
-                    d.EndTime > request.StartTime
-                ) &&
-                d.CourtId == request.CourtId
-            );
         HttpException.New()
             .WithStatusCode(404)
             .WithErrorMessage($"Court {request.CourtId} does not exist.")
-            .ThrowIfNull(court)
-            .WithStatusCode(409)
-            .WithErrorMessage("That reservations can only be made for a time at least 30 minutes in the future.")
-            .ThrowIf(request.StartTime < minTimeToStart)
-            .WithErrorMessage("Contest duration must be at least 30 minutes.")
-            .ThrowIf(request.StartTime - request.EndTime >= minDuration)
-            .WithErrorMessage($"Court {request.CourtId} is already booked during the requested time.")
-            .ThrowIf(courtBooked);
-
-        var reservationDetail = new Domain.Entities.ReservationDetail()
+            .ThrowIfNull(court);
+        foreach (var slot in request.ContestSlots)
         {
-            Id = 0, // Just a placeholder, this value will be replaced by the database itself. Btw, ReservationDetail.Id should be a Guid, not an int.
-            CourtId = request.CourtId,
-            StartTime = request.StartTime,
-            EndTime = request.EndTime,
-            ReservationDetailStatus = ReservationStatusEnum.PENDING,
-            Price = court.Price, // Placeholder value
-        };
+            var courtBooked = await _reservationDetailRepository
+                .ExistsAsync(d => 
+                    (
+                        // check if reservation is already paid or still pending but not expired
+                        d.ReservationDetailStatus == ReservationStatusEnum.PAYSUCCEED || 
+                        (d.ReservationDetailStatus == ReservationStatusEnum.PENDING && d.Reservation.ExpiredTime > DateTime.Now)
+                    ) &&
+                    (
+                        // check if time overlaps
+                        d.StartTime < slot.EndTime &&
+                        d.EndTime > slot.StartTime
+                    ) &&
+                    d.CourtId == request.CourtId
+                );
+            HttpException.New()
+                .WithStatusCode(409)
+                .WithErrorMessage($"Court can only be booked in at least 30 minutes in the future.")
+                .ThrowIf(slot.StartTime < minTimeToStart)
+                .WithErrorMessage($"Contest duration must be at least {minDuration} minutes.")
+                .ThrowIf(slot.StartTime - slot.EndTime >= minDuration)
+                .WithErrorMessage($"Court has already been booked from {slot.StartTime} to {slot.EndTime}.")
+                .ThrowIf(courtBooked);
+        }
+
         var reservation = new Domain.Entities.Reservation()
         {
             Id = Guid.NewGuid(),
@@ -133,7 +128,18 @@ public class ContestService : IContestService
             ExpiredTime = DateTime.Now.AddMinutes(10),
             ReservationStatusEnum = ReservationStatusEnum.PENDING,
         };
-        reservation.ReservationDetails.Add(reservationDetail);
+        foreach (var slot in request.ContestSlots)
+        {
+            reservation.ReservationDetails.Add(new Domain.Entities.ReservationDetail()
+            {
+                Id = 0, // Just a placeholder, this value will be replaced by the database itself. Btw, ReservationDetail.Id should be a Guid, not an int.
+                CourtId = request.CourtId,
+                StartTime = slot.StartTime,
+                EndTime = slot.EndTime,
+                ReservationDetailStatus = ReservationStatusEnum.PENDING,
+                Price = court.Price,
+            });
+        }
 
         var contestCreator = new UserContest
         {
@@ -143,7 +149,7 @@ public class ContestService : IContestService
             Point = 0
         };
         var contest = _mapper.Map<Contest>(request);
-        contest.ContestDate = request.StartTime.Date;
+        contest.ContestDate = request.ContestSlots.First().StartTime.Date;
         contest.MaxPlayer = 2;
         contest.ContestStatus = ContestStatusEnum.Open;
         contest.CreatedBy = _currentUser.Id;
