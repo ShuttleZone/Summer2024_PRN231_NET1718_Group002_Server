@@ -30,7 +30,7 @@ public class TokenService : ITokenService
         {
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
             new Claim(JwtRegisteredClaimNames.GivenName, user.UserName!),
-            new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString())
         };
         
         claims.AddRange(roles.Select(c => new Claim(ClaimTypes.Role, c)));
@@ -95,7 +95,7 @@ public class TokenService : ITokenService
         }
         catch (Exception e)
         {
-            throw new Exception("Invalid Token Exception", e.InnerException);
+            throw new Exception(e.Message);
         }
     }
 }

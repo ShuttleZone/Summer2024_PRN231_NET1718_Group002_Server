@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.Services.Reservation;
-using ShuttleZone.Application.Services.Token;
 
 namespace ShuttleZone.Api.Controllers
 {
@@ -30,15 +29,9 @@ namespace ShuttleZone.Api.Controllers
             var userId = new Guid(_user.Id?? throw new ArgumentNullException());
 
             var response = _reservationService.GetMyReservationDetails(userId);
-
             return Ok(response);
         }
-        private string GetJwtToken()
-        {
-            var authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            var token = authorizationHeader.Replace("bearer", "", StringComparison.OrdinalIgnoreCase).Trim();
-            return token;
-        }
+      
 
     }
 }

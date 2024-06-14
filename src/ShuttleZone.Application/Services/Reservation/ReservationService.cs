@@ -30,7 +30,8 @@ namespace ShuttleZone.Application.Services.Reservation
             var requestEntity = _mapper.Map<ShuttleZone.Domain.Entities.Reservation>(request);
             if (!isStaff)
             {
-                var user = await _userManager.FindByIdAsync(currentUser.ToString() ?? "")
+                var user = await _userManager.FindByIdAsync(currentUser.ToString()
+                                                            ?? throw new ArgumentNullException("UserId is null"))
                     ?? throw new InvalidOperationException("User not found");
                 requestEntity.CustomerId = currentUser;
             }
@@ -91,7 +92,7 @@ namespace ShuttleZone.Application.Services.Reservation
             var reservationDetailsQuery = _unitOfWork.ReservationRepository.GetAll()
                 .Where(r => r.CustomerId == currentUser)
                 .Include(r => r.ReservationDetails)
-                .SelectMany(r => r.ReservationDetails);
+                .SelectMany(r => r.ReservationDetails).Include(r => r.Court).ThenInclude(c => c.Club);        
 
             var reservationDetailsResponse = reservationDetailsQuery
                 .ProjectTo<ReservationDetailsResponse>(_mapper.ConfigurationProvider);
