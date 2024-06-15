@@ -4,5 +4,6 @@ public enum CourtStatus
 {
     Available,
     Occupied,
-    Maintain
+    Maintain,
+    Unavailable
 }

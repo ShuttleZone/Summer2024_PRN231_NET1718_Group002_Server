@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.DAL.Repositories.Court;
+using ShuttleZone.Domain.Enums;
 using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebResponses.Court;
 using CourtEntity = ShuttleZone.Domain.Entities.Court;
@@ -51,6 +53,34 @@ public class CourtService : ICourtService
         ArgumentNullException.ThrowIfNull(createdCourt, "Court not created");
 
         return createdCourt;
+    }
+
+    public bool DisableCourt(Guid courtId)
+    {
+        var court = _courtRepository.Get(c => c.Id == courtId);
+        try
+        {
+            if (court != null)
+            {
+                if (court.CourtStatus != CourtStatus.Unavailable)
+                {
+                    court.CourtStatus = CourtStatus.Unavailable;
+                    _courtRepository.Update(court);
+                    return true;
+                }else if (court.CourtStatus != CourtStatus.Available)
+                {
+                    court.CourtStatus = CourtStatus.Available;
+                    _courtRepository.Update(court);
+                    return true;
+                }
+                
+            }
+            throw new KeyNotFoundException();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     public IQueryable<DtoCourtResponse> GetAllCourts()
