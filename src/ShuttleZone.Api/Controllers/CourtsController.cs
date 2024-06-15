@@ -36,4 +36,10 @@ public sealed class CourtsController : BaseApiController
             async () => await _courtService.CreateCourtAsync(request, cancellationToken).ConfigureAwait(false)
         ).ConfigureAwait(false);
     }
+
+    [HttpPut("/api/Courts/disableCourt/{courtId}")]
+    public IActionResult DisableCourt([FromRoute] Guid courtId)
+    {
+        return Ok( _courtService.DisableCourt(courtId));
+    }
 }
