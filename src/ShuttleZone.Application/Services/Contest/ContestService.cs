@@ -11,6 +11,7 @@ using ShuttleZone.DAL.Repositories.ReservationDetail;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.Enums;
 using ShuttleZone.Domain.WebRequests;
+using ShuttleZone.Domain.WebRequests.Contest;
 using ShuttleZone.Domain.WebResponses.Contest;
 
 namespace ShuttleZone.Application.Services;
@@ -198,5 +199,31 @@ public class ContestService : IContestService
 
         await _unitOfWork.CompleteAsync();
 
+    }
+
+    public async Task UpdateContestAsync(UpdateContestRequest request)
+    {
+        var contest = _unitOfWork.ContestRepository.Find(c => c.Id == request.Id).Include(c => c.UserContests).FirstOrDefault()
+            ?? throw new HttpException(400, $"Contest with id {request.Id} is not existed");
+       
+        //improve later: will add validation for time, if contest does not happen, is not allowed update 
+
+        foreach (var userContest in request.UserContests ?? new List<UserContestRequest>())
+        {
+            var UserContestExisted = contest.UserContests.FirstOrDefault(uc => uc.ParticipantsId == userContest.ParticipantsId);
+            if (UserContestExisted == null)
+                throw new HttpException(400, $"User with id {userContest.ParticipantsId} is not in this contest");
+            UserContestExisted.isWinner = userContest.isWinner;
+            UserContestExisted.Point = userContest.Point;
+
+        }         
+
+        var winners = contest.UserContests.Where(uc=>uc.isWinner);
+        if (winners.Count() > contest.UserContests.Count())
+            throw new HttpException(400, $"Total player is {contest.UserContests.Count()}. Only less or equal half of total player is winner allowed");
+
+        //add later: refund money for winner
+
+        await _unitOfWork.CompleteAsync();
     }
 }
