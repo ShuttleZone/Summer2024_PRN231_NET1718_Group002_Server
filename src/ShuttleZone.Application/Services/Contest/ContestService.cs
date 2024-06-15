@@ -26,6 +26,7 @@ public class ContestService : IContestService
     private readonly IReservationRepository _reservationRepository;
     private readonly IReservationDetailRepository _reservationDetailRepository;
     private readonly ICourtRepository _courtRepository;
+    private readonly IClubRepository _clubRepository;
 
     public ContestService
     (
@@ -35,7 +36,8 @@ public class ContestService : IContestService
         IUser currentUser,
         IReservationRepository reservationRepository,
         IReservationDetailRepository reservationDetailRepository,
-        ICourtRepository courtRepository
+        ICourtRepository courtRepository,
+        IClubRepository clubRepository
     )
     {
         _contestRepository = contestRepository;
@@ -45,6 +47,7 @@ public class ContestService : IContestService
         _reservationRepository = reservationRepository;
         _reservationDetailRepository = reservationDetailRepository;
         _courtRepository = courtRepository;
+        _clubRepository = clubRepository;
     }
 
     public IQueryable<DtoContestResponse> GetContests()
@@ -177,6 +180,31 @@ public class ContestService : IContestService
         return response;
     }
 
+    public IQueryable<DtoContestResponse> GetMyClubContests(Guid clubId)
+    {
+        HttpException.New()
+            .WithStatusCode(401)
+            .WithErrorMessage("You need to log in to view this page.")
+            .ThrowIfNull(_currentUser.Id)
+            .ThrowIf(!Guid.TryParse(_currentUser.Id, out var userIdAsGuid))
+            .WithStatusCode(403)
+            .WithErrorMessage("You are not authorized to view this page.")
+            .ThrowIf(_currentUser.Role != ShuttleZone.Domain.Constants.SystemRole.Manager);
+
+        var contestsResponse = _clubRepository
+            .FindAsNoTracking(c => c.OwnerId == userIdAsGuid && c.Id == clubId)
+            .SelectMany(c => c.Courts)
+            .SelectMany(c => c.ReservationDetails)
+            .Where(r => r.Reservation != null)
+            .Select(r => r.Reservation)
+            .Where(r => r.Contest != null)
+            .Select(r => r.Contest)
+            .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider)
+            .AsSplitQuery();
+
+        return contestsResponse;
+    }
+    
     public async Task JoinContest(Guid contestId, Guid userId)
     {
         var contest = _unitOfWork.ContestRepository.Find(c => c.Id == contestId).Include(c => c.UserContests).FirstOrDefault()
