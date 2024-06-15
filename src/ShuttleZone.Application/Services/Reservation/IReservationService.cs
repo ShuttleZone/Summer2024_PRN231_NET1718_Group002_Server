@@ -11,6 +11,8 @@ namespace ShuttleZone.Application.Services.Reservation
         IQueryable<ReservationResponse> GetMyReservation(Guid currentUser);
 
         Task<bool> CreateReservation(CreateReservationRequest request, Guid? currentUser = null, bool isStaff = true);
+        Task CancelReservation(Guid reservationId);
+        Task CancelReservationDetail(int reservationDetailId);
 
         bool HasOverlappingReservation(Guid? courtId, DateTime startTime, DateTime endTime);
     }

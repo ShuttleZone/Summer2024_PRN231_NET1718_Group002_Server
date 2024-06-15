@@ -9,26 +9,26 @@ namespace ShuttleZone.Api.Controllers
 {
     public class ReservationController : BaseApiController
     {
-        private readonly IReservationService _reservationService;        
+        private readonly IReservationService _reservationService;
 
         public ReservationController(IReservationService reservationService)
         {
             _reservationService = reservationService;
-        }       
-    
+        }
+
 
         [EnableQuery]
         public IActionResult Get()
-        {      
+        {
             return Ok(_reservationService.GetMyReservation(UserId));
         }
 
         [HttpPost("make-booking")]
         [Authorize]
         public async Task<IActionResult> CreateBooking([FromForm] CreateReservationRequest request)
-        {            
+        {
             try
-            {                
+            {
                 var result = await _reservationService.CreateReservation(request, UserId, false);
                 if (result)
                     return Ok();
@@ -51,7 +51,7 @@ namespace ShuttleZone.Api.Controllers
 
         [HttpPost("staff/make-booking")]
         public async Task<IActionResult> StaffCreateBooking([FromBody] CreateReservationRequest request)
-        {           
+        {
             try
             {
                 var result = await _reservationService.CreateReservation(request);
@@ -72,6 +72,14 @@ namespace ShuttleZone.Api.Controllers
             {
                 return StatusCode(500);
             }
+        }
+        [EnableQuery]
+        public async Task<IActionResult> Put(Guid key)
+        {
+            return await HandleResultAsync(
+            async () => await _reservationService.CancelReservation(key).ConfigureAwait(false)
+            ).ConfigureAwait(false);
+
         }
     }
 }
