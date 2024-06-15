@@ -178,15 +178,16 @@ public class ContestService : IContestService
         return response;
     }
 
-    // TODO: check if the user role is a club owner
-    // I'll do it later, maybe tomorrow 😴😴
     public IQueryable<DtoContestResponse> GetMyClubContests(Guid clubId)
     {
         HttpException.New()
             .WithStatusCode(401)
-            .WithErrorMessage("You are not authorized to view this page.")
+            .WithErrorMessage("You need to log in to view this page.")
             .ThrowIfNull(_currentUser.Id)
-            .ThrowIf(!Guid.TryParse(_currentUser.Id, out var userIdAsGuid));
+            .ThrowIf(!Guid.TryParse(_currentUser.Id, out var userIdAsGuid))
+            .WithStatusCode(403)
+            .WithErrorMessage("You are not authorized to view this page.")
+            .ThrowIf(_currentUser.Role != ShuttleZone.Domain.Constants.SystemRole.Manager);
 
         var contestsResponse = _clubRepository
             .FindAsNoTracking(c => c.OwnerId == userIdAsGuid && c.Id == clubId)
