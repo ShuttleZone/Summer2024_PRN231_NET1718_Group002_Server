@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.Services.Reservation;
+using ShuttleZone.Domain.Entities;
 
 namespace ShuttleZone.Api.Controllers
 {
@@ -31,7 +32,14 @@ namespace ShuttleZone.Api.Controllers
             var response = _reservationService.GetMyReservationDetails(userId);
             return Ok(response);
         }
-      
+
+        [EnableQuery]
+        public async Task<IActionResult> Put(int key)
+        {
+            return await HandleResultAsync(
+            async () => await _reservationService.CancelReservationDetail(key).ConfigureAwait(false)
+            ).ConfigureAwait(false);
+        }
 
     }
 }
