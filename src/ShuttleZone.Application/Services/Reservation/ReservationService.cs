@@ -3,8 +3,10 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.Common.Exceptions;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.Enums;
 using ShuttleZone.Domain.WebRequests.Reservations;
 using ShuttleZone.Domain.WebResponses.ReservationDetails;
 using ShuttleZone.Domain.WebResponses.Reservations;
@@ -23,6 +25,82 @@ namespace ShuttleZone.Application.Services.Reservation
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userManager = userManager;
+        }
+
+        public async Task CancelReservation(Guid reservationId)
+        {
+            var reservation = _unitOfWork.ReservationRepository.Find(r => r.Id == reservationId)
+                .Include(r=>r.ReservationDetails)
+                .FirstOrDefault();
+            if (reservation == null)
+                throw new HttpException(400, "Resevation is unexisted");
+
+            if (//payment failed
+                (reservation.ReservationStatusEnum == ReservationStatusEnum.PENDING && reservation.ExpiredTime < DateTime.Now)
+                || reservation.ReservationStatusEnum == ReservationStatusEnum.PAYFAIL
+                || reservation.ReservationStatusEnum == ReservationStatusEnum.CANCELLED)
+            {
+                var status = reservation.ReservationStatusEnum == Domain.Enums.ReservationStatusEnum.CANCELLED ? ReservationStatusEnum.CANCELLED.ToString().ToLower() : "pay failed";
+                throw new HttpException(400, $"Reservation is already in {status} status");
+            }
+            if(reservation.ReservationDetails.Any(rd=>rd.ReservationDetailStatus == ReservationStatusEnum.CANCELLED))
+                throw new HttpException(400, "Reservation contain cancel booked court. You have cancelled reservation detail, can not cancel this reservation");
+
+            if (reservation.ReservationDetails.Any(r => r.StartTime < DateTime.Now))
+                throw new HttpException(400, "Cannot cancel a reservation that has already started or is in the past.");
+
+            var alloweCancelByTime = reservation.ReservationDetails.Any(r => DateTime.Now < r.StartTime.AddDays(-1));
+            if (!alloweCancelByTime)
+                throw new HttpException(400, "Reservation contain reservation detail that can only be cancelled 24 hours before the start time.");
+
+
+            reservation.ReservationDetails.ToList().ForEach(d =>
+            {
+                d.ReservationDetailStatus = ReservationStatusEnum.CANCELLED;
+            });
+
+            if (reservation.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED)
+            {
+                //will add refund here later
+            }
+
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task CancelReservationDetail(int reservationDetailId)
+        {
+            var reservationDetail = _unitOfWork.ReservationDetailRepository.Find(r => r.Id == reservationDetailId)
+                .Include(r => r.Reservation)
+                .FirstOrDefault();
+            if (reservationDetail == null)
+                throw new HttpException(400, "Court Booking is unexisted");
+
+            if (//allow cancel if payment successfully 
+                (reservationDetail.ReservationDetailStatus == ReservationStatusEnum.PENDING && reservationDetail.Reservation.ExpiredTime < DateTime.Now)
+                || reservationDetail.ReservationDetailStatus == ReservationStatusEnum.PAYFAIL
+                || reservationDetail.ReservationDetailStatus == ReservationStatusEnum.CANCELLED)
+            {
+                var status = reservationDetail.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.CANCELLED ? ReservationStatusEnum.CANCELLED.ToString().ToLower() : "pay failed";
+                throw new HttpException(400, $"Court Booking is already in {status} status");
+            }
+
+            if (reservationDetail.StartTime < DateTime.Now)
+                throw new HttpException(400, "Cannot cancel a Court Booking that has already started or is in the past.");
+
+            var alloweCancelByTime = DateTime.Now < reservationDetail.StartTime.AddDays(-1);
+            if (!alloweCancelByTime)
+                throw new HttpException(400, "Court Booking can only be cancelled 24 hours before the start time.");
+
+            reservationDetail.ReservationDetailStatus = ReservationStatusEnum.CANCELLED;
+            reservationDetail.Reservation.TotalPrice -= reservationDetail.Price;            
+
+            if(reservationDetail.Reservation.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED)
+            {
+                //will add refund here later
+            }
+
+            await _unitOfWork.CompleteAsync();
+
         }
 
         public async Task<bool> CreateReservation(CreateReservationRequest request, Guid? currentUser = null, bool isStaff = true)
@@ -92,7 +170,7 @@ namespace ShuttleZone.Application.Services.Reservation
             var reservationDetailsQuery = _unitOfWork.ReservationRepository.GetAll()
                 .Where(r => r.CustomerId == currentUser)
                 .Include(r => r.ReservationDetails)
-                .SelectMany(r => r.ReservationDetails);
+                .SelectMany(r => r.ReservationDetails).Include(r => r.Court).ThenInclude(c => c.Club);
 
             var reservationDetailsResponse = reservationDetailsQuery
                 .ProjectTo<ReservationDetailsResponse>(_mapper.ConfigurationProvider);

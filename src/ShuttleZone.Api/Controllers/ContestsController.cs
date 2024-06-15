@@ -5,6 +5,7 @@ using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services;
 using ShuttleZone.Domain.Constants;
 using ShuttleZone.Domain.WebRequests;
+using ShuttleZone.Domain.WebRequests.Contest;
 using ShuttleZone.Domain.WebResponses.Contest;
 
 namespace ShuttleZone.Api.Controllers;
@@ -17,7 +18,7 @@ public class ContestsController : BaseApiController
     {
         _contestService = contestService;
     }
-    
+
     [EnableQuery]
     [Authorize]
     public ActionResult<IQueryable<DtoContestResponse>> Get()
@@ -27,7 +28,7 @@ public class ContestsController : BaseApiController
     }
 
     [EnableQuery]
-    public ActionResult<DtoContestResponse> Get([FromRoute]Guid key)
+    public ActionResult<DtoContestResponse> Get([FromRoute] Guid key)
     {
         var contest = _contestService.GetContestByContestId(key);
         return Ok(contest);
@@ -40,7 +41,6 @@ public class ContestsController : BaseApiController
     {
         return HandleResult(() => _contestService.GetMyClubContests(key));
     }
-
     
     // [EnableQuery]
     // public ActionResult<Contest> Get([FromRoute]Guid key)
@@ -54,6 +54,24 @@ public class ContestsController : BaseApiController
     {
         return await HandleResultAsync(
             async () => await _contestService.CreateContestAsync(request, cancellationToken).ConfigureAwait(false)
+        ).ConfigureAwait(false);
+    }
+
+    [Authorize]
+    public async Task<IActionResult> Put([FromRoute] Guid key, [FromBody] UpdateContestRequest? request = null)
+    {
+        return await HandleResultAsync(
+            async () =>
+            {
+                if (request == null)
+                {
+                    await _contestService.JoinContest(key, UserId).ConfigureAwait(false);
+                }
+                else
+                {
+                    await _contestService.UpdateContestAsync(request).ConfigureAwait(false);
+                }
+            }
         ).ConfigureAwait(false);
     }
 }

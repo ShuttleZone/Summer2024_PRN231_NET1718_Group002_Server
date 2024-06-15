@@ -1,6 +1,7 @@
 using AutoMapper;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests;
+using ShuttleZone.Domain.WebRequests.Contest;
 using ShuttleZone.Domain.WebResponses.Contest;
 
 namespace ShuttleZone.Application.AutoMapper;
@@ -19,5 +20,15 @@ public class ContestMappingProfile : Profile
             
         CreateMap<User, UserContestDto>();
         CreateMap<CreateContestRequest, Contest>();
+
+        CreateMap<Contest, UpdateContestRequest>();          
+        CreateMap<UserContest, UserContestRequest>();
+
+        CreateMap<UpdateContestRequest, Contest>()
+            .ForMember(dest => dest.UserContests, opt => opt.Ignore()); 
+        CreateMap<UserContestRequest, UserContest>()
+            .ForMember(dest => dest.isWinner, opt => opt.MapFrom(src => src.isWinner))
+            .ForMember(dest => dest.Point, opt => opt.MapFrom(src => src.Point));
+
     }
 }
