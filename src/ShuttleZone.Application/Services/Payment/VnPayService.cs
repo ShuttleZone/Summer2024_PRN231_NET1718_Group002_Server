@@ -9,6 +9,8 @@ using System.Reflection;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Domain.Enums;
+using Azure;
+using ShuttleZone.Common.Exceptions;
 
 namespace ShuttleZone.Application.Services.Payment
 {
@@ -26,6 +28,12 @@ namespace ShuttleZone.Application.Services.Payment
 
         public string CreatePaymentUrl(HttpContext context, VnPayRequest vnPayRequest)
         {
+            var reservationId = new Guid(vnPayRequest.OrderInfo ?? throw new Exception("Invalid reservation"));
+            var reservation = _unitOfWork.ReservationRepository.Get(r => r.Id == reservationId) ?? throw new Exception("Invalid reservation");
+
+            if (reservation.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED)
+                throw new HttpException(400, "Reservation is already paid");
+
             var tick = DateTime.Now.Ticks.ToString();
 
             var vnpay = new VnPayLibrary();
@@ -49,7 +57,7 @@ namespace ShuttleZone.Application.Services.Payment
             return paymentUrl;
         }
 
-        public VnPayResponse PaymentExecute(VnPayResponse response, bool isIPN = false)
+        public async Task<VnPayResponse> PaymentExecute(VnPayResponse response, bool isIPN = false)
         {
             var vnpay = new VnPayLibrary();
 
@@ -86,9 +94,15 @@ namespace ShuttleZone.Application.Services.Payment
                     ? TransactionStatusEnum.SUCCESS : TransactionStatusEnum.FAIL,
                     ReservationId = reservationId
                 });
+
+                foreach(var detail in reservation.ReservationDetails)
+                {
+                    detail.ReservationDetailStatus = isPaySucceed ? ReservationStatusEnum.PAYSUCCEED : ReservationStatusEnum.PAYFAIL;
+                }
+
                 reservation.ReservationStatusEnum = isPaySucceed ? ReservationStatusEnum.PAYSUCCEED : ReservationStatusEnum.PAYFAIL;
 
-                _unitOfWork.Complete();
+                await _unitOfWork.CompleteAsync();
             }
 
             return response;

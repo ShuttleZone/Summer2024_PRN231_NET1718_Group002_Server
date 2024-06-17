@@ -148,7 +148,7 @@ namespace ShuttleZone.Application.Services.Reservation
             }
             requestEntity.ExpiredTime = requestEntity.BookingDate.AddMinutes(10);
             await _unitOfWork.ReservationRepository.AddAsync(requestEntity);
-            var addSuccess = await _unitOfWork.Complete();
+            var addSuccess = await _unitOfWork.CompleteAsync();
             return addSuccess;
         }
 

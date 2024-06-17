@@ -110,7 +110,7 @@ public class ClubService : IClubService
         var club = _mapper.Map<Club>(request);
         club.OwnerId = owner.Id;
         await _clubRepository.AddAsync(club);
-        await _unitOfWork.Complete();
+        await _unitOfWork.CompleteAsync();
         // club.OpenDateInWeeks
         var daysInWeek = request.DaysInWeekOpen
             .Select(x => new OpenDateInWeek { Date = x });
@@ -119,7 +119,7 @@ public class ClubService : IClubService
         club.OpenDateInWeeks = daysInWeek.ToList();
         club.ClubImages = clubImages.ToList();
         _clubRepository.Update(club);
-        await _unitOfWork.Complete();
+        await _unitOfWork.CompleteAsync();
         return _mapper.Map<DtoClubResponse>(club);
     }
 
