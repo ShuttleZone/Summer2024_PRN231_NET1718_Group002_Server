@@ -27,11 +27,7 @@ namespace ShuttleZone.DAL.Common.Implementations
         public ITransactionRepository TransactionRepository => new TransactionRepository(_context, _readOnlyContext);
         public IReviewRepository ReviewRepository  => new ReviewRepository(_context,_readOnlyContext);
         public IContestRepository ContestRepository => new ContestRepository(_context, _readOnlyContext);
-        public async Task<bool> Complete()
-        {
-            return await Task.Run(() => _context.SaveChanges()) > 0;
-        }
-
+       
         public async Task<bool> CompleteAsync(CancellationToken cancellationToken = default)
         {
             var changes = await _context.SaveChangesAsync(cancellationToken);

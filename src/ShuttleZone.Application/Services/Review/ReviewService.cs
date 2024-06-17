@@ -31,7 +31,7 @@ public class ReviewService : IReviewService
             review.ReviewerId = userId;
             review.CreatedBy = user.Fullname;
             await _unitOfWork.ReviewRepository.AddAsync(review);
-            var addSuccess = await _unitOfWork.Complete();
+            var addSuccess = await _unitOfWork.CompleteAsync();
             return addSuccess;
         }
         return false;

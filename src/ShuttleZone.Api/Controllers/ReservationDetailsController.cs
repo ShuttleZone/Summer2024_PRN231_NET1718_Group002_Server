@@ -11,26 +11,17 @@ namespace ShuttleZone.Api.Controllers
     public class ReservationDetailsController : BaseApiController
     {
         private readonly IReservationService _reservationService;
-        private readonly ITokenService _tokenService;
-        private readonly IUser _user;
         
 
-        public ReservationDetailsController(IReservationService reservationService, ITokenService tokenService, IUser user)
+        public ReservationDetailsController(IReservationService reservationService)
         {
             _reservationService = reservationService;
-            _tokenService = tokenService;
-            _user = user;
         }
 
         [EnableQuery]
         public IActionResult Get()
         {
-            //placeholder for logined user
-            // var userId = new Guid("26A7CC4E-3F9B-4923-809E-2F9B771D994F");
-            // var authModel = _tokenService.GetAuthModel(GetJwtToken());
-            var userId = new Guid(_user.Id?? throw new ArgumentNullException());
-
-            var response = _reservationService.GetMyReservationDetails(userId);
+            var response = _reservationService.GetMyReservationDetails(UserId);
             return Ok(response);
         }
 

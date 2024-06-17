@@ -13,7 +13,6 @@ namespace ShuttleZone.DAL.Common.Interfaces
         ICourtRepository CourtRepository { get; }
         ITransactionRepository TransactionRepository { get; }
         IContestRepository ContestRepository { get; }
-        Task<bool> Complete();
         IClubRepository ClubRepository { get; }
         Task<bool> CompleteAsync(CancellationToken cancellationToken = default);
         IReviewRepository ReviewRepository { get; }
