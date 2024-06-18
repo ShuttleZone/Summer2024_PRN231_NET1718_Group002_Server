@@ -65,11 +65,15 @@ public class ContestService : IContestService
         var queryableContest = _contestRepository.Find(c => c.Id == userId)
             .Include(c => c.UserContests)
             .ThenInclude(uc => uc.Participant)
-            .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider).FirstOrDefault();
+            .Include(c=>c.Reservation)
+            .Include(c=>c.Reservation!.ReservationDetails)
+            .ThenInclude(rd=>rd.Court);
+            
+          var dtoReturn = queryableContest.ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider).FirstOrDefault();
 
         // var dtoContest = queryableContest.ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
 
-        return queryableContest;
+        return dtoReturn;
     }
 
     public IQueryable<Contest> GetContestDetail(Guid contestId)
