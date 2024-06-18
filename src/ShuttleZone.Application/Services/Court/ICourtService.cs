@@ -18,4 +18,5 @@ public interface ICourtService
     Task<DtoCourtResponse> CreateCourtAsync(CreateCourtRequest request, CancellationToken cancellationToken);
 
     bool DisableCourt(Guid courtId);
+    bool MaintainCourt(Guid courtId);
 }

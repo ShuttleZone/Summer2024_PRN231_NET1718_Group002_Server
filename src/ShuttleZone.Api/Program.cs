@@ -60,9 +60,9 @@ builder.Services.AddIdentity<User, Role>(options =>
     options.Password.RequireUppercase = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
-
-builder.Services.AddAuthentication(options =>
+.AddDefaultTokenProviders();    
+    
+builder.Services.AddAuthentication(options =>   
 {
     options.DefaultAuthenticateScheme = 
     options.DefaultChallengeScheme = 

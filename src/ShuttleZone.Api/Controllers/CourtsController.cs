@@ -42,4 +42,10 @@ public sealed class CourtsController : BaseApiController
     {
         return Ok( _courtService.DisableCourt(courtId));
     }
+
+    [HttpPut("/api/Courts/maintain/{courtId}")]
+    public IActionResult MaintainCourt([FromRoute] Guid courtId)
+    {
+        return HandleResult(() => _courtService.MaintainCourt(courtId));
+    }
 }
