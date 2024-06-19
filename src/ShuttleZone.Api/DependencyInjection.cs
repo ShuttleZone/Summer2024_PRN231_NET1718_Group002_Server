@@ -129,6 +129,8 @@ public static class DependencyInjection
 
         #endregion
 
+        builder.EntitySet<DtoReviewResponse>(GetControllerShortName<ReviewsController>());
+
         builder.EnableLowerCamelCase();
 
         return builder.GetEdmModel();

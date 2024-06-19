@@ -5,6 +5,8 @@ using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests;
+using ShuttleZone.Domain.WebResponses;
+using ShuttleZone.Domain.WebResponses.Review;
 
 namespace ShuttleZone.Application.DependencyInjection.Services.Review;
 [AutoRegister]
@@ -35,5 +37,39 @@ public class ReviewService : IReviewService
             return addSuccess;
         }
         return false;
+    }
+
+    public async Task<bool> DtoReplyReview(DtoReplyReview dtoReplyReview, Guid replyer)
+    {
+        // var reply = _mapper.Map<Domain.Entities.Review>(dtoReplyReview);
+        var updateReview = _unitOfWork.ReviewRepository.Find(c => c.Id == dtoReplyReview.Id).FirstOrDefault();
+        if (updateReview != null)
+        {
+            var user = _userManager.Users.First(c => c.Id == replyer);
+            updateReview.ReplyContent = dtoReplyReview.ReplyContent;
+            updateReview.ReplyPerson = user.Fullname;
+            updateReview.ReplyTime = DateTime.Now;
+            updateReview.LastModified = DateTime.Now;
+            updateReview.LastModifiedBy = user.Fullname;
+             _unitOfWork.ReviewRepository.Update(updateReview);
+            var addSuccess = await _unitOfWork.CompleteAsync();
+            return addSuccess;
+        }
+        return false;
+    }
+
+    public IQueryable<DtoReviewsResponse> GetReviews()
+    {
+        var reviewQueryable = _unitOfWork.ReviewRepository.GetAll();
+            var dtoReturn = reviewQueryable.ProjectTo<DtoReviewsResponse>(_mapper.ConfigurationProvider);
+            return dtoReturn;
+    }
+
+    public IQueryable<DtoReviewsResponse> GetReviewByClubId(Guid clubId)
+    {
+        var reviewQuery = _unitOfWork.ReviewRepository.Find(c => c.ClubId == clubId)
+            .ProjectTo<DtoReviewsResponse>(_mapper.ConfigurationProvider);
+
+        return reviewQuery;
     }
 }
