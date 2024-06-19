@@ -13,7 +13,14 @@ namespace ShuttleZone.Application.Helpers
     {
         private readonly SortedList<string, string> _requestData = new SortedList<string, string>(new VnPayCompare());
         private readonly SortedList<string, string> _responseData = new SortedList<string, string>(new VnPayCompare());
-
+        public static string CreateChecksum(string secretKey, string data)
+        {
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))
+            {
+                byte[] hashValue = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
+                return BitConverter.ToString(hashValue).Replace("-", "").ToLower();
+            }
+        }
         public void AddRequestData(string key, string value)
         {
             if (!string.IsNullOrEmpty(value))

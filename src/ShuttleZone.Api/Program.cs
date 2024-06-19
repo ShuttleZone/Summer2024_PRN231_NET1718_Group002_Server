@@ -84,6 +84,9 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddVNPaySettings(builder.Configuration);
+// Register IHttpClientFactory
+builder.Services.AddHttpClient();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

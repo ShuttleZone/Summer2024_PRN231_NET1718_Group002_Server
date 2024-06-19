@@ -9,8 +9,12 @@ using System.Reflection;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Domain.Enums;
-using Azure;
 using ShuttleZone.Common.Exceptions;
+using System.Text.Json;
+using System.Text;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace ShuttleZone.Application.Services.Payment
 {
@@ -19,11 +23,16 @@ namespace ShuttleZone.Application.Services.Payment
     {
         private readonly VNPaySettings _vnPaySettings;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IMapper _mapper;
 
-        public VnPayService(IOptions<VNPaySettings> vnPaySettings, IUnitOfWork unitOfWork)
+        public VnPayService(IOptions<VNPaySettings> vnPaySettings, IUnitOfWork unitOfWork,
+            IHttpClientFactory httpClientFactory, IMapper mapper)
         {
             _vnPaySettings = vnPaySettings.Value;
             _unitOfWork = unitOfWork;
+            _httpClientFactory = httpClientFactory;
+            _mapper = mapper;
         }
 
         public string CreatePaymentUrl(HttpContext context, VnPayRequest vnPayRequest)
@@ -57,7 +66,7 @@ namespace ShuttleZone.Application.Services.Payment
             return paymentUrl;
         }
 
-        public async Task<VnPayResponse> PaymentExecute(VnPayResponse response, bool isIPN = false)
+        public async Task<VnPayResponse> PaymentExecuteAsync(VnPayResponse response, bool isIPN = false)
         {
             var vnpay = new VnPayLibrary();
 
@@ -80,7 +89,9 @@ namespace ShuttleZone.Application.Services.Payment
             {
                 Double.TryParse(response.vnp_Amount, out double result);
                 var reservationId = new Guid(response.vnp_OrderInfo ?? throw new Exception("Invalid reservation"));
-                var reservation = _unitOfWork.ReservationRepository.Get(r => r.Id == reservationId) ?? throw new Exception("Invalid reservation");
+                var reservation = _unitOfWork.ReservationRepository.Find(r => r.Id == reservationId)
+                    .Include(r => r.ReservationDetails).FirstOrDefault() ?? throw new Exception("Invalid reservation");
+                //improve later: check if reservation is already paid/have any transaction
 
                 var isPaySucceed = (response.vnp_ResponseCode?.Equals("00") ?? false)
                     && (response.vnp_TransactionStatus?.Equals("00") ?? false);
@@ -92,20 +103,116 @@ namespace ShuttleZone.Application.Services.Payment
                     Amount = result,
                     TransactionStatus = isPaySucceed
                     ? TransactionStatusEnum.SUCCESS : TransactionStatusEnum.FAIL,
-                    ReservationId = reservationId
+                    ReservationId = reservationId,
+                    TxnRef = response.vnp_TxnRef,
+                    TransactionNo = response.vnp_TransactionNo,
+                    TransactionDate = response.vnp_PayDate
                 });
 
-                foreach(var detail in reservation.ReservationDetails)
+                foreach (var detail in reservation.ReservationDetails)
                 {
                     detail.ReservationDetailStatus = isPaySucceed ? ReservationStatusEnum.PAYSUCCEED : ReservationStatusEnum.PAYFAIL;
                 }
 
                 reservation.ReservationStatusEnum = isPaySucceed ? ReservationStatusEnum.PAYSUCCEED : ReservationStatusEnum.PAYFAIL;
 
-                await _unitOfWork.CompleteAsync();
+                var isSuccess = await _unitOfWork.CompleteAsync();
             }
 
             return response;
         }
+
+        public async Task<VnPayQueryDrResponse?> QueryPaymentAsync(Guid reservationId)
+        {
+            var transaction = _unitOfWork.TransactionRepository.Get(t => t.ReservationId == reservationId)
+                ?? throw new HttpException(400, "Transaction with reservation not found");
+            var queryRequest = new VnPayQueryRequest()
+            {
+                vnp_Command = VnPayConstansts.QUERY_COMMAND,
+                vnp_TmnCode = _vnPaySettings.TmnCode,
+                vnp_TransactionNo = transaction.TransactionNo,
+                vnp_CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                vnp_IpAddr = "127.0.0.1",
+                vnp_OrderInfo = transaction.ReservationId.ToString(),
+                vnp_RequestId = GenerateRequestId(),
+                vnp_Version = _vnPaySettings.Version,
+                vnp_TransactionDate = transaction.TransactionDate,
+                vnp_TxnRef = transaction.TxnRef,
+
+            };
+            queryRequest.vnp_SecureHash = Utils.HmacSHA512(_vnPaySettings.HashSecret, GenerateChecksumData(queryRequest));
+
+            var httpClient = _httpClientFactory.CreateClient();
+            var jsonRequest = JsonSerializer.Serialize(queryRequest);
+            var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PostAsync(_vnPaySettings.ApiUrl, content);
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                WriteIndented = true
+            };
+
+            VnPayQueryDrResponse result = JsonSerializer.Deserialize<VnPayQueryDrResponse>(jsonResponse, options)!;
+
+            return result;
+        }
+
+        public async Task<VnPayRefundRespone?> RefundPaymentAsync(Guid reservationId)
+        {
+            
+            var transaction = _unitOfWork.TransactionRepository.Get(t => t.ReservationId == reservationId)
+                ?? throw new HttpException(400, "Transaction with reservation not found");
+
+            var refundRequest = new VnPayRefundRequest()
+            {
+                vnp_RequestId = GenerateRequestId(),
+                vnp_Version = _vnPaySettings.Version,
+                vnp_Command = VnPayConstansts.REFUND_COMMAND,
+                vnp_TmnCode = _vnPaySettings.TmnCode,
+                vnp_CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                vnp_IpAddr = "127.0.0.1",
+                vnp_OrderInfo = transaction.ReservationId.ToString(),
+                vnp_TransactionNo = transaction.TransactionNo,
+                vnp_TxnRef = transaction.TxnRef,
+                vnp_TransactionDate = transaction.TransactionDate,
+                vnp_Amount = transaction.Amount.ToString(),
+                vnp_TransactionType = "02",
+                vnp_CreateBy = "user",
+            };
+            refundRequest.vnp_SecureHash = Utils.HmacSHA512(_vnPaySettings.HashSecret, GenerateChecksumData(refundRequest));
+
+            var httpClient = _httpClientFactory.CreateClient();
+            var jsonRequest = JsonSerializer.Serialize(refundRequest);
+            var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PostAsync(_vnPaySettings.ApiUrl, content);
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+
+            var result = JsonSerializer.Deserialize<VnPayRefundRespone>(jsonResponse);
+
+            return result;
+        }
+        private string GenerateChecksumData(VnPayQueryRequest request)
+        {
+            return $"{request.vnp_RequestId}|{request.vnp_Version}|{request.vnp_Command}|{request.vnp_TmnCode}|{request.vnp_TxnRef}|{request.vnp_TransactionDate}|{request.vnp_CreateDate}|{request.vnp_IpAddr}|{request.vnp_OrderInfo}";
+        }
+
+        private string GenerateChecksumData(VnPayRefundRequest request)
+        {
+            return $"{request.vnp_RequestId}|{request.vnp_Version}|{request.vnp_Command}|{request.vnp_TmnCode}|{request.vnp_TransactionType}|{request.vnp_TxnRef}|{request.vnp_Amount}|{request.vnp_TransactionNo}|{request.vnp_TransactionDate}|{request.vnp_CreateBy}|{request.vnp_CreateDate}|{request.vnp_IpAddr}|{request.vnp_OrderInfo}";
+        }
+
+        public string GenerateRequestId()
+        {
+            string merchantPrefix = "ShuttleZone"; 
+            string timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+            string randomSuffix = new Random().Next(1000, 9999).ToString();
+
+            return $"{merchantPrefix}-{timestamp}-{randomSuffix}";
+        }
     }
 }
+
