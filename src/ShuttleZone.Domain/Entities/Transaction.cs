@@ -8,7 +8,13 @@ public class Transaction : BaseAuditableEntity<Guid>
     public PaymentMethod PaymentMethod { get; set; }
     public double Amount { get; set; }
     public TransactionStatusEnum TransactionStatus { get; set; }
-    
     public Guid ReservationId { get; set; }
     public Reservation Reservation { get; set; } = null!;
+    //tick
+    public string TxnRef { get; set; } = String.Empty;
+    public string TransactionNo { get; set; } = String.Empty;
+    //paydate
+    public string TransactionDate { get; set; } = String.Empty;
+   // public string vnp_IpAddr { get; set; } = String.Empty;
+  
 }

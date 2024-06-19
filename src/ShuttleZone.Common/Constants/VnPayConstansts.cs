@@ -5,6 +5,8 @@
         public const string VERSION = "vnp_Version";
         public const string COMMAND = "vnp_Command";
         public const string PAY_COMMAND = "pay";
+        public const string QUERY_COMMAND = "querydr";
+        public const string REFUND_COMMAND = "refund";
         public const string TMN_CODE = "vnp_TmnCode";
         public const string AMOUNT = "vnp_Amount";
         public const string CREATE_DATE = "vnp_CreateDate";
