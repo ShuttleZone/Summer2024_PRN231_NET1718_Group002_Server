@@ -14,6 +14,11 @@ public class ReviewMappingProfile : Profile
         CreateMap<DtoCreateReview, Review>();
         CreateMap<Review, DtoReplyReview>();
         CreateMap<DtoReplyReview, Review>();
-        CreateMap<Review, DtoReviewsResponse>();
+        CreateMap<Review, DtoReviewsResponse>()
+            // .ForMember(dest => dest.UserCreatedTime, opt => opt.MapFrom(c => c.Reviewer.))
+            .ForMember(dest => dest.ClubDescription, opt => opt.MapFrom(c => c.Club!.ClubDescription))
+            .ForMember(dest => dest.ClubPhone, opt => opt.MapFrom(c => c.Club!.ClubPhone))
+            .ForMember(dest => dest.ClubAddress, opt => opt.MapFrom(c => c.Club!.ClubAddress))
+            .ForMember(dest => dest.ClubName, opt => opt.MapFrom(c => c.Club!.ClubName));
     }
 }

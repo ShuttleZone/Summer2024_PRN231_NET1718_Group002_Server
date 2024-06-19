@@ -13,4 +13,10 @@ public class DtoReviewsResponse
     public string? CreatedBy { get; set; } = string.Empty;
     public DateTime? LastModified { get; set; }
     public string? LastModifiedBy { get; set; }
+    public string? ClubName { get; set; }
+    // public DateTime UserCreatedTime { get; set; }
+    public required string ClubDescription { get; set; }
+    public required string ClubAddress { get; set; }
+    public required string ClubPhone { get; set; }
+
 }
