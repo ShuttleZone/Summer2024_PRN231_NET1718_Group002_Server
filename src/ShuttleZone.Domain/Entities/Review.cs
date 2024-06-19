@@ -13,4 +13,8 @@ public class Review : BaseAuditableEntity<Guid>
     
     public Guid? ClubId { get; set; }
     public Club? Club { get; set; }
+    
+    public string? ReplyContent { get; set; }
+    public DateTime ReplyTime { get; set; }
+    public string? ReplyPerson { get; set; }
 }
