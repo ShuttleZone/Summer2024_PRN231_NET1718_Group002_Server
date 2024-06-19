@@ -16,4 +16,7 @@ public interface ICourtService
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>The created court</returns>
     Task<DtoCourtResponse> CreateCourtAsync(CreateCourtRequest request, CancellationToken cancellationToken);
+
+    bool DisableCourt(Guid courtId);
+    bool MaintainCourt(Guid courtId);
 }

@@ -14,7 +14,7 @@ public class Club : BaseAuditableEntity<Guid>
     public TimeOnly CloseTime { get; set; }
     public double MinDuration { get; set; }
     
-    public Guid OwnerId { get; set; }
+    public Guid OwnerId { get; set; }   
     public User? Owner { get; set; }
 
     public ICollection<Review> Reviews = new List<Review>();

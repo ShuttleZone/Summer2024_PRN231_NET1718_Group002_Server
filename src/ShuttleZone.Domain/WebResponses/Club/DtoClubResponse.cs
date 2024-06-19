@@ -9,6 +9,8 @@ public record DtoClubResponse
     public required string ClubAddress { get; set; }
     public required string ClubPhone { get; set; }
     public required string ClubDescription { get; set; }
+    public ClubStatusEnum ClubStatusEnum { get; set; }
+
     public double MinDuration { get; set; }
     public TimeOnly OpenTime { get; set; }
     public TimeOnly CloseTime { get; set; }
