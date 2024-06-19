@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
@@ -68,6 +69,8 @@ public class ReviewService : IReviewService
     public IQueryable<DtoReviewsResponse> GetReviewByClubId(Guid clubId)
     {
         var reviewQuery = _unitOfWork.ReviewRepository.Find(c => c.ClubId == clubId)
+            .Include(r => r.Club)
+            .Include(r => r.Reviewer)
             .ProjectTo<DtoReviewsResponse>(_mapper.ConfigurationProvider);
 
         return reviewQuery;
