@@ -176,7 +176,7 @@ namespace ShuttleZone.Application.Services.Reservation
             var reservationDetailsQuery = _unitOfWork.ReservationRepository.GetAll()
                 .Where(r => r.CustomerId == currentUser)
                 .Include(r => r.ReservationDetails)
-                .SelectMany(r => r.ReservationDetails).Include(r => r.Court).ThenInclude(c => c.Club);
+                .SelectMany(r => r.ReservationDetails).Include(r => r.Court).ThenInclude(c => c.Club).Include(r=>r.Reservation);
 
             var reservationDetailsResponse = reservationDetailsQuery
                 .ProjectTo<ReservationDetailsResponse>(_mapper.ConfigurationProvider);

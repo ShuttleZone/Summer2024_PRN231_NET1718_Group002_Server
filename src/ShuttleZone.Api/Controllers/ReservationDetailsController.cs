@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
-using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.Services.Reservation;
-using ShuttleZone.Domain.Entities;
 
 namespace ShuttleZone.Api.Controllers
 {
