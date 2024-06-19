@@ -160,9 +160,9 @@ namespace ShuttleZone.Application.Services.Payment
             return result;
         }
 
-        public async Task<VnPayRefundRespone?> RefundPaymentAsync(Guid reservationId)
+        public async Task<VnPayRefundRespone?> RefundPaymentAsync(Guid reservationId, double refundAmount = 0, string transactionType = VnPayConstansts.TOTAL_REFUND)
         {
-            
+
             var transaction = _unitOfWork.TransactionRepository.Get(t => t.ReservationId == reservationId)
                 ?? throw new HttpException(400, "Transaction with reservation not found");
 
@@ -178,8 +178,8 @@ namespace ShuttleZone.Application.Services.Payment
                 vnp_TransactionNo = transaction.TransactionNo,
                 vnp_TxnRef = transaction.TxnRef,
                 vnp_TransactionDate = transaction.TransactionDate,
-                vnp_Amount = transaction.Amount.ToString(),
-                vnp_TransactionType = "02",
+                vnp_Amount = refundAmount == 0 ? transaction.Amount.ToString() : refundAmount.ToString(),
+                vnp_TransactionType = transactionType,
                 vnp_CreateBy = "user",
             };
             refundRequest.vnp_SecureHash = Utils.HmacSHA512(_vnPaySettings.HashSecret, GenerateChecksumData(refundRequest));
@@ -207,7 +207,7 @@ namespace ShuttleZone.Application.Services.Payment
 
         public string GenerateRequestId()
         {
-            string merchantPrefix = "ShuttleZone"; 
+            string merchantPrefix = "ShuttleZone";
             string timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
             string randomSuffix = new Random().Next(1000, 9999).ToString();
 

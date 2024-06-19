@@ -2,7 +2,9 @@
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ShuttleZone.Application.Services.Payment;
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.Common.Constants;
 using ShuttleZone.Common.Exceptions;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
@@ -19,12 +21,14 @@ namespace ShuttleZone.Application.Services.Reservation
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
+        private readonly IVnPayService _vnPayService;
 
-        public ReservationService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<User> userManager)
+        public ReservationService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<User> userManager, IVnPayService vnPayService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userManager = userManager;
+            _vnPayService = vnPayService;
         }
 
         public async Task CancelReservation(Guid reservationId)
@@ -62,6 +66,7 @@ namespace ShuttleZone.Application.Services.Reservation
             if (reservation.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED)
             {
                 //will add refund here later
+                await _vnPayService.RefundPaymentAsync(reservation.Id);
             }
 
             await _unitOfWork.CompleteAsync();
@@ -75,7 +80,7 @@ namespace ShuttleZone.Application.Services.Reservation
             if (reservationDetail == null)
                 throw new HttpException(400, "Court Booking is unexisted");
 
-            if (//allow cancel if payment successfully 
+            if (//allow cancel only if payment successfully 
                 (reservationDetail.ReservationDetailStatus == ReservationStatusEnum.PENDING && reservationDetail.Reservation.ExpiredTime < DateTime.Now)
                 || reservationDetail.ReservationDetailStatus == ReservationStatusEnum.PAYFAIL
                 || reservationDetail.ReservationDetailStatus == ReservationStatusEnum.CANCELLED)
@@ -97,6 +102,7 @@ namespace ShuttleZone.Application.Services.Reservation
             if(reservationDetail.Reservation.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED)
             {
                 //will add refund here later
+                await _vnPayService.RefundPaymentAsync(reservationDetail.Reservation.Id, reservationDetail.Price, VnPayConstansts.LESS_THAN_TOTAL_REFUND);
             }
 
             await _unitOfWork.CompleteAsync();
