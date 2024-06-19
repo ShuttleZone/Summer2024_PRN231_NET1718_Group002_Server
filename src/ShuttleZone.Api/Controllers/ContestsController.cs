@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services;
+using ShuttleZone.Domain.Constants;
 using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebRequests.Contest;
 using ShuttleZone.Domain.WebResponses.Contest;
@@ -33,6 +34,14 @@ public class ContestsController : BaseApiController
         return Ok(contest);
     }
 
+    [Authorize(Roles = SystemRole.Manager)]
+    [EnableQuery]
+    [HttpGet("/api/Contests/my-club-contests({key:guid})")]
+    public IActionResult GetMyClubContests([FromRoute] Guid key)
+    {
+        return HandleResult(() => _contestService.GetMyClubContests(key));
+    }
+    
     // [EnableQuery]
     // public ActionResult<Contest> Get([FromRoute]Guid key)
     // {

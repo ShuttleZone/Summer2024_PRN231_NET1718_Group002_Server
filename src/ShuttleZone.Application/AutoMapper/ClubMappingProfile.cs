@@ -29,6 +29,9 @@ public class ClubMappingProfile : Profile
             .ForMember(club => club.OpenTime, opt => opt.MapFrom(x => DateTimeHelper.FormatToTimeOnly(x.Settings.OpenTime)))
             .ForMember(club => club.CloseTime, opt => opt.MapFrom(x => DateTimeHelper.FormatToTimeOnly(x.Settings.CloseTime)))
             .ForMember(club => club.MinDuration, opt => opt.MapFrom(x => x.Settings.MinDuration));
-
+        CreateMap<Club, DtoClubManagement>()
+            .ForMember(dto => dto.TotalCourt, opt => opt.MapFrom(x => x.Courts.Count))
+            .ForMember(dto => dto.TotalReview, opt => opt.MapFrom(x => x.Courts.Count));
+        // .ForMember(dto => dto.Rating, opt => opt.MapFrom(x => (x.Reviews.Sum(x => x.Rating))/(x.Reviews.Count)));
     }
 }

@@ -7,5 +7,4 @@ public enum ClubStatusEnum
     RequestPending,
     CreateRequestAccepted,
     CreateRequestDenied
-
 }

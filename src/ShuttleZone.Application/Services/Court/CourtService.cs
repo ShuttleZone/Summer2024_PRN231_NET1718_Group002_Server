@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
+using ShuttleZone.DAL.DependencyInjection.Repositories.User;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.DAL.Repositories.Court;
+using ShuttleZone.Domain.Enums;
 using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebResponses.Court;
 using CourtEntity = ShuttleZone.Domain.Entities.Court;
@@ -15,7 +19,9 @@ namespace ShuttleZone.Application.Services.Court;
 public class CourtService : ICourtService
 {
     private readonly ICourtRepository _courtRepository;
+    private readonly IUserRepository _userRepository;
     private readonly IClubRepository _clubRepository;
+    private readonly IUser _user;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
@@ -23,13 +29,14 @@ public class CourtService : ICourtService
         ICourtRepository courtRepository,
         IClubRepository clubRepository,
         IUnitOfWork unitOfWork,
-        IMapper mapper
-    )
+        IMapper mapper, IUserRepository userRepository, IUser user)
     {
         _courtRepository = courtRepository;
         _clubRepository = clubRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _userRepository = userRepository;
+        _user = user;
     }
 
     public async Task<DtoCourtResponse> CreateCourtAsync(CreateCourtRequest request, CancellationToken cancellationToken)
@@ -51,6 +58,59 @@ public class CourtService : ICourtService
         ArgumentNullException.ThrowIfNull(createdCourt, "Court not created");
 
         return createdCourt;
+    }
+
+    public bool DisableCourt(Guid courtId)
+    {
+        var court = _courtRepository.Get(c => c.Id == courtId);
+        try
+        {
+            if (court != null)
+            {
+                if (court.CourtStatus != CourtStatus.Unavailable)
+                {
+                    court.CourtStatus = CourtStatus.Unavailable;
+                    _courtRepository.Update(court);
+                    return true;
+                }else if (court.CourtStatus != CourtStatus.Available)
+                {
+                    court.CourtStatus = CourtStatus.Available;
+                    _courtRepository.Update(court);
+                    return true;
+                }
+                
+            }
+            throw new KeyNotFoundException();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+    public bool MaintainCourt(Guid courtId)
+    {
+        var staff = _userRepository.Get(x => x.Id.ToString() == _user.Id) ?? throw new Exception("Invalid Staff");
+        var court = _courtRepository.GetAll().FirstOrDefault(c => c.Id == courtId);
+        try
+        {
+            if (court != null)
+            {
+                if (court.CourtStatus == CourtStatus.Available)
+                {
+                    court.CourtStatus = CourtStatus.Maintain;
+                    court.LastModified = DateTime.Now;
+                    court.LastModifiedBy = staff.UserName;
+                    _courtRepository.Update(court);
+                        return true;
+                }
+            }
+            throw new KeyNotFoundException();
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
 
     public IQueryable<DtoCourtResponse> GetAllCourts()

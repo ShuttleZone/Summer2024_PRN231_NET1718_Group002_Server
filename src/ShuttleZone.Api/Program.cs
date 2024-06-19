@@ -6,9 +6,11 @@ using ShuttleZone.Api.Services;
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Infrastructure.Data;
+using ShuttleZone.Infrastructure.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 ApplicationEnvironment.SetEnvironment(builder.Environment.EnvironmentName);
+DataAccessHelper.Initialize(builder.Configuration);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -58,9 +60,9 @@ builder.Services.AddIdentity<User, Role>(options =>
     options.Password.RequireUppercase = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
-
-builder.Services.AddAuthentication(options =>
+.AddDefaultTokenProviders();    
+    
+builder.Services.AddAuthentication(options =>   
 {
     options.DefaultAuthenticateScheme = 
     options.DefaultChallengeScheme = 
