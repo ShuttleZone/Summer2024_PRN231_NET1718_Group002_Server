@@ -2,6 +2,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Application.Common.Interfaces;
+using ShuttleZone.Application.Services.Payment;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.Common.Exceptions;
 using ShuttleZone.DAL.Common.Interfaces;
@@ -26,6 +27,7 @@ public class ContestService : IContestService
     private readonly IReservationRepository _reservationRepository;
     private readonly IReservationDetailRepository _reservationDetailRepository;
     private readonly ICourtRepository _courtRepository;
+    private readonly IVnPayService _vnPayService;
     private readonly IClubRepository _clubRepository;
 
     public ContestService
@@ -37,6 +39,7 @@ public class ContestService : IContestService
         IReservationRepository reservationRepository,
         IReservationDetailRepository reservationDetailRepository,
         ICourtRepository courtRepository,
+        IVnPayService vnPayService,
         IClubRepository clubRepository
     )
     {
@@ -47,6 +50,7 @@ public class ContestService : IContestService
         _reservationRepository = reservationRepository;
         _reservationDetailRepository = reservationDetailRepository;
         _courtRepository = courtRepository;
+        _vnPayService = vnPayService;
         _clubRepository = clubRepository;
     }
 
@@ -255,6 +259,9 @@ public class ContestService : IContestService
             throw new HttpException(400, $"Total player is {contest.UserContests.Count()}. Only less or equal half of total player is winner allowed");
 
         //add later: refund money for winner
+        //this can not be done now because with one contest, we can have multiple reservation, do not know which person to refund
+        //update database to have contestId(optional field) in transaction table
+        //_vnPayService.RefundPaymentAsync(contest.Reservation.Id, 0, VnPayConstansts.TOTAL_REFUND);
 
         await _unitOfWork.CompleteAsync();
     }

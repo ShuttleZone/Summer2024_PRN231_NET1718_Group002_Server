@@ -20,5 +20,7 @@
         public const string TRANSACTION_NO = "vnp_TransactionNo";
         public const string SECURE_HASH = "vnp_SecureHash";
         public const string RESPONSE_CODE = "vnp_ResponseCode";
+        public const string TOTAL_REFUND = "02";
+        public const string LESS_THAN_TOTAL_REFUND = "03";
     }
 }
