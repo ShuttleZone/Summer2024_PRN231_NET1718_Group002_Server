@@ -10,4 +10,5 @@ public interface IAccountService
     Task<NewAccountDto> Login(LoginDto loginDto);
 
     Task ChangePasswordAsync(ChangePasswordRequest request, CancellationToken cancellationToken);
+    Task ConfirmEmailAsync(string userId, string token);
 }

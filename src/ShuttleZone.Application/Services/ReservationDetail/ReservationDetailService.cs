@@ -19,10 +19,12 @@ public class ReservationDetailService : IReservationDetailService
     }
     public IQueryable<DtoReservationDetail> GetClubReservationDetails(Guid clubId)
     {
+
         Console.WriteLine(DateTime.Now);
         var reservationDetails = _reservationDetailRepository.Find(x => x.Court.ClubId == clubId 
                                                                         && (x.ReservationDetailStatus == ReservationStatusEnum.PENDING || x.ReservationDetailStatus == ReservationStatusEnum.PAYSUCCEED)
                                                                         && x.StartTime >= DateTime.Now);
+
         return _mapper.ProjectTo<DtoReservationDetail>(reservationDetails);
     }
 }

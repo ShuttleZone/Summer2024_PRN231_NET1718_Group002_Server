@@ -189,7 +189,7 @@ namespace ShuttleZone.Application.Services.Reservation
             return _unitOfWork.ReservationDetailRepository.GetAll().Include(d => d.Reservation).
                                 Any(d => (d.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.PAYSUCCEED
                                 || (d.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.PENDING
-                                && d.Reservation.ExpiredTime < DateTime.Now)) && d.CourtId == courtId &&
+                                && d.Reservation.ExpiredTime > DateTime.Now)) && d.CourtId == courtId &&
                                                          d.StartTime < endTime &&
                                                          d.EndTime > startTime);
         }
