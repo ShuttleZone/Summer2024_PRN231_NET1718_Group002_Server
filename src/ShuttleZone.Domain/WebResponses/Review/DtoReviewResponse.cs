@@ -5,7 +5,9 @@ namespace ShuttleZone.Domain.WebResponses.Review;
 public class DtoReviewsResponse
 {
     public RatingEnum Rating { get; set; }
+    public string? Title { get; set; }
     public string? Comment { get; set; }
+    public string? ReplyTitle { get; set; }
     public string? ReplyContent { get; set; }
     public DateTime ReplyTime { get; set; }
     public string? ReplyPerson { get; set; }
