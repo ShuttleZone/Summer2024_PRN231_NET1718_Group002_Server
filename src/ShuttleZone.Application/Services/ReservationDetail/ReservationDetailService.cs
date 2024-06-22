@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Repositories.ReservationDetail;
+using ShuttleZone.Domain.Enums;
 using ShuttleZone.Domain.WebResponses.Court;
 
 namespace ShuttleZone.Application.Services.ReservationDetail;
@@ -18,9 +19,11 @@ public class ReservationDetailService : IReservationDetailService
     }
     public IQueryable<DtoReservationDetail> GetClubReservationDetails(Guid clubId)
     {
+
+        Console.WriteLine(DateTime.Now);
         var reservationDetails = _reservationDetailRepository.Find(x => x.Court.ClubId == clubId 
-        && (x.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.PAYSUCCEED || 
-        (x.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.PENDING && x.Reservation.ExpiredTime > DateTime.Now)));
+                                                                        && (x.ReservationDetailStatus == ReservationStatusEnum.PENDING || x.ReservationDetailStatus == ReservationStatusEnum.PAYSUCCEED)
+                                                                        && x.StartTime >= DateTime.Now);
 
         return _mapper.ProjectTo<DtoReservationDetail>(reservationDetails);
     }
