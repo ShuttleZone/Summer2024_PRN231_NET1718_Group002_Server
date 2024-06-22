@@ -47,6 +47,7 @@ public class ReviewService : IReviewService
         if (updateReview != null)
         {
             var user = _userManager.Users.First(c => c.Id == replyer);
+            updateReview.ReplyTitle = dtoReplyReview.ReplyTitle;
             updateReview.ReplyContent = dtoReplyReview.ReplyContent;
             updateReview.ReplyPerson = user.Fullname;
             updateReview.ReplyTime = DateTime.Now;

@@ -1,5 +1,6 @@
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebRequests.Account;
 
 namespace ShuttleZone.Application.Services.Token;
 
@@ -7,6 +8,7 @@ namespace ShuttleZone.Application.Services.Token;
 public interface ITokenService
 {
     string CreateToken(User user);
+    string CreateRefreshToken();
 
     object? GetTokenClaim(string token, string claimName);
 

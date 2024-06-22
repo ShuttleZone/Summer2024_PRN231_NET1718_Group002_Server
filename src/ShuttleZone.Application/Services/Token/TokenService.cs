@@ -1,11 +1,13 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebRequests.Account;
 
 namespace ShuttleZone.Application.Services.Token;
 
@@ -28,6 +30,8 @@ public class TokenService : ITokenService
         
         var claims = new List<Claim>
         {
+            new Claim(ClaimTypes.Name, user.UserName!),
+            new Claim(ClaimTypes.Email, user.Email!),
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
             new Claim(JwtRegisteredClaimNames.GivenName, user.UserName!),
             new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString())
@@ -40,7 +44,7 @@ public class TokenService : ITokenService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.Now.AddDays(30),
+            Expires = DateTime.UtcNow.AddSeconds(30),
             SigningCredentials = creds,
         };
 
@@ -49,6 +53,17 @@ public class TokenService : ITokenService
         var token = tokenHandle.CreateToken(tokenDescriptor);
 
         return tokenHandle.WriteToken(token);
+    }
+
+    public string CreateRefreshToken()
+    {
+        var randomNumber = new byte[64];
+
+        using var generator = RandomNumberGenerator.Create();
+        
+        generator.GetBytes(randomNumber);
+
+        return Convert.ToBase64String(randomNumber);
     }
 
     public object? GetTokenClaim(string token, string claimName)
