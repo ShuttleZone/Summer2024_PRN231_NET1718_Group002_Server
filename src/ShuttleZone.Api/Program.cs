@@ -79,7 +79,8 @@ builder.Services.AddAuthentication(options =>
         RequireExpirationTime = true,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"]!))
+            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"]!)),
+        ClockSkew = new TimeSpan(0,0,5)
     };
 });
 

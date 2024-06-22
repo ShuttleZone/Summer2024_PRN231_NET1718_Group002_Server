@@ -1,7 +1,11 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Account;
 using ShuttleZone.Application.Services.Token;
@@ -21,13 +25,15 @@ public class AccountController : BaseApiController
     private readonly UserManager<User> _userManager;
     private readonly ITokenService _tokenService;
     private readonly SignInManager<User> _signInManager;
+    private readonly IConfiguration _configuration;
 
-    public AccountController(IAccountService accountService, UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager)
+    public AccountController(IAccountService accountService, UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager, IConfiguration configuration)
     {
         _accountService = accountService;
         _userManager = userManager;
         _tokenService = tokenService;
         _signInManager = signInManager;
+        _configuration = configuration;
     }
 
     [HttpPost("register")]
@@ -35,11 +41,11 @@ public class AccountController : BaseApiController
     {
     try
     {
-        // Check model state validity
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState.First());
-        }
+        // // Check model state validity
+        // if (!ModelState.IsValid)
+        // {
+        //     return BadRequest(ModelState.First());
+        // }
 
         // Check if the user with the provided email or username already exists
         var existingUserByEmail = await _userManager.FindByEmailAsync(registerDto.Email);
@@ -68,7 +74,7 @@ public class AccountController : BaseApiController
         var creationResult = await _userManager.CreateAsync(appUser, registerDto.Password);
         if (!creationResult.Succeeded)
         {
-            return BadRequest(creationResult.Errors.First());
+            return StatusCode(500, creationResult.Errors.Select(e => e.Description));
         }
 
         // Attempt to assign the user to the "Customer" role
@@ -77,7 +83,7 @@ public class AccountController : BaseApiController
         {
             // Rollback user creation if role assignment fails
             await _userManager.DeleteAsync(appUser);
-            return StatusCode(500, roleAssignmentResult.Errors);
+            return StatusCode(500, roleAssignmentResult.Errors.Select(e => e.Description));
         }
 
         // Prepare the new account data
@@ -87,14 +93,15 @@ public class AccountController : BaseApiController
             Username = appUser.UserName,
             Email = appUser.Email,
             Fullname = appUser.Fullname,
-            Token = _tokenService.CreateToken(appUser)
+            Token = _tokenService.CreateToken(appUser),
+            RefreshToken = ""
         };
 
         // Set the token in cookies
         // SetCookiesToken(createdAccount.Token);
 
         // Return success response with the token
-        return Ok($"User created: {createdAccount.Token}");
+        return Ok($"User created");
     }
     catch (Exception ex)
     {
@@ -114,13 +121,20 @@ public class AccountController : BaseApiController
         if (!result.Succeeded)
             return Unauthorized("Wrong password !");
 
+        var refreshToken = _tokenService.CreateRefreshToken();
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(15);
+
+        await _userManager.UpdateAsync(user);   
+        
         var loginAcc = new NewAccountDto
         {
             Id = user.Id,
             Username = user.UserName,
             Fullname = user.Fullname,
             Email = user.Email,
-            Token = _tokenService.CreateToken(user)
+            Token = _tokenService.CreateToken(user),
+            RefreshToken = refreshToken
         };
         return Ok(loginAcc);
     }
@@ -138,4 +152,63 @@ public class AccountController : BaseApiController
     {
         HttpContext.Response.Cookies.Append("token",token);
     }
+    
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh([FromBody] RefreshModel refreshModel)
+    {
+        var principal = GetPrincipalFromExpiredToken(refreshModel.AccessToken);
+        if (principal?.Identity!.Name is null)
+        {
+            return Unauthorized();
+        }
+
+        var user = await _userManager.FindByNameAsync(principal.Identity.Name);
+
+        if (user is null || user.RefreshToken != refreshModel.RefreshToken ||
+            user.RefreshTokenExpiryTime < DateTime.UtcNow)
+            return Unauthorized();
+        var token = _tokenService.CreateToken(user);
+        var loginAcc = new NewAccountDto
+        {
+            Id = user.Id,
+            Username = user.UserName,
+            Fullname = user.Fullname,
+            Email = user.Email,
+            Token = token,
+            RefreshToken = refreshModel.RefreshToken
+        };
+        return Ok("Token Refreshed: " + loginAcc.Token );
+    }
+
+    [HttpDelete("revoke")]
+    public async Task<IActionResult> Revoke()
+    {
+        var username = HttpContext.User?.Identity?.Name;
+
+        if (username is null)
+            return Unauthorized();
+        var user = await _userManager.FindByNameAsync(username);
+        if (user is null)
+            return Unauthorized();
+        user.RefreshToken = null;
+        await _userManager.UpdateAsync(user);
+        return Ok();
+    }
+
+    private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
+    {
+        var validation =  new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            RequireExpirationTime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                System.Text.Encoding.UTF8.GetBytes(_configuration["JWT:SigningKey"]!)),
+            ValidateLifetime = false
+        };
+
+        return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
+    }
+    
 }

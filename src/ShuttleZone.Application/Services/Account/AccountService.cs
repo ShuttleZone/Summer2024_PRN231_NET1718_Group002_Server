@@ -54,7 +54,8 @@ public class AccountService : IAccountService
                 Username = appUser.UserName,
                 Email = appUser.Email,
                 Fullname = appUser.Fullname,
-                Token = _tokenService.CreateToken(appUser)
+                Token = _tokenService.CreateToken(appUser),
+                RefreshToken = ""
             };
             return createdAccount;
         }
@@ -84,7 +85,8 @@ public class AccountService : IAccountService
             Username = user.UserName,
             Fullname = user.Fullname,
             Email = user.Email,
-            Token = _tokenService.CreateToken(user)
+            Token = _tokenService.CreateToken(user),
+            RefreshToken = ""
         };
 
         return loginAcc;
