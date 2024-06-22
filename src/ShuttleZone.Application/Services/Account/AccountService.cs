@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Application.Common.Interfaces;
+using ShuttleZone.Application.Services.Email;
 using ShuttleZone.Application.Services.Token;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.Common.Exceptions;
@@ -17,13 +18,19 @@ public class AccountService : IAccountService
     private readonly ITokenService _tokenService;
     private readonly SignInManager<User> _signInManager;
     private readonly IUser _currentUser;
-     
-    public AccountService(UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager, IUser currentUser)
+    private readonly IEmailService _emailService;
+
+    public AccountService(UserManager<User> userManager, 
+        ITokenService tokenService, 
+        SignInManager<User> signInManager, 
+        IUser currentUser,
+        IEmailService emailService)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _signInManager = signInManager;
         _currentUser = currentUser;
+        _emailService = emailService;
     }
     
     public async Task<NewAccountDto?> Register(RegisterDto registerDto)
@@ -57,6 +64,13 @@ public class AccountService : IAccountService
                 Token = _tokenService.CreateToken(appUser),
                 RefreshToken = ""
             };
+        
+            /// <summary>
+            /// nhi: 21/6/2024 confirm email.
+            /// </summary>
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
+            await _emailService.SendEmailConfirmationAsync(appUser, token);
+
             return createdAccount;
         }
         else
@@ -64,6 +78,7 @@ public class AccountService : IAccountService
                 await _userManager.DeleteAsync(appUser);
             throw new Exception("Register role failed!");
         }
+
     }
 
     public async Task<NewAccountDto> Login(LoginDto loginDto)
@@ -113,5 +128,21 @@ public class AccountService : IAccountService
             .WithStatusCode(400)
             .WithErrorMessage(result.Errors.FirstOrDefault()?.Description ?? "An error occurred while processing your request")
             .ThrowIf(!result.Succeeded);
+    }
+
+    public async Task ConfirmEmailAsync(string userId, string token)
+    {
+        if (userId == null || token == null)
+            throw new HttpException(400, "Invalid token");
+
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+            throw new HttpException(400, "User not found");
+
+        var result = await _userManager.ConfirmEmailAsync(user, token);
+
+        if (!result.Succeeded)
+            throw new HttpException(400, result.Errors.First().Description);
+       
     }
 }

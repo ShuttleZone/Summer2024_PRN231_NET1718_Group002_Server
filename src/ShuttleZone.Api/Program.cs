@@ -58,6 +58,11 @@ builder.Services.AddIdentity<User, Role>(options =>
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequireUppercase = true;
+    /// <summary>
+    /// nhi: 21/6/2024 update for email confirmation.
+    /// </summary>
+    options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedEmail = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();    
@@ -85,6 +90,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddVNPaySettings(builder.Configuration);
+builder.Services.AddEmailSettings(builder.Configuration);
 // Register IHttpClientFactory
 builder.Services.AddHttpClient();
 

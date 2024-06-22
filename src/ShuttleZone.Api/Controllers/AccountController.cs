@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Account;
+using ShuttleZone.Application.Services.Email;
 using ShuttleZone.Application.Services.Token;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests;
@@ -17,8 +18,6 @@ namespace ShuttleZone.Api.Controllers;
 
 [ApiController]
 [Route("api/account")]
-
-
 public class AccountController : BaseApiController
 {
     private readonly IAccountService _accountService;
@@ -26,14 +25,21 @@ public class AccountController : BaseApiController
     private readonly ITokenService _tokenService;
     private readonly SignInManager<User> _signInManager;
     private readonly IConfiguration _configuration;
+    private readonly IEmailService _emailService;
 
-    public AccountController(IAccountService accountService, UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager, IConfiguration configuration)
+    public AccountController(IAccountService accountService, 
+        UserManager<User> userManager, 
+        ITokenService tokenService, 
+        SignInManager<User> signInManager,
+        IEmailService emailService,
+        IConfiguration configuration)
     {
         _accountService = accountService;
         _userManager = userManager;
         _tokenService = tokenService;
         _signInManager = signInManager;
         _configuration = configuration;
+        _emailService = emailService;
     }
 
     [HttpPost("register")]
@@ -97,11 +103,19 @@ public class AccountController : BaseApiController
             RefreshToken = ""
         };
 
-        // Set the token in cookies
-        // SetCookiesToken(createdAccount.Token);
+            // Set the token in cookies
+            // SetCookiesToken(createdAccount.Token);
+
+            /// <summary>
+            /// nhi: 21/6/2024 confirm email.
+            /// </summary>
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
+            await _emailService.SendEmailConfirmationAsync(appUser, token);
+
 
         // Return success response with the token
         return Ok($"User created");
+
     }
     catch (Exception ex)
     {
@@ -148,9 +162,12 @@ public class AccountController : BaseApiController
         ).ConfigureAwait(false);
     }
 
-    private void SetCookiesToken(string token)
+    [HttpGet("/confirm-email")]
+    public async Task<IActionResult> ConfirmEmail(string userId, string token)
     {
-        HttpContext.Response.Cookies.Append("token",token);
+        return await HandleResultAsync(
+            async () => await _accountService.ConfirmEmailAsync(userId, token).ConfigureAwait(false)
+        ).ConfigureAwait(false);
     }
     
     [HttpPost("refresh")]
