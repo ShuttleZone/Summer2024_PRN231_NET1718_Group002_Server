@@ -6,5 +6,6 @@ public class DtoCreateReview
 {
     public Guid clubId { get; set; }
     public RatingEnum Rating { get; set; }
+    public string? Title { get; set; }
     public string? Comment { get; set; }
 }

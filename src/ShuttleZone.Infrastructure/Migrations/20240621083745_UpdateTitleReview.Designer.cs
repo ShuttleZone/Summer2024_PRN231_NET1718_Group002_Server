@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShuttleZone.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ShuttleZone.Infrastructure.Data;
 namespace ShuttleZone.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240621083745_UpdateTitleReview")]
+    partial class UpdateTitleReview
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -177,9 +180,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubName = "Fitness Club A",
                             ClubPhone = "555-1234",
                             ClubStatusEnum = 2,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 855, DateTimeKind.Local).AddTicks(6250),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 112, DateTimeKind.Local).AddTicks(5180),
                             CreatedBy = "Admin",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 855, DateTimeKind.Local).AddTicks(6251),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 112, DateTimeKind.Local).AddTicks(5180),
                             LastModifiedBy = "Admin",
                             MinDuration = 1.5,
                             OpenTime = new TimeOnly(6, 0, 0),
@@ -194,9 +197,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubName = "Yoga Center B",
                             ClubPhone = "555-5678",
                             ClubStatusEnum = 1,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 855, DateTimeKind.Local).AddTicks(6268),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 112, DateTimeKind.Local).AddTicks(5190),
                             CreatedBy = "Admin",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 855, DateTimeKind.Local).AddTicks(6269),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 112, DateTimeKind.Local).AddTicks(5190),
                             LastModifiedBy = "Admin",
                             MinDuration = 1.0,
                             OpenTime = new TimeOnly(5, 0, 0),
@@ -211,9 +214,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubName = "Dance Studio C",
                             ClubPhone = "555-9012",
                             ClubStatusEnum = 2,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 855, DateTimeKind.Local).AddTicks(6284),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 112, DateTimeKind.Local).AddTicks(5200),
                             CreatedBy = "Admin",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 855, DateTimeKind.Local).AddTicks(6284),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 112, DateTimeKind.Local).AddTicks(5200),
                             LastModifiedBy = "Admin",
                             MinDuration = 2.0,
                             OpenTime = new TimeOnly(8, 0, 0),
@@ -228,9 +231,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubName = "Health Club B",
                             ClubPhone = "555-5678",
                             ClubStatusEnum = 1,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 855, DateTimeKind.Local).AddTicks(6296),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 112, DateTimeKind.Local).AddTicks(5210),
                             CreatedBy = "Admin",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 855, DateTimeKind.Local).AddTicks(6296),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 112, DateTimeKind.Local).AddTicks(5210),
                             LastModifiedBy = "Admin",
                             MinDuration = 1.0,
                             OpenTime = new TimeOnly(5, 30, 0),
@@ -262,9 +265,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubName = "Swimming Club D",
                             ClubPhone = "555-3210",
                             ClubStatusEnum = 2,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 855, DateTimeKind.Local).AddTicks(6320),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 112, DateTimeKind.Local).AddTicks(5230),
                             CreatedBy = "Admin",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 855, DateTimeKind.Local).AddTicks(6321),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 112, DateTimeKind.Local).AddTicks(5230),
                             LastModifiedBy = "Admin",
                             MinDuration = 1.5,
                             OpenTime = new TimeOnly(6, 30, 0),
@@ -330,9 +333,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("851e80b3-c3d3-4f1d-b5d8-462cab592b84"),
-                            ContestDate = new DateTime(2024, 6, 22, 0, 0, 0, 0, DateTimeKind.Local),
+                            ContestDate = new DateTime(2024, 6, 21, 0, 0, 0, 0, DateTimeKind.Local),
                             ContestStatus = 1,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 857, DateTimeKind.Local).AddTicks(7823),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 113, DateTimeKind.Local).AddTicks(4510),
                             CreatedBy = "John Doe",
                             MaxPlayer = 8,
                             Policy = "Follow the rules"
@@ -340,9 +343,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("3d6e11e2-8914-495b-b3d7-798960a5fe91"),
-                            ContestDate = new DateTime(2024, 6, 22, 0, 0, 0, 0, DateTimeKind.Local),
+                            ContestDate = new DateTime(2024, 6, 21, 0, 0, 0, 0, DateTimeKind.Local),
                             ContestStatus = 0,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 857, DateTimeKind.Local).AddTicks(7829),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 113, DateTimeKind.Local).AddTicks(4510),
                             CreatedBy = "Jane Smith",
                             MaxPlayer = 10,
                             Policy = "No cheating allowed"
@@ -395,9 +398,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubId = new Guid("8a20240f-c00e-4d1d-9928-7bfc309ff6ce"),
                             CourtStatus = 0,
                             CourtType = 0,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5582),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(6990),
                             CreatedBy = "Club Owner 1",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5583),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(6990),
                             LastModifiedBy = "Admin",
                             Name = "Court 1",
                             Price = 100.0
@@ -408,9 +411,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubId = new Guid("8a20240f-c00e-4d1d-9928-7bfc309ff6ce"),
                             CourtStatus = 0,
                             CourtType = 0,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5592),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7000),
                             CreatedBy = "Club Owner 1",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5593),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7000),
                             LastModifiedBy = "Admin",
                             Name = "Court 2",
                             Price = 100.0
@@ -421,9 +424,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubId = new Guid("8a20240f-c00e-4d1d-9928-7bfc309ff6ce"),
                             CourtStatus = 0,
                             CourtType = 0,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5607),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7000),
                             CreatedBy = "Club Owner 1",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5608),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7000),
                             LastModifiedBy = "Admin",
                             Name = "Court 3",
                             Price = 100.0
@@ -434,9 +437,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubId = new Guid("8a20240f-c00e-4d1d-9928-7bfc309ff6ce"),
                             CourtStatus = 0,
                             CourtType = 0,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5612),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7010),
                             CreatedBy = "Club Owner 1",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5612),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7010),
                             LastModifiedBy = "Admin",
                             Name = "Court 4",
                             Price = 100.0
@@ -446,9 +449,10 @@ namespace ShuttleZone.Infrastructure.Migrations
                             Id = new Guid("ac15834d-74a2-463c-81ce-22400a1048f9"),
                             ClubId = new Guid("6eeed43c-ec69-49ab-8177-b20d1c7a7603"),
                             CourtStatus = 0,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5617),
+                            CourtType = 0,
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7010),
                             CreatedBy = "Club Owner 2",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5618),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7010),
                             LastModifiedBy = "Admin",
                             Name = "Court 1",
                             Price = 100.0
@@ -459,9 +463,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubId = new Guid("6eeed43c-ec69-49ab-8177-b20d1c7a7603"),
                             CourtStatus = 0,
                             CourtType = 0,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5621),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7020),
                             CreatedBy = "Club Owner 2",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5622),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7020),
                             LastModifiedBy = "Admin",
                             Name = "Court 2",
                             Price = 100.0
@@ -472,9 +476,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubId = new Guid("6eeed43c-ec69-49ab-8177-b20d1c7a7603"),
                             CourtStatus = 0,
                             CourtType = 0,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5626),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7020),
                             CreatedBy = "Club Owner 2",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5626),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7020),
                             LastModifiedBy = "Admin",
                             Name = "Court 3",
                             Price = 100.0
@@ -485,9 +489,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubId = new Guid("6eeed43c-ec69-49ab-8177-b20d1c7a7603"),
                             CourtStatus = 0,
                             CourtType = 0,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5630),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7030),
                             CreatedBy = "Club Owner 2",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5631),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7030),
                             LastModifiedBy = "Admin",
                             Name = "Court 4",
                             Price = 100.0
@@ -498,9 +502,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubId = new Guid("50d33a54-9a35-4058-b548-dbc5e35d05aa"),
                             CourtStatus = 0,
                             CourtType = 0,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5635),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7030),
                             CreatedBy = "Club Owner 3",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5636),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7030),
                             LastModifiedBy = "Admin",
                             Name = "Court 1",
                             Price = 100.0
@@ -511,9 +515,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubId = new Guid("50d33a54-9a35-4058-b548-dbc5e35d05aa"),
                             CourtStatus = 0,
                             CourtType = 0,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5639),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7030),
                             CreatedBy = "Club Owner 3",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5640),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7040),
                             LastModifiedBy = "Admin",
                             Name = "Court 2",
                             Price = 100.0
@@ -524,9 +528,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubId = new Guid("50d33a54-9a35-4058-b548-dbc5e35d05aa"),
                             CourtStatus = 0,
                             CourtType = 0,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5644),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7040),
                             CreatedBy = "Club Owner 3",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5644),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7040),
                             LastModifiedBy = "Admin",
                             Name = "Court 3",
                             Price = 100.0
@@ -537,9 +541,9 @@ namespace ShuttleZone.Infrastructure.Migrations
                             ClubId = new Guid("50d33a54-9a35-4058-b548-dbc5e35d05aa"),
                             CourtStatus = 0,
                             CourtType = 0,
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5648),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7040),
                             CreatedBy = "Club Owner 3",
-                            LastModified = new DateTime(2024, 6, 22, 0, 1, 27, 860, DateTimeKind.Local).AddTicks(5648),
+                            LastModified = new DateTime(2024, 6, 21, 15, 37, 45, 114, DateTimeKind.Local).AddTicks(7040),
                             LastModifiedBy = "Admin",
                             Name = "Court 4",
                             Price = 100.0
@@ -588,21 +592,21 @@ namespace ShuttleZone.Infrastructure.Migrations
                         {
                             Id = new Guid("2d3476e2-526b-4a65-89f8-9561981c947e"),
                             CourtId = new Guid("a3b5853b-f556-4a52-a1cf-4a3fb81db29a"),
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 863, DateTimeKind.Local).AddTicks(2343),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 115, DateTimeKind.Local).AddTicks(8320),
                             CreatedBy = "Admin",
-                            EndTime = new DateTime(2024, 6, 22, 0, 0, 0, 0, DateTimeKind.Local),
+                            EndTime = new DateTime(2024, 6, 21, 0, 0, 0, 0, DateTimeKind.Local),
                             Reason = "Out of service",
-                            StartTime = new DateTime(2024, 6, 22, 0, 1, 27, 863, DateTimeKind.Local).AddTicks(2332)
+                            StartTime = new DateTime(2024, 6, 21, 15, 37, 45, 115, DateTimeKind.Local).AddTicks(8320)
                         },
                         new
                         {
                             Id = new Guid("02d759bf-9408-452f-b920-359df87a0fac"),
                             CourtId = new Guid("ac15834d-74a2-463c-81ce-22400a1048f9"),
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 863, DateTimeKind.Local).AddTicks(2350),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 115, DateTimeKind.Local).AddTicks(8320),
                             CreatedBy = "Admin",
-                            EndTime = new DateTime(2024, 6, 22, 0, 0, 0, 0, DateTimeKind.Local),
+                            EndTime = new DateTime(2024, 6, 21, 0, 0, 0, 0, DateTimeKind.Local),
                             Reason = "Out of service 2",
-                            StartTime = new DateTime(2024, 6, 22, 0, 1, 27, 863, DateTimeKind.Local).AddTicks(2349)
+                            StartTime = new DateTime(2024, 6, 21, 15, 37, 45, 115, DateTimeKind.Local).AddTicks(8320)
                         });
                 });
 
@@ -781,7 +785,7 @@ namespace ShuttleZone.Infrastructure.Migrations
                             Id = new Guid("83196436-d386-48b4-bfac-d5b08d8cf604"),
                             ClubId = new Guid("8a20240f-c00e-4d1d-9928-7bfc309ff6ce"),
                             Comment = "Good",
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 874, DateTimeKind.Local).AddTicks(4856),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 121, DateTimeKind.Local).AddTicks(4510),
                             CreatedBy = "John doe",
                             Rating = 0,
                             ReplyTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -792,7 +796,7 @@ namespace ShuttleZone.Infrastructure.Migrations
                             Id = new Guid("c5ee94c7-6fee-4af0-b4b3-07b17fd87325"),
                             ClubId = new Guid("8a20240f-c00e-4d1d-9928-7bfc309ff6ce"),
                             Comment = "Bad",
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 874, DateTimeKind.Local).AddTicks(4862),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 121, DateTimeKind.Local).AddTicks(4510),
                             CreatedBy = "John doe",
                             Rating = 0,
                             ReplyTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -803,7 +807,7 @@ namespace ShuttleZone.Infrastructure.Migrations
                             Id = new Guid("fde0842b-3182-432a-b567-1c4aad77bac9"),
                             ClubId = new Guid("8a20240f-c00e-4d1d-9928-7bfc309ff6ce"),
                             Comment = "Fair Well",
-                            Created = new DateTime(2024, 6, 22, 0, 1, 27, 874, DateTimeKind.Local).AddTicks(4867),
+                            Created = new DateTime(2024, 6, 21, 15, 37, 45, 121, DateTimeKind.Local).AddTicks(4520),
                             CreatedBy = "John doe",
                             Rating = 0,
                             ReplyTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -841,25 +845,25 @@ namespace ShuttleZone.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d4b16e64-9605-45a9-a7bd-2ebbf903613f"),
+                            Id = new Guid("24fb879c-acc7-42e1-9fd3-5b13a76fb55a"),
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
-                            Id = new Guid("5634a694-1563-41a6-b50f-baea6531613c"),
+                            Id = new Guid("5bb26beb-c2ec-48dc-a706-952bc2329d37"),
                             Name = "Staff",
                             NormalizedName = "STAFF"
                         },
                         new
                         {
-                            Id = new Guid("538c200a-e213-4960-b2c5-0d714f86baaa"),
+                            Id = new Guid("c599ece3-8f6e-4631-88f3-abaebbb361d2"),
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = new Guid("b5857177-2f7c-4ef8-a032-0e6c2351be04"),
+                            Id = new Guid("1a8b57e2-66da-4d8a-a2ce-ecaca8cad41b"),
                             Name = "SuperAdmin",
                             NormalizedName = "SUPERADMIN"
                         });
@@ -963,9 +967,6 @@ namespace ShuttleZone.Infrastructure.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("ProfileImage")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");

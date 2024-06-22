@@ -147,6 +147,12 @@ public static class DependencyInjection
         return services;
     }
 
+    public static IServiceCollection AddEmailSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<EmailSettings>(configuration.GetSection(nameof(EmailSettings)));
+        return services;
+    }
+
     private class TimeOnlyJsonConverter : JsonConverter<TimeOnly>
     {
         private const string TimeFormat = "HH:mm";

@@ -164,6 +164,7 @@ public class ContestService : IContestService
                 ReservationDetailStatus = ReservationStatusEnum.PENDING,
                 Price = court.Price,
             });
+            reservation.TotalPrice += court.Price;
         }
 
         var contestCreator = new UserContest

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Account;
+using ShuttleZone.Application.Services.Email;
 using ShuttleZone.Application.Services.Token;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests;
@@ -21,13 +22,19 @@ public class AccountController : BaseApiController
     private readonly UserManager<User> _userManager;
     private readonly ITokenService _tokenService;
     private readonly SignInManager<User> _signInManager;
+    private readonly IEmailService _emailService;
 
-    public AccountController(IAccountService accountService, UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager)
+    public AccountController(IAccountService accountService, 
+        UserManager<User> userManager, 
+        ITokenService tokenService, 
+        SignInManager<User> signInManager,
+        IEmailService emailService)
     {
         _accountService = accountService;
         _userManager = userManager;
         _tokenService = tokenService;
         _signInManager = signInManager;
+        _emailService = emailService;
     }
 
     [HttpPost("register")]
@@ -90,11 +97,17 @@ public class AccountController : BaseApiController
             Token = _tokenService.CreateToken(appUser)
         };
 
-        // Set the token in cookies
-        // SetCookiesToken(createdAccount.Token);
+            // Set the token in cookies
+            // SetCookiesToken(createdAccount.Token);
 
-        // Return success response with the token
-        return Ok($"User created: {createdAccount.Token}");
+            /// <summary>
+            /// nhi: 21/6/2024 confirm email.
+            /// </summary>
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
+            await _emailService.SendEmailConfirmationAsync(appUser, token);
+
+            // Return success response with the token
+            return Ok($"User created: {createdAccount.Token}");
     }
     catch (Exception ex)
     {
