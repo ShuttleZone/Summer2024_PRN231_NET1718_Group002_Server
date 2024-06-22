@@ -30,5 +30,12 @@ public class UsersController : BaseApiController
     {
         return HandleResult((() => _userService.UpdateUserProfile(request)));
     }
+    [HttpPut("/api/profile/image")]
+    [Consumes("multipart/form-data")]
+    public IActionResult UpdateProfile([FromForm]IFormFile image)
+    {
+        return HandleResult((() => _userService.ChangeProfileImage(image)));
+    }
+    
     
 }

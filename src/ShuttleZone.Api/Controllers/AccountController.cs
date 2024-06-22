@@ -126,7 +126,7 @@ public class AccountController : BaseApiController
     }
 
     [Authorize]
-    [HttpPatch("password")]
+    [HttpPut("password")]
     public async Task<IActionResult> ChangePassword(ChangePasswordRequest request, CancellationToken cancellationToken)
     {
         return await HandleResultAsync(
