@@ -147,8 +147,11 @@ public class AccountController : BaseApiController
         ).ConfigureAwait(false);
     }
 
-    private void SetCookiesToken(string token)
+    [HttpGet("/confirm-email")]
+    public async Task<IActionResult> ConfirmEmail(string userId, string token)
     {
-        HttpContext.Response.Cookies.Append("token",token);
+        return await HandleResultAsync(
+            async () => await _accountService.ConfirmEmailAsync(userId, token).ConfigureAwait(false)
+        ).ConfigureAwait(false);
     }
 }
