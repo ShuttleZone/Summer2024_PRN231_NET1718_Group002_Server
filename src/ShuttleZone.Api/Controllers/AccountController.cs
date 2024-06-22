@@ -14,8 +14,6 @@ namespace ShuttleZone.Api.Controllers;
 
 [ApiController]
 [Route("api/account")]
-
-
 public class AccountController : BaseApiController
 {
     private readonly IAccountService _accountService;

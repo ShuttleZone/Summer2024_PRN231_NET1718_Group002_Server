@@ -34,7 +34,7 @@ namespace ShuttleZone.Application.Services.Reservation
         public async Task CancelReservation(Guid reservationId)
         {
             var reservation = _unitOfWork.ReservationRepository.Find(r => r.Id == reservationId)
-                .Include(r=>r.ReservationDetails)
+                .Include(r => r.ReservationDetails)
                 .FirstOrDefault();
             if (reservation == null)
                 throw new HttpException(400, "Resevation is unexisted");
@@ -47,7 +47,7 @@ namespace ShuttleZone.Application.Services.Reservation
                 var status = reservation.ReservationStatusEnum == Domain.Enums.ReservationStatusEnum.CANCELLED ? ReservationStatusEnum.CANCELLED.ToString().ToLower() : "pay failed";
                 throw new HttpException(400, $"Reservation is already in {status} status");
             }
-            if(reservation.ReservationDetails.Any(rd=>rd.ReservationDetailStatus == ReservationStatusEnum.CANCELLED))
+            if (reservation.ReservationDetails.Any(rd => rd.ReservationDetailStatus == ReservationStatusEnum.CANCELLED))
                 throw new HttpException(400, "Reservation contain cancel booked court. You have cancelled reservation detail, can not cancel this reservation");
 
             if (reservation.ReservationDetails.Any(r => r.StartTime < DateTime.Now))
@@ -97,9 +97,9 @@ namespace ShuttleZone.Application.Services.Reservation
                 throw new HttpException(400, "Court Booking can only be cancelled 24 hours before the start time.");
 
             reservationDetail.ReservationDetailStatus = ReservationStatusEnum.CANCELLED;
-            reservationDetail.Reservation.TotalPrice -= reservationDetail.Price;            
+            reservationDetail.Reservation.TotalPrice -= reservationDetail.Price;
 
-            if(reservationDetail.Reservation.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED)
+            if (reservationDetail.Reservation.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED)
             {
                 //will add refund here later
                 await _vnPayService.RefundPaymentAsync(reservationDetail.Reservation.Id, reservationDetail.Price, VnPayConstansts.LESS_THAN_TOTAL_REFUND);
@@ -145,6 +145,21 @@ namespace ShuttleZone.Application.Services.Reservation
                         throw new InvalidOperationException($"Court {detail.CourtId} does not exist.");
                     }
 
+                    var clubEntity = _unitOfWork.CourtRepository.Find(c => c.Id == detail.CourtId)
+                        .Include(c => c.Club)
+                        .ThenInclude(club => club.OpenDateInWeeks).FirstOrDefault()?.Club;
+                    if (clubEntity != null)
+                    {
+                        var dayOfWeekString = detail.StartTime.DayOfWeek.ToString();
+                        bool isOpen = clubEntity.OpenDateInWeeks
+                            .Any(openDate => openDate.Date.Equals(dayOfWeekString, StringComparison.OrdinalIgnoreCase));
+
+                        if (!isOpen)
+                        {
+                            throw new ArgumentException($"Can book on {dayOfWeekString}. This club close on this date.");
+                        }
+                    }
+
                     var hasOverlap = HasOverlappingReservation(detail.CourtId, detail.StartTime, detail.EndTime);
                     if (hasOverlap)
                     {
@@ -176,7 +191,7 @@ namespace ShuttleZone.Application.Services.Reservation
             var reservationDetailsQuery = _unitOfWork.ReservationRepository.GetAll()
                 .Where(r => r.CustomerId == currentUser)
                 .Include(r => r.ReservationDetails)
-                .SelectMany(r => r.ReservationDetails).Include(r => r.Court).ThenInclude(c => c.Club).Include(r=>r.Reservation);
+                .SelectMany(r => r.ReservationDetails).Include(r => r.Court).ThenInclude(c => c.Club).Include(r => r.Reservation);
 
             var reservationDetailsResponse = reservationDetailsQuery
                 .ProjectTo<ReservationDetailsResponse>(_mapper.ConfigurationProvider);
@@ -187,11 +202,12 @@ namespace ShuttleZone.Application.Services.Reservation
         public bool HasOverlappingReservation(Guid? courtId, DateTime startTime, DateTime endTime)
         {
             return _unitOfWork.ReservationDetailRepository.GetAll().Include(d => d.Reservation).
-                                Any(d => (d.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.PAYSUCCEED
-                                || (d.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.PENDING
-                                && d.Reservation.ExpiredTime > DateTime.Now)) && d.CourtId == courtId &&
-                                                         d.StartTime < endTime &&
-                                                         d.EndTime > startTime);
+                                Any(
+                                d => (d.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.PAYSUCCEED
+                                || (d.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.PENDING && d.Reservation.ExpiredTime > DateTime.Now))
+                                && d.CourtId == courtId &&
+                                (d.StartTime < endTime && d.EndTime > startTime)
+                                );
         }
     }
 }

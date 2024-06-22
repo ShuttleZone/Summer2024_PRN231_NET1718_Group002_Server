@@ -1,6 +1,3 @@
-using ShuttleZone.Domain.Common;
-using ShuttleZone.Domain.Enums;
-
 namespace ShuttleZone.Domain.Entities;
 
 public class OpenDateInWeek 
