@@ -62,7 +62,6 @@ namespace ShuttleZone.Application.Services.Payment
 
             string paymentUrl = vnpay.CreateRequestUrl(_vnPaySettings.BaseUrl, _vnPaySettings.HashSecret);
 
-
             return paymentUrl;
         }
 

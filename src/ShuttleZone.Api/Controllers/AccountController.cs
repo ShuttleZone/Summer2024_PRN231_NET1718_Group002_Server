@@ -27,9 +27,9 @@ public class AccountController : BaseApiController
     private readonly IConfiguration _configuration;
     private readonly IEmailService _emailService;
 
-    public AccountController(IAccountService accountService, 
-        UserManager<User> userManager, 
-        ITokenService tokenService, 
+    public AccountController(IAccountService accountService,
+        UserManager<User> userManager,
+        ITokenService tokenService,
         SignInManager<User> signInManager,
         IEmailService emailService,
         IConfiguration configuration)
@@ -45,63 +45,63 @@ public class AccountController : BaseApiController
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     {
-    try
-    {
-        // // Check model state validity
-        // if (!ModelState.IsValid)
-        // {
-        //     return BadRequest(ModelState.First());
-        // }
-
-        // Check if the user with the provided email or username already exists
-        var existingUserByEmail = await _userManager.FindByEmailAsync(registerDto.Email);
-        var existingUserByUsername = await _userManager.FindByNameAsync(registerDto.Username);
-
-        if (existingUserByEmail != null)
+        try
         {
-            return StatusCode(500,$"User with email: {existingUserByEmail.Email} already exists!");
-        }
+            // // Check model state validity
+            // if (!ModelState.IsValid)
+            // {
+            //     return BadRequest(ModelState.First());
+            // }
 
-        if (existingUserByUsername != null)
-        {
-            return StatusCode(500,$"User with username: {existingUserByUsername.UserName} already exists!");
-        }
+            // Check if the user with the provided email or username already exists
+            var existingUserByEmail = await _userManager.FindByEmailAsync(registerDto.Email);
+            var existingUserByUsername = await _userManager.FindByNameAsync(registerDto.Username);
 
-        var appUser = new User
-        {
-            UserName = registerDto.Username,
-            Email = registerDto.Email,
-            PhoneNumber = registerDto.PhoneNumber,
-            Fullname = registerDto.Fullname,
-            Gender = 0,
-        };
+            if (existingUserByEmail != null)
+            {
+                return StatusCode(500, $"User with email: {existingUserByEmail.Email} already exists!");
+            }
 
-        // Attempt to create the user with the provided password
-        var creationResult = await _userManager.CreateAsync(appUser, registerDto.Password);
-        if (!creationResult.Succeeded)
-        {
-            return StatusCode(500, creationResult.Errors.Select(e => e.Description));
-        }
+            if (existingUserByUsername != null)
+            {
+                return StatusCode(500, $"User with username: {existingUserByUsername.UserName} already exists!");
+            }
 
-        // Attempt to assign the user to the "Customer" role
-        var roleAssignmentResult = await _userManager.AddToRoleAsync(appUser, "Customer");
-        if (!roleAssignmentResult.Succeeded)
-        {
-            // Rollback user creation if role assignment fails
-            await _userManager.DeleteAsync(appUser);
-            return StatusCode(500, roleAssignmentResult.Errors.Select(e => e.Description));
-        }
+            var appUser = new User
+            {
+                UserName = registerDto.Username,
+                Email = registerDto.Email,
+                PhoneNumber = registerDto.PhoneNumber,
+                Fullname = registerDto.Fullname,
+                Gender = 0,
+            };
 
-        // Prepare the new account data
-        var createdAccount = new NewAccountDto
-        {
-            Id = appUser.Id,
-            Username = appUser.UserName,
-            Email = appUser.Email,
-            Fullname = appUser.Fullname,
-            Token = _tokenService.CreateToken(appUser),
-            RefreshToken = ""
-        };
+            // Attempt to create the user with the provided password
+            var creationResult = await _userManager.CreateAsync(appUser, registerDto.Password);
+            if (!creationResult.Succeeded)
+            {
+                return StatusCode(500, creationResult.Errors.Select(e => e.Description));
+            }
+
+            // Attempt to assign the user to the "Customer" role
+            var roleAssignmentResult = await _userManager.AddToRoleAsync(appUser, "Customer");
+            if (!roleAssignmentResult.Succeeded)
+            {
+                // Rollback user creation if role assignment fails
+                await _userManager.DeleteAsync(appUser);
+                return StatusCode(500, roleAssignmentResult.Errors.Select(e => e.Description));
+            }
+
+            // Prepare the new account data
+            var createdAccount = new NewAccountDto
+            {
+                Id = appUser.Id,
+                Username = appUser.UserName,
+                Email = appUser.Email,
+                Fullname = appUser.Fullname,
+                Token = _tokenService.CreateToken(appUser),
+                RefreshToken = ""
+            };
 
             // Set the token in cookies
             // SetCookiesToken(createdAccount.Token);
@@ -110,19 +110,20 @@ public class AccountController : BaseApiController
             /// nhi: 21/6/2024 confirm email.
             /// </summary>
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
-            await _emailService.SendEmailConfirmationAsync(appUser, token);
+            #pragma warning disable
+            _emailService.SendEmailConfirmationAsync(appUser, token);
 
 
-        // Return success response with the token
-        return Ok($"User created");
+            // Return success response with the token
+            return Ok($"User created");
 
+        }
+        catch (Exception ex)
+        {
+            // Return a 500 status code with a generic error message
+            return StatusCode(500, "An error occurred while processing your request:" + ex);
+        }
     }
-    catch (Exception ex)
-    {
-        // Return a 500 status code with a generic error message
-        return StatusCode(500, "An error occurred while processing your request:" + ex);
-    }
-}
 
 
     [HttpPost("login")]
@@ -131,7 +132,7 @@ public class AccountController : BaseApiController
         var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Account!.ToLower() || u.UserName == loginDto.Account.ToLower());
         if (user == null)
             return StatusCode(400, "User with account: " + loginDto.Account + " is not found!");
-        var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false );
+        var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
         if (!result.Succeeded)
             return Unauthorized("Wrong password !");
 
@@ -139,8 +140,8 @@ public class AccountController : BaseApiController
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(15);
 
-        await _userManager.UpdateAsync(user);   
-        
+        await _userManager.UpdateAsync(user);
+
         var loginAcc = new NewAccountDto
         {
             Id = user.Id,
@@ -169,7 +170,7 @@ public class AccountController : BaseApiController
             async () => await _accountService.ConfirmEmailAsync(userId, token).ConfigureAwait(false)
         ).ConfigureAwait(false);
     }
-    
+
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody] RefreshModel refreshModel)
     {
@@ -194,7 +195,7 @@ public class AccountController : BaseApiController
             Token = token,
             RefreshToken = refreshModel.RefreshToken
         };
-        return Ok("Token Refreshed: " + loginAcc.Token );
+        return Ok("Token Refreshed: " + loginAcc.Token);
     }
 
     [HttpDelete("revoke")]
@@ -214,7 +215,7 @@ public class AccountController : BaseApiController
 
     private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
     {
-        var validation =  new TokenValidationParameters
+        var validation = new TokenValidationParameters
         {
             ValidateIssuer = false,
             ValidateAudience = false,
@@ -227,5 +228,5 @@ public class AccountController : BaseApiController
 
         return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
     }
-    
+
 }
