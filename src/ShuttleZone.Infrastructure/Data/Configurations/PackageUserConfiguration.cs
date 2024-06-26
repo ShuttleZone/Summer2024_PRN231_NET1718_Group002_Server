@@ -4,11 +4,19 @@ using ShuttleZone.Domain.Entities;
 
 namespace ShuttleZone.Infrastructure.Data.Configurations
 {
-    public class PackageUserConfiguration : IEntityTypeConfiguration<Package>
+    public class PackageUserConfiguration : IEntityTypeConfiguration<PackageUser>
     {
-        public void Configure(EntityTypeBuilder<Package> builder)
+        public void Configure(EntityTypeBuilder<PackageUser> builder)
         {
-            builder.ToTable(nameof(Package));
+            builder.HasKey(p => new { p.PackageId, p.UserId });
+            
+            builder.HasOne(pu => pu.Package)
+                .WithMany(uc => uc.PackageUser)
+                .HasForeignKey(uc => uc.PackageId);
+        
+            builder.HasOne(uc => uc.User)
+                .WithMany(uc => uc.PackageUsers)
+                .HasForeignKey(uc => uc.UserId);
         }
     }
 }

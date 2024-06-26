@@ -10,6 +10,7 @@ using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Account;
 using ShuttleZone.Application.Services.Email;
 using ShuttleZone.Application.Services.Token;
+using ShuttleZone.Domain.Constants;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebRequests.Account;
@@ -124,7 +125,172 @@ public class AccountController : BaseApiController
             return StatusCode(500, "An error occurred while processing your request:" + ex);
         }
     }
+    
+    [HttpPost("registerManager")]
+    public async Task<IActionResult> RegisterManager([FromBody] RegisterDto registerDto)
+    {
+        try
+        {
+            // // Check model state validity
+            // if (!ModelState.IsValid)
+            // {
+            //     return BadRequest(ModelState.First());
+            // }
 
+            // Check if the user with the provided email or username already exists
+            var existingUserByEmail = await _userManager.FindByEmailAsync(registerDto.Email);
+            var existingUserByUsername = await _userManager.FindByNameAsync(registerDto.Username);
+
+            if (existingUserByEmail != null)
+            {
+                return StatusCode(500, $"User with email: {existingUserByEmail.Email} already exists!");
+            }
+
+            if (existingUserByUsername != null)
+            {
+                return StatusCode(500, $"User with username: {existingUserByUsername.UserName} already exists!");
+            }
+
+            var appUser = new User
+            {
+                UserName = registerDto.Username,
+                Email = registerDto.Email,
+                PhoneNumber = registerDto.PhoneNumber,
+                Fullname = registerDto.Fullname,
+                Gender = 0,
+            };
+
+            // Attempt to create the user with the provided password
+            var creationResult = await _userManager.CreateAsync(appUser, registerDto.Password);
+            if (!creationResult.Succeeded)
+            {
+                return StatusCode(500, creationResult.Errors.Select(e => e.Description));
+            }
+
+            // Attempt to assign the user to the "Customer" role
+            var roleAssignmentResult = await _userManager.AddToRoleAsync(appUser, SystemRole.Manager);
+            if (!roleAssignmentResult.Succeeded)
+            {
+                // Rollback user creation if role assignment fails
+                await _userManager.DeleteAsync(appUser);
+                return StatusCode(500, roleAssignmentResult.Errors.Select(e => e.Description));
+            }
+
+            // Prepare the new account data
+            var createdAccount = new NewAccountDto
+            {
+                Id = appUser.Id,
+                Username = appUser.UserName,
+                Email = appUser.Email,
+                Fullname = appUser.Fullname,
+                Token = _tokenService.CreateToken(appUser),
+                RefreshToken = ""
+            };
+
+            // Set the token in cookies
+            // SetCookiesToken(createdAccount.Token);
+
+            /// <summary>
+            /// nhi: 21/6/2024 confirm email.
+            /// </summary>
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
+            #pragma warning disable
+            _emailService.SendEmailConfirmationAsync(appUser, token);
+
+
+            // Return success response with the token
+            return Ok($"Manager created");
+
+        }
+        catch (Exception ex)
+        {
+            // Return a 500 status code with a generic error message
+            return StatusCode(500, "An error occurred while processing your request:" + ex);
+        }
+    }
+
+     [HttpPost("registerStaff")]
+    public async Task<IActionResult> RegisterStaff([FromBody] RegisterDto registerDto)
+    {
+        try
+        {
+            // // Check model state validity
+            // if (!ModelState.IsValid)
+            // {
+            //     return BadRequest(ModelState.First());
+            // }
+
+            // Check if the user with the provided email or username already exists
+            var existingUserByEmail = await _userManager.FindByEmailAsync(registerDto.Email);
+            var existingUserByUsername = await _userManager.FindByNameAsync(registerDto.Username);
+
+            if (existingUserByEmail != null)
+            {
+                return StatusCode(500, $"User with email: {existingUserByEmail.Email} already exists!");
+            }
+
+            if (existingUserByUsername != null)
+            {
+                return StatusCode(500, $"User with username: {existingUserByUsername.UserName} already exists!");
+            }
+
+            var appUser = new User
+            {
+                UserName = registerDto.Username,
+                Email = registerDto.Email,
+                PhoneNumber = registerDto.PhoneNumber,
+                Fullname = registerDto.Fullname,
+                Gender = 0,
+            };
+
+            // Attempt to create the user with the provided password
+            var creationResult = await _userManager.CreateAsync(appUser, registerDto.Password);
+            if (!creationResult.Succeeded)
+            {
+                return StatusCode(500, creationResult.Errors.Select(e => e.Description));
+            }
+
+            // Attempt to assign the user to the "Customer" role
+            var roleAssignmentResult = await _userManager.AddToRoleAsync(appUser, SystemRole.Staff);
+            if (!roleAssignmentResult.Succeeded)
+            {
+                // Rollback user creation if role assignment fails
+                await _userManager.DeleteAsync(appUser);
+                return StatusCode(500, roleAssignmentResult.Errors.Select(e => e.Description));
+            }
+
+            // Prepare the new account data
+            var createdAccount = new NewAccountDto
+            {
+                Id = appUser.Id,
+                Username = appUser.UserName,
+                Email = appUser.Email,
+                Fullname = appUser.Fullname,
+                Token = _tokenService.CreateToken(appUser),
+                RefreshToken = ""
+            };
+
+            // Set the token in cookies
+            // SetCookiesToken(createdAccount.Token);
+
+            /// <summary>
+            /// nhi: 21/6/2024 confirm email.
+            /// </summary>
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
+            #pragma warning disable
+            _emailService.SendEmailConfirmationAsync(appUser, token);
+
+
+            // Return success response with the token
+            return Ok($"Manager created");
+
+        }
+        catch (Exception ex)
+        {
+            // Return a 500 status code with a generic error message
+            return StatusCode(500, "An error occurred while processing your request:" + ex);
+        }
+    }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto loginDto)

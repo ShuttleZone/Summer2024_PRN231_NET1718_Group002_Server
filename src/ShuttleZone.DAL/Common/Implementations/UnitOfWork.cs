@@ -1,5 +1,6 @@
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
+using ShuttleZone.DAL.DependencyInjection.Repositories.Package;
 using ShuttleZone.DAL.DependencyInjection.Repositories.Review;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.DAL.Repositories.Court;
@@ -26,6 +27,7 @@ namespace ShuttleZone.DAL.Common.Implementations
         public ICourtRepository CourtRepository => new CourtRepository(_context, _readOnlyContext);
         public ITransactionRepository TransactionRepository => new TransactionRepository(_context, _readOnlyContext);
         public IReviewRepository ReviewRepository  => new ReviewRepository(_context,_readOnlyContext);
+        public IPackageRepository PackageRepository => new PackageRepository(_context, _readOnlyContext);
         public IContestRepository ContestRepository => new ContestRepository(_context, _readOnlyContext);
        
         public async Task<bool> CompleteAsync(CancellationToken cancellationToken = default)
