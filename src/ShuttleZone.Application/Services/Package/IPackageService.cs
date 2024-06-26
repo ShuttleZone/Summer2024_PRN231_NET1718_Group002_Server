@@ -1,5 +1,6 @@
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.Domain.WebRequests.Packages;
+using ShuttleZone.Domain.WebResponses.Package;
 
 namespace ShuttleZone.Application.DependencyInjection.Services.Package;
 
@@ -7,4 +8,8 @@ namespace ShuttleZone.Application.DependencyInjection.Services.Package;
 public interface IPackageService
 {
     Task<CreatePackageDto> CreatePackage(CreatePackageDto createPackageDto);
+
+    IQueryable<PackageResponseDto>? GetPackagesAdmin();
+
+    Task<UpdatePackageDto> UpdatePackage(UpdatePackageDto updatePackageDto);
 }

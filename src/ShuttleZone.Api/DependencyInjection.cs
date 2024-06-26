@@ -16,6 +16,7 @@ using ShuttleZone.Domain.WebResponses.Contest;
 using ShuttleZone.Common.Settings;
 using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.Enums;
+using ShuttleZone.Domain.WebResponses.Package;
 using ShuttleZone.Domain.WebResponses.ReservationDetails;
 using ShuttleZone.Domain.WebResponses.Reservations;
 using ShuttleZone.Domain.WebResponses.ShuttleZoneUser;
@@ -126,6 +127,13 @@ public static class DependencyInjection
         #region User Models
 
         builder.EntitySet<DtoUserProfile>(GetControllerShortName<UsersController>());
+
+        #endregion
+
+        #region Packages
+
+        builder.EntitySet<PackageResponseDto>(GetControllerShortName<PackageController>());
+        
 
         #endregion
 

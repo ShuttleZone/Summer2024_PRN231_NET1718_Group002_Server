@@ -1,8 +1,10 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Domain.Enums;
 using ShuttleZone.Domain.WebRequests.Packages;
+using ShuttleZone.Domain.WebResponses.Package;
 
 namespace ShuttleZone.Application.DependencyInjection.Services.Package;
 
@@ -30,5 +32,35 @@ public class PackageService : IPackageService
         }
 
         throw new Exception();
+    }
+
+    public IQueryable<PackageResponseDto>? GetPackagesAdmin()
+    {
+        var packages = _unitOfWork.PackageRepository.GetAll();
+        if (packages != null)
+        {
+            var packagesDtos = _mapper.ProjectTo<PackageResponseDto>(packages);
+            return packagesDtos;
+
+        }
+        return null;
+    }
+
+    public async Task<UpdatePackageDto> UpdatePackage(UpdatePackageDto updatePackageDto)
+    {
+        var package = await _unitOfWork.PackageRepository.Find(p => p.Id == updatePackageDto.Id).FirstAsync();
+        if (package != null)
+        {
+            package.Name = updatePackageDto.Name;
+            package.Description = updatePackageDto.Description;
+            package.Price = updatePackageDto.Price;
+            package.PackageStatus = PackageStatus.Pending;
+
+             _unitOfWork.PackageRepository.Update(package);
+             await _unitOfWork.CompleteAsync();
+             return updatePackageDto;
+        }
+
+        throw new KeyNotFoundException();
     }
 }
