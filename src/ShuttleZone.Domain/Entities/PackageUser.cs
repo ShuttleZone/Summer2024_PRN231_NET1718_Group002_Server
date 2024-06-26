@@ -14,7 +14,6 @@ namespace ShuttleZone.Domain.Entities
         public Guid TransactionId { get; set; }
         public Transaction? Transaction { get; set; }
         
-        public PackageUserStatus PackageUserStatus { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
     }
