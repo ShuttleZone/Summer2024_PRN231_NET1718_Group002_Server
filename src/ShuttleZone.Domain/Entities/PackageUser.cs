@@ -1,4 +1,5 @@
 ﻿using ShuttleZone.Domain.Common;
+using ShuttleZone.Domain.Enums;
 
 namespace ShuttleZone.Domain.Entities
 {
@@ -6,9 +7,15 @@ namespace ShuttleZone.Domain.Entities
     {
         public Guid UserId { get; set; }
         public User User { get; set; } = null!;
+        
         public Guid PackageId { get; set; }
         public Package Package { get; set; } = null!;
+        
         public Guid TransactionId { get; set; }
         public Transaction? Transaction { get; set; }
+        
+        public PackageUserStatus PackageUserStatus { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
     }
 }

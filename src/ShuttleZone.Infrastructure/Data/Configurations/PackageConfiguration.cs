@@ -8,7 +8,9 @@ namespace ShuttleZone.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Package> builder)
         {
-            builder.ToTable(nameof(Package));
+            builder.HasMany(p => p.PackageUser)
+                .WithOne(p => p.Package)
+                .HasForeignKey(p => p.PackageId);
         }
     }
 }
