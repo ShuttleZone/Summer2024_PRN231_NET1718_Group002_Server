@@ -23,7 +23,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         },
         new Role
         {
-            Id = Guid.Parse("F1D65B6B-96DD-492B-BBBD-6A06CA59EB4F"),
+            Id = Guid.Parse("436BD7CF-8A5F-4314-B8E6-AC71601FD20C"),
             Name = SystemRole.Staff.ToString(),
             NormalizedName = SystemRole.Staff.ToString().ToUpper(),
         },
