@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ShuttleZone.Application.Services.Notifications;
 using ShuttleZone.Application.Services.Payment;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.Common.Constants;
@@ -9,28 +10,17 @@ using ShuttleZone.Common.Exceptions;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.Enums;
+using ShuttleZone.Domain.WebRequests.Notifications;
 using ShuttleZone.Domain.WebRequests.Reservations;
+using ShuttleZone.Domain.WebResponses.Notifications;
 using ShuttleZone.Domain.WebResponses.ReservationDetails;
 using ShuttleZone.Domain.WebResponses.Reservations;
 
 namespace ShuttleZone.Application.Services.Reservation
 {
     [AutoRegister]
-    public class ReservationService : IReservationService
+    public class ReservationService(IUnitOfWork _unitOfWork, IMapper _mapper, UserManager<User> _userManager, INotificationHubService _notificationHubService) : IReservationService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly UserManager<User> _userManager;
-        private readonly IVnPayService _vnPayService;
-
-        public ReservationService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<User> userManager, IVnPayService vnPayService)
-        {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _userManager = userManager;
-            _vnPayService = vnPayService;
-        }
-
         public async Task CancelReservation(Guid reservationId)
         {
             var reservation = _unitOfWork.ReservationRepository.Find(r => r.Id == reservationId)
@@ -69,7 +59,17 @@ namespace ShuttleZone.Application.Services.Reservation
             //refund to wallet            
             await _unitOfWork.UserRepository.AddBalanceAsync(reservation.CustomerId ?? Guid.Empty, refundAmount);
 
+            //notifiy to user
+            var notificationRequest = new NotificationRequest
+            {
+                UserId = reservation.CustomerId ?? throw new HttpException(400, $"Invalid user with reservation {reservation.Id}"),
+                Description = $"You have cancelled reservation {reservation.Id}. {refundAmount} has refunded to your wallet",               
+            };
+            var notification = _notificationHubService.CreateNotification(notificationRequest);
+            await _unitOfWork.NotificationRepository.AddAsync(notification);
             await _unitOfWork.CompleteAsync();
+
+            await _notificationHubService.SendNotificationAsync((Guid)reservation.CustomerId, _mapper.Map<NotificationResponse>(notification));
         }
 
         public async Task CancelReservationDetail(int reservationDetailId)
@@ -107,7 +107,17 @@ namespace ShuttleZone.Application.Services.Reservation
                 await _unitOfWork.UserRepository.AddBalanceAsync(reservationDetail.Reservation.CustomerId ?? Guid.Empty, reservationDetail.Price);
             }
 
+            //notifiy to user
+            var notificationRequest = new NotificationRequest
+            {
+                UserId = reservationDetail.Reservation.CustomerId ?? throw new HttpException(400, $"Invalid user with reservation {reservationDetail.Reservation.Id}"),
+                Description = $"You have cancelled court booking {reservationDetail.Id}. {reservationDetail.Price} has refunded to your wallet",
+            };
+            var notification = _notificationHubService.CreateNotification(notificationRequest);
+            await _unitOfWork.NotificationRepository.AddAsync(notification);
             await _unitOfWork.CompleteAsync();
+
+            await _notificationHubService.SendNotificationAsync((Guid)reservationDetail.Reservation.CustomerId, _mapper.Map<NotificationResponse>(notification));
         }
 
         public async Task<bool> CreateReservation(CreateReservationRequest request, Guid? currentUser = null, bool isStaff = true)

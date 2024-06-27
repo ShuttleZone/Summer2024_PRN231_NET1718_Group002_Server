@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ShuttleZone.Api.Services;
 using ShuttleZone.Application.Common.Interfaces;
+using ShuttleZone.Application.SignalRHub;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Infrastructure.Data;
 using ShuttleZone.Infrastructure.Helpers;
@@ -50,6 +51,7 @@ builder.Services.AddDALServices();
 builder.Services.AddAppCors(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUser, CurrentUser>();
+builder.Services.AddSignalR();
 
 builder.Services.AddIdentity<User, Role>(options =>
 {
@@ -113,6 +115,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowReactApp");
 app.MapControllers();
+app.MapHub<NotificationHub>("/notificationhub");
 app.EnsureMigrations();
 
 app.Run();
