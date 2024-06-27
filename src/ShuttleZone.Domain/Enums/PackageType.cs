@@ -2,8 +2,8 @@
 {
     public enum PackageType
     {
-        Month,
-        Year, 
-        Lifetime
+        MONTH,
+        YEAR, 
+        LIFETIME
     }
 }

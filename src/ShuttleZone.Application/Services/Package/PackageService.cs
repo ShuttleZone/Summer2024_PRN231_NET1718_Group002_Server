@@ -24,8 +24,7 @@ public class PackageService : IPackageService
     {
         if (createPackageDto != null)
         {
-            var package = _mapper.Map<Domain.Entities.Package>(createPackageDto);
-            package.PackageStatus = PackageStatus.Pending;
+            var package = _mapper.Map<Domain.Entities.Package>(createPackageDto);           
             await _unitOfWork.PackageRepository.AddAsync(package);
             await _unitOfWork.CompleteAsync();
             return createPackageDto;
@@ -54,7 +53,6 @@ public class PackageService : IPackageService
             package.Name = updatePackageDto.Name;
             package.Description = updatePackageDto.Description;
             package.Price = updatePackageDto.Price;
-            package.PackageStatus = PackageStatus.Pending;
 
              _unitOfWork.PackageRepository.Update(package);
              await _unitOfWork.CompleteAsync();
