@@ -242,8 +242,7 @@ public class ContestService(
             UserContestExisted.isWinner = userContest.isWinner;
             UserContestExisted.Point = userContest.Point;
         }
-        contest.ContestStatus = ContestStatusEnum.Closed;
-        await _unitOfWork.CompleteAsync();
+        contest.ContestStatus = ContestStatusEnum.Closed;        
 
         //add later: refund money for winner
         //this can not be done now (with VNPAY) because with one contest, we can have multiple reservation, do not know which person to refund
@@ -251,19 +250,21 @@ public class ContestService(
         //_vnPayService.RefundPaymentAsync(contest.Reservation.Id, 0, VnPayConstansts.TOTAL_REFUND);
 
         //refund money to wallet of winner
-        winners.ToList().ForEach(winner =>
+       foreach (var winner in winners)
         {
-            _unitOfWork.UserRepository.AddBalanceAsync(winner.ParticipantsId, contest.Reservation!.TotalPrice);
+            var refundAmount = contest.Reservation != null ? contest.Reservation.TotalPrice : 0;
+            await _unitOfWork.UserRepository.AddBalanceAsync(winner.ParticipantsId, refundAmount);
             //notifiy to user
             var notificationRequest = new NotificationRequest
             {
                 UserId = winner.ParticipantsId,
-                Description = $"You have won the contest. You are have refunded {contest.Reservation.TotalPrice} VND"
+                Description = $"You have won the contest. You are have refunded {refundAmount} VND"
             };
             var notification = _notificationHubService.CreateNotification(notificationRequest);
-            _unitOfWork.NotificationRepository.AddAsync(notification);
-            _notificationHubService.SendNotificationAsync(winner.ParticipantsId, _mapper.Map<NotificationResponse>(notification));
-        });
+            await _unitOfWork.NotificationRepository.AddAsync(notification);
+            await _notificationHubService.SendNotificationAsync(winner.ParticipantsId, _mapper.Map<NotificationResponse>(notification));
+            await _unitOfWork.CompleteAsync();
+        };
 
         await _unitOfWork.CompleteAsync();
     }
