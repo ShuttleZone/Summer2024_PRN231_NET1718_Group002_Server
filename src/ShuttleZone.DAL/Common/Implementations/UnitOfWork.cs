@@ -2,10 +2,12 @@ using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.DependencyInjection.Repositories.Package;
 using ShuttleZone.DAL.DependencyInjection.Repositories.Review;
+using ShuttleZone.DAL.DependencyInjection.Repositories.User;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.DAL.Repositories.Court;
 using ShuttleZone.DAL.Repositories.ReservationDetail;
 using ShuttleZone.DAL.Repositories.Transaction;
+using ShuttleZone.DAL.Repositories.Wallets;
 using ShuttleZone.Infrastructure.Data.Interfaces;
 
 namespace ShuttleZone.DAL.Common.Implementations
@@ -29,7 +31,10 @@ namespace ShuttleZone.DAL.Common.Implementations
         public IReviewRepository ReviewRepository  => new ReviewRepository(_context,_readOnlyContext);
         public IPackageRepository PackageRepository => new PackageRepository(_context, _readOnlyContext);
         public IContestRepository ContestRepository => new ContestRepository(_context, _readOnlyContext);
-       
+        public IWalletRepository WalletRepository => new WalletRepository(_context, _readOnlyContext);
+
+        public IUserRepository UserRepository => new UserRepository(_context, _readOnlyContext);
+
         public async Task<bool> CompleteAsync(CancellationToken cancellationToken = default)
         {
             var changes = await _context.SaveChangesAsync(cancellationToken);

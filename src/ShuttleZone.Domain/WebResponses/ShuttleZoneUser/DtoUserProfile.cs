@@ -11,5 +11,5 @@ public class DtoUserProfile
     public required int Gender { get; set; }
     public int TotalReservation { get; set; }
     public int TotalWinContest { get; set; }
-    public decimal Balance { get; set; }
+    public double Balance { get; set; }
 }
