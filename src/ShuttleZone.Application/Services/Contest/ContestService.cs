@@ -24,7 +24,6 @@ public class ContestService : IContestService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IUser _currentUser;
-    private readonly IReservationRepository _reservationRepository;
     private readonly IReservationDetailRepository _reservationDetailRepository;
     private readonly ICourtRepository _courtRepository;
     private readonly IVnPayService _vnPayService;
@@ -47,7 +46,6 @@ public class ContestService : IContestService
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _currentUser = currentUser;
-        _reservationRepository = reservationRepository;
         _reservationDetailRepository = reservationDetailRepository;
         _courtRepository = courtRepository;
         _vnPayService = vnPayService;
@@ -242,8 +240,28 @@ public class ContestService : IContestService
     {
         var contest = _unitOfWork.ContestRepository.Find(c => c.Id == request.Id).Include(c => c.UserContests).FirstOrDefault()
             ?? throw new HttpException(400, $"Contest with id {request.Id} is not existed");
+
+        //check if contest is already updated, can not update
+        bool isUpdated = contest.UserContests.Exists(c=>c.isWinner==true);
+        if (isUpdated)
+        {
+            throw new HttpException(400, $"Contest with id {request.Id} is already updated. Can not update one more time. Cause money has refunded to customer");
+        }      
        
         //improve later: will add validation for time, if contest does not happen, is not allowed update 
+        if(contest.ContestDate > DateTime.Now)
+            throw new HttpException(400, $"Contest with id {request.Id} is not happened, can not update");
+
+        if(request.UserContests!.Count() == 2)
+        {
+            //set winner for contest, who has larger point
+            var winner = request.UserContests!.OrderByDescending(uc => uc.Point).First();
+            winner.isWinner = true;
+        }
+
+        var winners = contest.UserContests.Where(uc => uc.isWinner);
+        if (winners.Count() > contest.UserContests.Count())
+            throw new HttpException(400, $"Total player is {contest.UserContests.Count()}. Only less or equal half of total player is winner allowed");
 
         foreach (var userContest in request.UserContests ?? new List<UserContestRequest>())
         {
@@ -252,12 +270,7 @@ public class ContestService : IContestService
                 throw new HttpException(400, $"User with id {userContest.ParticipantsId} is not in this contest");
             UserContestExisted.isWinner = userContest.isWinner;
             UserContestExisted.Point = userContest.Point;
-
-        }         
-
-        var winners = contest.UserContests.Where(uc=>uc.isWinner);
-        if (winners.Count() > contest.UserContests.Count())
-            throw new HttpException(400, $"Total player is {contest.UserContests.Count()}. Only less or equal half of total player is winner allowed");
+        }                
 
         //add later: refund money for winner
         //this can not be done now because with one contest, we can have multiple reservation, do not know which person to refund
@@ -265,5 +278,19 @@ public class ContestService : IContestService
         //_vnPayService.RefundPaymentAsync(contest.Reservation.Id, 0, VnPayConstansts.TOTAL_REFUND);
 
         await _unitOfWork.CompleteAsync();
+    }
+
+    public async Task<IQueryable<ContestResponse>> GetAllContestsAsync()
+    {
+        var contestQueryable = await _unitOfWork.ContestRepository.GetAllAsync();
+        return contestQueryable.ProjectTo<ContestResponse>(_mapper.ConfigurationProvider);
+    }
+
+    public async Task<ContestResponse> GetContestAsync(Guid id)
+    {
+        var contest = (await _unitOfWork.ContestRepository.GetAllAsync())
+            .Where(c=>c.Id==id).FirstOrDefault() ?? throw new HttpException(400, $"Invalid contest with Id {id}");
+
+        return _mapper.Map<ContestResponse>(contest);
     }
 }

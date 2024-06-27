@@ -14,4 +14,6 @@ public interface IContestService
     IQueryable<DtoContestResponse> GetMyClubContests(Guid clubId);
     Task JoinContest(Guid contestId, Guid userId);
     Task UpdateContestAsync(UpdateContestRequest request);
+    Task<IQueryable<ContestResponse>> GetAllContestsAsync();
+    Task<ContestResponse> GetContestAsync(Guid id);
 }
