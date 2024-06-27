@@ -20,6 +20,7 @@ using ShuttleZone.Domain.WebResponses.Package;
 using ShuttleZone.Domain.WebResponses.ReservationDetails;
 using ShuttleZone.Domain.WebResponses.Reservations;
 using ShuttleZone.Domain.WebResponses.ShuttleZoneUser;
+using ShuttleZone.Domain.WebResponses.UserContests;
 
 
 namespace ShuttleZone.Api.DependencyInjection;
@@ -133,7 +134,13 @@ public static class DependencyInjection
         #region Packages
 
         builder.EntitySet<PackageResponseDto>(GetControllerShortName<PackageController>());
-        
+
+
+        #endregion
+
+        #region Contest Models
+        builder.EntitySet<ContestResponse>("ContestDetail");
+        builder.EntityType<UserContestResponse>().HasKey(cr => new { cr.ContestId, cr.ParticipantsId });
 
         #endregion
 

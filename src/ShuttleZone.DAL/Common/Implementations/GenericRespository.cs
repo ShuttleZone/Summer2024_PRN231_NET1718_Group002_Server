@@ -90,6 +90,11 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : cla
         return _readOnlyEntities;
     }
 
+    public async Task<IQueryable<T>> GetAllAsync()
+    {
+        return await Task.FromResult(_entities);
+    }
+
     public T? GetAsNoTracking(Expression<Func<T, bool>> predicate)
     {
         return _readOnlyEntities.FirstOrDefault(predicate);

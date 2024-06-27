@@ -11,6 +11,7 @@ public interface IGenericRepository<T> where T : class
     void Update(T entity);
 
     IQueryable<T> GetAll();
+    Task<IQueryable<T>> GetAllAsync();
     IQueryable<T> GetAllAsNoTracking();
     T? Get(Expression<Func<T, bool>> predicate);
     T? GetAsNoTracking(Expression<Func<T, bool>> predicate);

@@ -3,6 +3,7 @@ using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebRequests.Contest;
 using ShuttleZone.Domain.WebResponses.Contest;
+using ShuttleZone.Domain.WebResponses.UserContests;
 
 namespace ShuttleZone.Application.AutoMapper;
 
@@ -42,6 +43,17 @@ public class ContestMappingProfile : Profile
         CreateMap<UserContestRequest, UserContest>()
             .ForMember(dest => dest.isWinner, opt => opt.MapFrom(src => src.isWinner))
             .ForMember(dest => dest.Point, opt => opt.MapFrom(src => src.Point));
+
+
+        #region contest response in staff account
+
+        CreateMap<Contest, ContestResponse>();
+        CreateMap<UserContest, UserContestResponse>()
+            .ForMember(dest => dest.Fullname, opt => opt.MapFrom(src => src.Participant.Fullname))
+            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Participant.PhoneNumber))
+            .ForMember(dest => dest.ProfilePic, opt => opt.MapFrom(src => src.Participant.ProfilePic));         
+
+        #endregion
 
     }
 }
