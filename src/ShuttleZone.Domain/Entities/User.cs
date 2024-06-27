@@ -7,6 +7,7 @@ public class User : IdentityUser<Guid>
 {
     public required string Fullname { get; set; }
     public required int Gender { get; set; }
+    public string? ProfilePic { get; set; }
     public UserStatusEnum UserStatusEnum { get; set; }
     
     public string? RefreshToken { get; set; }
