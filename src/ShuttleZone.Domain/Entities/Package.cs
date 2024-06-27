@@ -8,8 +8,8 @@ namespace ShuttleZone.Domain.Entities
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
         public decimal Price { get; set; }
-        public PackageStatus? PackageStatus { get; set; }
-        public PackageType PackageType { get; set; }
+        public PackageStatus PackageStatus { get; set; } = PackageStatus.VALID;
+        public PackageType PackageType { get; set; } = PackageType.MONTH;
         public ICollection<PackageUser>? PackageUser { get; set; }        
     }
 }
