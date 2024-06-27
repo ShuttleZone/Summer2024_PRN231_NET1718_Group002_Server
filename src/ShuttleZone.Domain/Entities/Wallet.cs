@@ -6,6 +6,7 @@ namespace ShuttleZone.Domain.Entities
     {
         public decimal Balance { get; set; }
         public Guid UserId { get; set; }
-        public User User { get; set; } = null!;
+        public User User { get; set; } = null!;    
+      
     }
 }

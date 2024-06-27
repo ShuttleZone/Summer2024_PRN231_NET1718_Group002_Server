@@ -9,7 +9,7 @@ public class User : IdentityUser<Guid>
     public required int Gender { get; set; }
     public string? ProfilePic { get; set; }
     public UserStatusEnum UserStatusEnum { get; set; }
-    
+
     public string? RefreshToken { get; set; }
     public DateTime RefreshTokenExpiryTime { get; set; }
 
@@ -19,7 +19,7 @@ public class User : IdentityUser<Guid>
     public ICollection<UserContest> UserContests { get; set; } = new List<UserContest>();
     public ICollection<Club> Clubs { get; set; } = new List<Club>();
     public Guid WalletId { get; set; }
-    public Wallet? Wallet { get; set; }
+    public Wallet? Wallet { get; set; } 
     public ICollection<PackageUser>? PackageUsers { get; set; }
 
 }
