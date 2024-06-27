@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ShuttleZone.Domain.Entities;
@@ -18,25 +17,25 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.HasData(new Role
         {            
-            Id = Guid.NewGuid(),
+            Id = Guid.Parse("814A5AC8-3E60-4108-9365-07DFA9A69578"),
             Name = SystemRole.Customer.ToString(),
             NormalizedName = SystemRole.Customer.ToString().ToUpper(),
         },
         new Role
-        {           
-            Id = Guid.NewGuid(),
+        {
+            Id = Guid.Parse("F1D65B6B-96DD-492B-BBBD-6A06CA59EB4F"),
             Name = SystemRole.Staff.ToString(),
             NormalizedName = SystemRole.Staff.ToString().ToUpper(),
         },
         new Role
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.Parse("F1D65B6B-96DD-492B-BBBD-6A06CA59EB4F"),
             Name = SystemRole.Manager.ToString(),
             NormalizedName = SystemRole.Manager.ToString().ToUpper(),
         },
         new Role
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.Parse("EEF861B3-DA8B-4D8D-AB86-E7D0EB9E0F05"),
             Name = SystemRole.SuperAdmin.ToString(),
             NormalizedName = SystemRole.SuperAdmin.ToString().ToUpper(),
         });
