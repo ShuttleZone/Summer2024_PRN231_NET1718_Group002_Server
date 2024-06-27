@@ -32,6 +32,7 @@ public class UserService : IUserService
         var user =  _userRepository.GetAll().Where(x => x.Id.ToString() == _user.Id)
                 .Include(x => x.UserContests)
                 .Include(x => x.Reservations)
+                .Include(x => x.Wallet)
                 .FirstOrDefault()
             ?? throw new Exception("User Not Found");
         var totalReservation = user.Reservations.Count;
@@ -49,6 +50,10 @@ public class UserService : IUserService
             TotalWinContest = totalWinContest,
             Gender = user.Gender
         };
+        if(user.Wallet != null)
+        {
+            dto.Balance = user.Wallet.Balance;
+        }
         
         return dto;
     }
