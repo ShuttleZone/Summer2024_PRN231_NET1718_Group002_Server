@@ -2,59 +2,31 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Application.Common.Interfaces;
-using ShuttleZone.Application.Services.Payment;
+using ShuttleZone.Application.Services.Notifications;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.Common.Exceptions;
 using ShuttleZone.DAL.Common.Interfaces;
-using ShuttleZone.DAL.Repositories;
-using ShuttleZone.DAL.Repositories.Court;
-using ShuttleZone.DAL.Repositories.ReservationDetail;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.Enums;
 using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebRequests.Contest;
+using ShuttleZone.Domain.WebRequests.Notifications;
 using ShuttleZone.Domain.WebResponses.Contest;
+using ShuttleZone.Domain.WebResponses.Notifications;
 
 namespace ShuttleZone.Application.Services;
 
 [AutoRegister]
-public class ContestService : IContestService
+public class ContestService(
+    IMapper _mapper,
+    IUnitOfWork _unitOfWork,
+    IUser _currentUser,
+    INotificationHubService _notificationHubService
+    ) : IContestService
 {
-    private readonly IContestRepository _contestRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-    private readonly IUser _currentUser;
-    private readonly IReservationDetailRepository _reservationDetailRepository;
-    private readonly ICourtRepository _courtRepository;
-    private readonly IVnPayService _vnPayService;
-    private readonly IClubRepository _clubRepository;
-
-    public ContestService
-    (
-        IContestRepository contestRepository,
-        IMapper mapper,
-        IUnitOfWork unitOfWork,
-        IUser currentUser,
-        IReservationRepository reservationRepository,
-        IReservationDetailRepository reservationDetailRepository,
-        ICourtRepository courtRepository,
-        IVnPayService vnPayService,
-        IClubRepository clubRepository
-    )
-    {
-        _contestRepository = contestRepository;
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-        _currentUser = currentUser;
-        _reservationDetailRepository = reservationDetailRepository;
-        _courtRepository = courtRepository;
-        _vnPayService = vnPayService;
-        _clubRepository = clubRepository;
-    }
-
     public IQueryable<DtoContestResponse> GetContests()
     {
-        var queryableClubs = _contestRepository
+        var queryableClubs = _unitOfWork.ContestRepository
             .GetAll();
         var dtoClubs = queryableClubs
             .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
@@ -64,7 +36,7 @@ public class ContestService : IContestService
 
     public DtoContestResponse? GetContestByContestId(Guid userId)
     {
-        var queryableContest = _contestRepository.Find(c => c.Id == userId)
+        var queryableContest = _unitOfWork.ContestRepository.Find(c => c.Id == userId)
             .Include(c => c.UserContests)
             .ThenInclude(uc => uc.Participant)
             .Include(c => c.Reservation)
@@ -80,7 +52,7 @@ public class ContestService : IContestService
 
     public IQueryable<Contest> GetContestDetail(Guid contestId)
     {
-        var contest = _contestRepository.Find(c => c.Id == contestId)
+        var contest = _unitOfWork.ContestRepository.Find(c => c.Id == contestId)
             .Include(c => c.UserContests)
             .ThenInclude(uc => uc.Participant);
 
@@ -105,7 +77,7 @@ public class ContestService : IContestService
         var minTimeToStart = DateTime.Now.AddMinutes(30);
         var minDuration = TimeSpan.FromMinutes(30);
 
-        var court = await _courtRepository
+        var court = await _unitOfWork.CourtRepository
             .FindAsNoTracking(c => c.Id == request.CourtId)
             .Include(c => c.Club)
             .FirstOrDefaultAsync(cancellationToken);
@@ -117,7 +89,7 @@ public class ContestService : IContestService
 
         foreach (var slot in request.ContestSlots)
         {
-            var courtBooked = await _reservationDetailRepository
+            var courtBooked = await _unitOfWork.ReservationDetailRepository
                 .ExistsAsync(d =>
                     (
                         // check if reservation is already paid or still pending but not expired
@@ -181,7 +153,7 @@ public class ContestService : IContestService
         contest.UserContests.Add(contestCreator);
         contest.Reservation = reservation;
 
-        await _contestRepository.AddAsync(contest, cancellationToken);
+        await _unitOfWork.ContestRepository.AddAsync(contest, cancellationToken);
         await _unitOfWork.CompleteAsync(cancellationToken);
         var response = _mapper.Map<DtoContestResponse>(contest);
         return response;
@@ -198,7 +170,7 @@ public class ContestService : IContestService
             .WithErrorMessage("You are not authorized to view this page.")
             .ThrowIf(_currentUser.Role != ShuttleZone.Domain.Constants.SystemRole.Manager);
 
-        var contestsResponse = _clubRepository
+        var contestsResponse = _unitOfWork.ClubRepository
             .FindAsNoTracking(c => c.OwnerId == userIdAsGuid && c.Id == clubId)
             .SelectMany(c => c.Courts)
             .SelectMany(c => c.ReservationDetails)
@@ -281,8 +253,18 @@ public class ContestService : IContestService
         //refund money to wallet of winner
         winners.ToList().ForEach(winner =>
         {
-             _unitOfWork.UserRepository.AddBalanceAsync(winner.ParticipantsId, contest.Reservation!.TotalPrice);
+            _unitOfWork.UserRepository.AddBalanceAsync(winner.ParticipantsId, contest.Reservation!.TotalPrice);
+            //notifiy to user
+            var notificationRequest = new NotificationRequest
+            {
+                UserId = winner.ParticipantsId,
+                Description = $"You have won the contest. You are have refunded {contest.Reservation.TotalPrice} VND"
+            };
+            var notification = _notificationHubService.CreateNotification(notificationRequest);
+            _unitOfWork.NotificationRepository.AddAsync(notification);
+            _notificationHubService.SendNotificationAsync(winner.ParticipantsId, _mapper.Map<NotificationResponse>(notification));
         });
+
         await _unitOfWork.CompleteAsync();
     }
 

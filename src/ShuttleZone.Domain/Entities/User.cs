@@ -13,6 +13,7 @@ public class User : IdentityUser<Guid>
     public string? RefreshToken { get; set; }
     public DateTime RefreshTokenExpiryTime { get; set; }
 
+    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
     public ICollection<UserRole> Roles { get; set; } = new List<UserRole>();
     public ICollection<Review> Reviews { get; set; } = new List<Review>();

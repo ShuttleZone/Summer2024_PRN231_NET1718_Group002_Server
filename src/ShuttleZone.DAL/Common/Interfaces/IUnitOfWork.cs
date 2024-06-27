@@ -3,6 +3,7 @@ using ShuttleZone.DAL.DependencyInjection.Repositories.Review;
 using ShuttleZone.DAL.DependencyInjection.Repositories.User;
 using ShuttleZone.DAL.Repositories;
 using ShuttleZone.DAL.Repositories.Court;
+using ShuttleZone.DAL.Repositories.Notifications;
 using ShuttleZone.DAL.Repositories.ReservationDetail;
 using ShuttleZone.DAL.Repositories.Transaction;
 using ShuttleZone.DAL.Repositories.Wallets;
@@ -21,6 +22,7 @@ namespace ShuttleZone.DAL.Common.Interfaces
         IReviewRepository ReviewRepository { get; }
         IPackageRepository PackageRepository { get; }
         IUserRepository UserRepository { get; }
+        INotificationRepository NotificationRepository { get; }
         Task<bool> CompleteAsync(CancellationToken cancellationToken = default);      
 
     }
