@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
@@ -24,7 +25,8 @@ public class PackageService : IPackageService
     {
         if (createPackageDto != null)
         {
-            var package = _mapper.Map<Domain.Entities.Package>(createPackageDto);           
+            var package = _mapper.Map<Domain.Entities.Package>(createPackageDto);
+            package.PackageStatus = PackageStatus.INVALID;
             await _unitOfWork.PackageRepository.AddAsync(package);
             await _unitOfWork.CompleteAsync();
             return createPackageDto;

@@ -21,7 +21,7 @@ public class PackageController: BaseApiController
     {
         if (createPackageDto == null)
             return BadRequest("Package data is not correct !");
-        return Created(await _packageService.CreatePackage(createPackageDto));
+        return Ok(await _packageService.CreatePackage(createPackageDto));
     }
 
     [EnableQuery]
