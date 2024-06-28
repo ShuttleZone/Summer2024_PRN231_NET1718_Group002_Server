@@ -55,6 +55,11 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : cla
         _entities.RemoveRange(_entities.Where(predicate));
     }
 
+    public void Delete(T entity)
+    {
+         _entities.Remove(entity);
+    }
+
     public bool Exists(Expression<Func<T, bool>> predicate)
     {
         return _readOnlyEntities.Any(predicate);
