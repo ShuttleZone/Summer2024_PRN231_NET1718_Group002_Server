@@ -15,7 +15,7 @@ namespace ShuttleZone.Api.Controllers
             async () => await _notificationService.GetNotifications(UserId).ConfigureAwait(false)
             ).ConfigureAwait(false);
         }
-
+        [EnableQuery]
         public async Task<IActionResult> Put()
         {
             return await HandleResultAsync(
