@@ -10,6 +10,24 @@ namespace ShuttleZone.DAL.Repositories.Wallets
         {
         }
 
-       
+        public void UpdateWalletBalance(Guid userId, double balance)
+        {
+            var wallet = Find(w=>w.UserId == userId).FirstOrDefault();
+            if(wallet != null)
+            {
+                wallet.Balance = balance;
+            }
+            else
+            {
+                var newWallet = new Wallet
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    Balance = balance
+                };
+                Add(newWallet);
+            }
+           
+        }
     }
 }

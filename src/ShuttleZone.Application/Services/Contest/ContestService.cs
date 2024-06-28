@@ -230,8 +230,9 @@ public class ContestService(
             winner.isWinner = true;
         }
 
-        var winners = contest.UserContests.Where(uc => uc.isWinner);
-        if (winners.Count() > contest.UserContests.Count())
+        var winners = request.UserContests.Where(uc => uc.isWinner);
+        var test = winners.Count();
+        if (winners.Count() > contest.UserContests.Count()/2)
             throw new HttpException(400, $"Total player is {contest.UserContests.Count()}. Only less or equal half of total player is winner allowed");
 
         foreach (var userContest in request.UserContests ?? new List<UserContestRequest>())
@@ -253,7 +254,7 @@ public class ContestService(
        foreach (var winner in winners)
         {
             var refundAmount = contest.Reservation != null ? contest.Reservation.TotalPrice : 0;
-            await _unitOfWork.UserRepository.AddBalanceAsync(winner.ParticipantsId, refundAmount);
+            _unitOfWork.WalletRepository.UpdateWalletBalance(winner.ParticipantsId, refundAmount);
             //notifiy to user
             var notificationRequest = new NotificationRequest
             {
@@ -263,10 +264,17 @@ public class ContestService(
             var notification = _notificationHubService.CreateNotification(notificationRequest);
             await _unitOfWork.NotificationRepository.AddAsync(notification);
             await _notificationHubService.SendNotificationAsync(winner.ParticipantsId, _mapper.Map<NotificationResponse>(notification));
-            await _unitOfWork.CompleteAsync();
+           
         };
-
-        await _unitOfWork.CompleteAsync();
+        try
+        {
+            await _unitOfWork.CompleteAsync();
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        
     }
 
     public async Task<IQueryable<ContestResponse>> GetAllContestsAsync()
