@@ -43,8 +43,16 @@ public class PackageController: BaseApiController
     [HttpDelete("/api/Package/delete-package/{packageId}")]
     public async Task<IActionResult> DeletePackage(Guid packageId)
     {
-       
         return Ok(await _packageService.DeletePackage(packageId));
+    }
+    
+    [HttpPut("/api/Package/update-package-status/{packageId}")]
+    public async Task<IActionResult> UpdatePackageStatus([FromRoute] Guid packageId)
+    {
+        var result = await _packageService.UpdateStatus(packageId);
+        if (result == true)
+            return Ok(result);
+        return BadRequest("Error in changing status !");
     }
 
 }

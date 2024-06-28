@@ -14,4 +14,6 @@ public interface IPackageService
     Task<UpdatePackageDto> UpdatePackage(UpdatePackageDto updatePackageDto);
 
     Task<bool> DeletePackage(Guid packageId);
+
+    Task<bool> UpdateStatus(Guid packageId);
 }
