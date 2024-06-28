@@ -83,4 +83,27 @@ public class PackageService : IPackageService
 
         return false;
     }
+
+    public async Task<bool> UpdateStatus(Guid packageId)
+    {
+        var package = await _unitOfWork.PackageRepository.Find(p => p.Id == packageId)
+            .FirstAsync();
+        if (package != null)
+        {
+            if (package.PackageStatus == PackageStatus.VALID)
+            {
+                package.PackageStatus = PackageStatus.INVALID;
+                 _unitOfWork.PackageRepository.Update(package);
+                 await _unitOfWork.CompleteAsync();
+                 return true;
+            }else if (package.PackageStatus == PackageStatus.INVALID)
+            {
+                package.PackageStatus = PackageStatus.VALID;
+                _unitOfWork.PackageRepository.Update(package);
+                await _unitOfWork.CompleteAsync();
+                return true;
+            }
+        }
+        throw new KeyNotFoundException();
+    }
 }
