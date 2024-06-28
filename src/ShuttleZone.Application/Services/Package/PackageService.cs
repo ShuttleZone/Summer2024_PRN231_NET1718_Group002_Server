@@ -63,4 +63,24 @@ public class PackageService : IPackageService
 
         throw new KeyNotFoundException();
     }
+
+    public async Task<bool> DeletePackage(Guid packageId)
+    {
+        var package = await _unitOfWork.PackageRepository.Find(p => p.Id == packageId)
+            .Include(p => p.PackageUser)
+            .FirstAsync();
+        if (package != null)
+        {
+            if (package.PackageUser?.Count == 0 || package.PackageUser == null)
+            {
+                _unitOfWork.PackageRepository.Delete(package);
+                await _unitOfWork.CompleteAsync();
+                return true;
+            }
+
+            throw new Exception("Package is currently in use by managers !");
+        }
+
+        return false;
+    }
 }

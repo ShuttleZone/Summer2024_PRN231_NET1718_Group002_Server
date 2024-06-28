@@ -40,4 +40,11 @@ public class PackageController: BaseApiController
         return Ok(await _packageService.UpdatePackage(updatePackageDto));
     }
 
+    [HttpDelete("/api/Package/delete-package/{packageId}")]
+    public async Task<IActionResult> DeletePackage(Guid packageId)
+    {
+       
+        return Ok(await _packageService.DeletePackage(packageId));
+    }
+
 }

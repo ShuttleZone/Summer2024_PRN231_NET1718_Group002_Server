@@ -12,4 +12,6 @@ public interface IPackageService
     IQueryable<PackageResponseDto>? GetPackagesAdmin();
 
     Task<UpdatePackageDto> UpdatePackage(UpdatePackageDto updatePackageDto);
+
+    Task<bool> DeletePackage(Guid packageId);
 }
