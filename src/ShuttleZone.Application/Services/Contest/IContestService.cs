@@ -9,6 +9,7 @@ public interface IContestService
 {
     IQueryable<DtoContestResponse> GetContests();
     DtoContestResponse? GetContestByContestId(Guid contestId);
+    List<DtoContestResponse?> GetMyContest(Guid userId);
     IQueryable<Contest> GetContestDetail(Guid contestId);
     Task<DtoContestResponse> CreateContestAsync(CreateContestRequest request, CancellationToken cancellationToken);
     IQueryable<DtoContestResponse> GetMyClubContests(Guid clubId);
