@@ -81,9 +81,7 @@ public class ContestService : IContestService
     public  List<DtoContestResponse?> GetMyContest(Guid userId)
     {
         var myContests = _unitOfWork.ContestRepository.GetAll()
-            .Include(c => c.UserContests.Where(c => c.ParticipantsId == userId));
-                
-
+            .Where(c => c.UserContests.Select(uc => uc.ParticipantsId).Contains(userId));
             var dtos = _mapper.Map<List<DtoContestResponse?>>(myContests);
 
             return dtos;

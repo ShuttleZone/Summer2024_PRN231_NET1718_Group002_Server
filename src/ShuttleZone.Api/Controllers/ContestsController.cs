@@ -37,7 +37,7 @@ public class ContestsController : BaseApiController
         return Ok(contest);
     }
 
-    [Authorize(Roles = SystemRole.Manager)]
+    // [Authorize(Roles = SystemRole.Manager)]
     [HttpGet("/api/Contets/get-my-contests")]
     public IActionResult GetMyContests()
     {
