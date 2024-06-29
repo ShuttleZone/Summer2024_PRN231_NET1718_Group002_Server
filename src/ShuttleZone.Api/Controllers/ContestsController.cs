@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
+using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.Services;
 using ShuttleZone.Domain.Constants;
 using ShuttleZone.Domain.WebRequests;
@@ -13,10 +14,12 @@ namespace ShuttleZone.Api.Controllers;
 public class ContestsController : BaseApiController
 {
     private readonly IContestService _contestService;
+    private readonly IUser _user;
 
-    public ContestsController(IContestService contestService)
+    public ContestsController(IContestService contestService, IUser user)
     {
         _contestService = contestService;
+        _user = user;
     }
 
     [EnableQuery]
@@ -32,6 +35,14 @@ public class ContestsController : BaseApiController
     {
         var contest = _contestService.GetContestByContestId(key);
         return Ok(contest);
+    }
+
+    [Authorize(Roles = SystemRole.Manager)]
+    [HttpGet("/api/Contets/get-my-contests")]
+    public IActionResult GetMyContests()
+    {
+        var userId = new Guid(_user.Id?? throw new ArgumentNullException());
+        return Ok( _contestService.GetMyContest(userId));
     }
 
     [Authorize(Roles = SystemRole.Manager)]
