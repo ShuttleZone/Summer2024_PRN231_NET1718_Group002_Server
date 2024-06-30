@@ -7,5 +7,6 @@
         public DateTime NotificationDate { get; set; }
         public bool IsRead { get; set; } = false;
         public Guid UserId { get; set; }
+        public int TotalUnread { get; set; }
     }
 }
