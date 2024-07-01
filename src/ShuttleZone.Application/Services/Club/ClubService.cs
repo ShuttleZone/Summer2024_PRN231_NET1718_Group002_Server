@@ -1,5 +1,7 @@
+using System.Text.Json.Serialization;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Newtonsoft.Json;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.Repositories;
@@ -118,6 +120,22 @@ public class ClubService : IClubService
         var clubImages = images.Select(x => new ClubImage() { ImageUrl = x });
         club.OpenDateInWeeks = daysInWeek.ToList();
         club.ClubImages = clubImages.ToList();
+        var deserializedObject = JsonConvert.DeserializeObject<List<CourtRequest>>(request.CourtsJson);
+        var courts = deserializedObject!.Select(x => new Domain.Entities.Court
+        {
+            ClubId = club.Id,
+            Name = x.CourtName,
+            CourtStatus = x.CourtStatus,
+            CourtType = x.CourtType,
+            Price = x.Price,
+            CreatedBy = owner.UserName,
+            LastModified = DateTime.Now,
+            LastModifiedBy = owner.UserName
+        });
+        foreach (var court in courts)
+        {
+            club.Courts.Add(court);
+        }
         _clubRepository.Update(club);
         await _unitOfWork.CompleteAsync();
         return _mapper.Map<DtoClubResponse>(club);

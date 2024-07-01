@@ -16,14 +16,21 @@ public class FileService : IFileService
     public FileService(IConfiguration config)
     {
         _azureSettings = config.GetSection(nameof(AzureSettings)).Get<AzureSettings>() ?? throw new MissingAzureSettingsConfiguration();
-        _blobServiceClient = new BlobServiceClient(_azureSettings.AzureBlobStorage);
+        _blobServiceClient = new BlobServiceClient(_azureSettings.AzureBlobStorage, new BlobClientOptions
+        {
+            Retry =
+            {
+                MaxRetries = 3,
+                NetworkTimeout = TimeSpan.FromMinutes(30)
+            }
+        });
     }
 
     public async Task<string> UploadSingleFileAsync(IFormFile file)
     {
         var containerInstance = _blobServiceClient.GetBlobContainerClient(_azureSettings.BlobContainer);
         var blobInstance =
-            containerInstance.GetBlobClient(StringInterpolationHelper.GenerateUniqueName(file.FileName));
+            containerInstance.GetBlobClient(file.FileName);
         await blobInstance.UploadAsync(file.OpenReadStream());
         return blobInstance.Uri.ToString();
     }

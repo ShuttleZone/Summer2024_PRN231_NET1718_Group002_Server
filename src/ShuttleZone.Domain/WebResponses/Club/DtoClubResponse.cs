@@ -14,6 +14,7 @@ public record DtoClubResponse
     public double MinDuration { get; set; }
     public TimeOnly OpenTime { get; set; }
     public TimeOnly CloseTime { get; set; }
+    public string OwnerName { get; set; } = null!;
     public ICollection<DtoCourt> Courts { get; set; }= new List<DtoCourt>();
     public ICollection<DtoReviewResponse> Reviews { get; set; } = new List<DtoReviewResponse>();
     public ICollection<DtoClubImageResponse> ClubImages { get; set; } = new List<DtoClubImageResponse>();
