@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Application.Common.Interfaces;
+using ShuttleZone.Application.Services.File;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.DependencyInjection.Repositories.User;
@@ -16,15 +18,17 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly SignInManager<User> _signInManager;
     private readonly UserManager<User> _userManager;
+    private readonly IFileService _fileService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public UserService(IUser user, IUserRepository userRepository, IUnitOfWork unitOfWork, SignInManager<User> signInManager, UserManager<User> userManager)
+    public UserService(IUser user, IUserRepository userRepository, IUnitOfWork unitOfWork, SignInManager<User> signInManager, UserManager<User> userManager, IFileService fileService)
     {
         _user = user;
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _signInManager = signInManager;
         _userManager = userManager;
+        _fileService = fileService;
     }
     
     public DtoUserProfile GetUserProfileInformation()
@@ -67,5 +71,16 @@ public class UserService : IUserService
         existingUser.Gender = request.Gender;
         _userRepository.Update(existingUser);
         _unitOfWork.CompleteAsync();
+    }
+
+    public async Task UploadNewAvatar(IFormFile file)
+    {
+        var list = new List<IFormFile>();
+        list.Add(file);
+        var imageUrl = (await _fileService.UploadMultipleFileAsync(list)).FirstOrDefault();
+        var user = await _userRepository.GetAsync(x => x.Id.ToString() == _user.Id) ?? throw new Exception("Not Found User.");
+        user.ProfilePic = imageUrl;
+        _userRepository.Update(user);
+        await _unitOfWork.CompleteAsync();
     }
 }
