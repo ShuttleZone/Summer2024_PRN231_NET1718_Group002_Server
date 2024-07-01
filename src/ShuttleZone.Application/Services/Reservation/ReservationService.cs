@@ -3,9 +3,7 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Application.Services.Notifications;
-using ShuttleZone.Application.Services.Payment;
 using ShuttleZone.Common.Attributes;
-using ShuttleZone.Common.Constants;
 using ShuttleZone.Common.Exceptions;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
@@ -63,7 +61,7 @@ namespace ShuttleZone.Application.Services.Reservation
             var notificationRequest = new NotificationRequest
             {
                 UserId = reservation.CustomerId ?? throw new HttpException(400, $"Invalid user with reservation {reservation.Id}"),
-                Description = $"You have cancelled reservation {reservation.Id}. {refundAmount} has refunded to your wallet",               
+                Description = $"You have cancelled reservation {reservation.Id}. {refundAmount} has refunded to your wallet",
             };
             var notification = _notificationHubService.CreateNotification(notificationRequest);
             await _unitOfWork.NotificationRepository.AddAsync(notification);
@@ -187,12 +185,12 @@ namespace ShuttleZone.Application.Services.Reservation
         public IQueryable<ReservationResponse> GetMyReservation(Guid currentUser)
         {
             var reservationsQuery = _unitOfWork.ReservationRepository.GetAll()
-                .Where(r => r.CustomerId == currentUser)
-                .Include(r => r.ReservationDetails)
+                .Where(r => r.CustomerId == currentUser);      
+
+            reservationsQuery = reservationsQuery.Include(r => r.ReservationDetails)
                 .ThenInclude(rd => rd.Court);
 
-            var reservationsResponse = reservationsQuery
-                .ProjectTo<ReservationResponse>(_mapper.ConfigurationProvider);
+            var reservationsResponse = _mapper.Map<IList<ReservationResponse>>(reservationsQuery).AsQueryable();
 
             return reservationsResponse;
         }
@@ -203,9 +201,10 @@ namespace ShuttleZone.Application.Services.Reservation
                 .Where(r => r.CustomerId == currentUser)
                 .Include(r => r.ReservationDetails)
                 .SelectMany(r => r.ReservationDetails).Include(r => r.Court).ThenInclude(c => c.Club).Include(r => r.Reservation);
-
-            var reservationDetailsResponse = reservationDetailsQuery
-                .ProjectTo<ReservationDetailsResponse>(_mapper.ConfigurationProvider);
+            
+            //var reservationDetailsResponse = reservationDetailsQuery
+            //    .ProjectTo<ReservationDetailsResponse>(_mapper.ConfigurationProvider);
+            var reservationDetailsResponse = _mapper.Map<IList<ReservationDetailsResponse>>(reservationDetailsQuery).AsQueryable();
 
             return reservationDetailsResponse;
         }
