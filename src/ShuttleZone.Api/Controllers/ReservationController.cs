@@ -4,23 +4,18 @@ using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Reservation;
 using ShuttleZone.Domain.WebRequests.Reservations;
+using ShuttleZone.Domain.WebResponses.ReservationDetails;
+using ShuttleZone.Domain.WebResponses.Reservations;
 
 namespace ShuttleZone.Api.Controllers
 {
-    public class ReservationController : BaseApiController
+    public class ReservationController(IReservationService _reservationService) : BaseApiController
     {
-        private readonly IReservationService _reservationService;
-
-        public ReservationController(IReservationService reservationService)
-        {
-            _reservationService = reservationService;
-        }
-
-
-        [EnableQuery]
+        [EnableQuery]       
         public IActionResult Get()
-        {
-            return Ok(_reservationService.GetMyReservation(UserId));
+        {          
+            var query = _reservationService.GetMyReservation(UserId);
+            return Ok(query);            
         }
 
         [HttpPost("make-booking")]

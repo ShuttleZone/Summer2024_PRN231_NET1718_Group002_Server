@@ -124,6 +124,7 @@ public static class DependencyInjection
         #region Reservation Models
         builder.EntityType<DtoReservationDetail>();
         builder.EntitySet<ReservationDetailsResponse>(GetControllerShortName<ReservationDetailsController>());
+        builder.EnumType<ReservationStatusEnum>();
         builder.EntitySet<ReservationResponse>(GetControllerShortName<ReservationController>());
         #endregion
 

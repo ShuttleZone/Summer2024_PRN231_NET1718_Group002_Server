@@ -13,8 +13,7 @@ namespace ShuttleZone.Application.AutoMapper
             CreateMap<ReservationDetail, DtoReservationDetail>()
                 .ForMember(dto => dto.Date, opt => opt.MapFrom(x 
                     => x.StartTime.Date));
-            CreateMap<ReservationDetail, ReservationDetailsResponse>()
-                .ForMember(dest=>dest.ReservationDetailStatus, opt=>opt.MapFrom(src=>src.ReservationDetailStatus.ToString()))
+            CreateMap<ReservationDetail, ReservationDetailsResponse>()               
                 .ForMember(dest => dest.ClubId, opt => opt.MapFrom(src => src.Court.ClubId))
                 .ForMember(dest => dest.IsPaymentExpired, opt => opt.MapFrom(src => src.Reservation.ExpiredTime < DateTime.Now));
         }

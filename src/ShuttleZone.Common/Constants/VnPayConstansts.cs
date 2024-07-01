@@ -21,6 +21,8 @@
         public const string SECURE_HASH = "vnp_SecureHash";
         public const string RESPONSE_CODE = "vnp_ResponseCode";
         public const string TOTAL_REFUND = "02";
-        public const string LESS_THAN_TOTAL_REFUND = "03";
+        public const string ORDER_TYPE_PACKAGE = "PACKAGE";
+        public const string ORDER_TYPE_BOOKING = "BOOKING";
+        public const string ORDER_TYPE_ADD_TO_WALLET = "ADD_TO_WALLET";
     }
 }
