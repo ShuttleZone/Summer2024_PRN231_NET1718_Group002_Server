@@ -89,6 +89,23 @@ builder.Services.AddAuthentication(options =>
             System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"]!)),
         ClockSkew = new TimeSpan(0,0,5)
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) &&
+                path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddVNPaySettings(builder.Configuration);
@@ -115,7 +132,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowReactApp");
 app.MapControllers();
-app.MapHub<NotificationHub>("/notificationhub");
+app.MapHub<NotificationHub>("/hubs/notification").AllowAnonymous(); ;
 app.EnsureMigrations();
 
 app.Run();
