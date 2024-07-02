@@ -264,6 +264,16 @@ public class ContestService(
         {
             var refundAmount = contest.Reservation != null ? contest.Reservation.TotalPrice : 0;
             _unitOfWork.WalletRepository.UpdateWalletBalance(winner.ParticipantsId, refundAmount);
+            var transaction = new Domain.Entities.Transaction()
+            {
+                Id = new Guid(),
+                PaymentMethod = PaymentMethod.WALLET,
+                Amount = refundAmount,
+                TransactionStatus = TransactionStatusEnum.SUCCESS,
+            };
+            var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId==winner.ParticipantsId) ?? throw new HttpException(400, "Invalid wallet");
+            wallet.Transactions.Add(transaction);
+            _unitOfWork.TransactionRepository.Add(transaction);
             //notifiy to user
             var notificationRequest = new NotificationRequest
             {

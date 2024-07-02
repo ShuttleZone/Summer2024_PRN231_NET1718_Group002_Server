@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Azure.Core;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Application.Services.Notifications;
@@ -13,6 +14,7 @@ using ShuttleZone.Domain.WebRequests.Reservations;
 using ShuttleZone.Domain.WebResponses.Notifications;
 using ShuttleZone.Domain.WebResponses.ReservationDetails;
 using ShuttleZone.Domain.WebResponses.Reservations;
+using System.Reflection;
 
 namespace ShuttleZone.Application.Services.Reservation
 {
@@ -27,7 +29,7 @@ namespace ShuttleZone.Application.Services.Reservation
 
 
             if (//payment failed
-                (reservation.ReservationStatusEnum == ReservationStatusEnum.PENDING && reservation.ExpiredTime > DateTime.Now)
+                (reservation.ReservationStatusEnum == ReservationStatusEnum.PENDING && reservation.ExpiredTime < DateTime.Now)
                 || reservation.ReservationStatusEnum == ReservationStatusEnum.PAYFAIL
                 || reservation.ReservationStatusEnum == ReservationStatusEnum.CANCELLED)
             {
@@ -45,29 +47,41 @@ namespace ShuttleZone.Application.Services.Reservation
                 throw new HttpException(400, "Reservation contain reservation detail that can only be cancelled 24 hours before the start time.");
 
             var refundAmount = reservation.ReservationDetails.Where(rd => rd.ReservationDetailStatus == ReservationStatusEnum.PAYSUCCEED).Sum(rd => rd.Price);
+            reservation.ReservationStatusEnum = ReservationStatusEnum.CANCELLED;
             reservation.ReservationDetails.ToList().ForEach(d =>
             {
                 d.ReservationDetailStatus = ReservationStatusEnum.CANCELLED;
             });
 
-
             //option: add refund vnPay here later
             //await _vnPayService.RefundPaymentAsync(reservation.Id);
-
-            //refund to wallet            
-            _unitOfWork.WalletRepository.UpdateWalletBalance(reservation.CustomerId ?? Guid.Empty, refundAmount);
-
-            //notifiy to user
-            var notificationRequest = new NotificationRequest
+            if (refundAmount > 0)
             {
-                UserId = reservation.CustomerId ?? throw new HttpException(400, $"Invalid user with reservation {reservation.Id}"),
-                Description = $"You have cancelled reservation {reservation.Id}. {refundAmount} has refunded to your wallet",
-            };
-            var notification = _notificationHubService.CreateNotification(notificationRequest);
-            await _unitOfWork.NotificationRepository.AddAsync(notification);
-            await _unitOfWork.CompleteAsync();
+                //refund to wallet            
+                _unitOfWork.WalletRepository.UpdateWalletBalance(reservation.CustomerId ?? Guid.Empty, refundAmount);
 
-            await _notificationHubService.SendNotificationAsync((Guid)reservation.CustomerId, _mapper.Map<NotificationResponse>(notification));
+                var transaction = new Domain.Entities.Transaction()
+                {
+                    Id = new Guid(),
+                    PaymentMethod = PaymentMethod.WALLET,
+                    Amount = refundAmount,
+                    TransactionStatus = TransactionStatusEnum.SUCCESS,
+                };
+                var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == reservation.CustomerId) ?? throw new HttpException(400, "Invalid wallet");
+                wallet.Transactions.Add(transaction);
+
+                //notifiy to user
+                var notificationRequest = new NotificationRequest
+                {
+                    UserId = reservation.CustomerId ?? throw new HttpException(400, $"Invalid user with reservation {reservation.Id}"),
+                    Description = $"You have cancelled reservation. {refundAmount} VND has refunded to your wallet",
+                };
+                var notification = _notificationHubService.CreateNotification(notificationRequest);
+                await _unitOfWork.NotificationRepository.AddAsync(notification);
+                await _notificationHubService.SendNotificationAsync((Guid)reservation.CustomerId, _mapper.Map<NotificationResponse>(notification));
+            }
+
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task CancelReservationDetail(int reservationDetailId)
@@ -79,7 +93,7 @@ namespace ShuttleZone.Application.Services.Reservation
                 throw new HttpException(400, "Court Booking is unexisted");
 
             if (//pay failed
-                (reservationDetail.ReservationDetailStatus == ReservationStatusEnum.PENDING && reservationDetail.Reservation.ExpiredTime > DateTime.Now)
+                (reservationDetail.ReservationDetailStatus == ReservationStatusEnum.PENDING && reservationDetail.Reservation.ExpiredTime < DateTime.Now)
                 || reservationDetail.ReservationDetailStatus == ReservationStatusEnum.PAYFAIL
                 || reservationDetail.ReservationDetailStatus == ReservationStatusEnum.CANCELLED)
             {
@@ -103,19 +117,31 @@ namespace ShuttleZone.Application.Services.Reservation
                 //await _vnPayService.RefundPaymentAsync(reservationDetail.Reservation.Id, reservationDetail.Price, VnPayConstansts.LESS_THAN_TOTAL_REFUND);
                 //refund to wallet
                 _unitOfWork.WalletRepository.UpdateWalletBalance(reservationDetail.Reservation.CustomerId ?? Guid.Empty, reservationDetail.Price);
+
+                var transaction = new Domain.Entities.Transaction()
+                {
+                    Id = new Guid(),
+                    PaymentMethod = PaymentMethod.WALLET,
+                    Amount = reservationDetail.Price,
+                    TransactionStatus = TransactionStatusEnum.SUCCESS,
+                };
+                var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == reservationDetail.Reservation.CustomerId) ?? throw new HttpException(400, "Invalid wallet");
+                wallet.Transactions.Add(transaction);
+
+                //notifiy to user
+                var notificationRequest = new NotificationRequest
+                {
+                    UserId = reservationDetail.Reservation.CustomerId ?? throw new HttpException(400, $"Invalid user with reservation {reservationDetail.Reservation.Id}"),
+                    Description = $"You have cancelled court booking. {reservationDetail.Price} VND has refunded to your wallet",
+                };
+                var notification = _notificationHubService.CreateNotification(notificationRequest);
+                await _unitOfWork.NotificationRepository.AddAsync(notification);
+                await _notificationHubService.SendNotificationAsync((Guid)reservationDetail.Reservation.CustomerId, _mapper.Map<NotificationResponse>(notification));
             }
 
-            //notifiy to user
-            var notificationRequest = new NotificationRequest
-            {
-                UserId = reservationDetail.Reservation.CustomerId ?? throw new HttpException(400, $"Invalid user with reservation {reservationDetail.Reservation.Id}"),
-                Description = $"You have cancelled court booking {reservationDetail.Id}. {reservationDetail.Price} has refunded to your wallet",
-            };
-            var notification = _notificationHubService.CreateNotification(notificationRequest);
-            await _unitOfWork.NotificationRepository.AddAsync(notification);
             await _unitOfWork.CompleteAsync();
 
-            await _notificationHubService.SendNotificationAsync((Guid)reservationDetail.Reservation.CustomerId, _mapper.Map<NotificationResponse>(notification));
+
         }
 
         public async Task<bool> CreateReservation(CreateReservationRequest request, Guid? currentUser = null, bool isStaff = true)
@@ -185,7 +211,7 @@ namespace ShuttleZone.Application.Services.Reservation
         public IQueryable<ReservationResponse> GetMyReservation(Guid currentUser)
         {
             var reservationsQuery = _unitOfWork.ReservationRepository.GetAll()
-                .Where(r => r.CustomerId == currentUser);      
+                .Where(r => r.CustomerId == currentUser);
 
             reservationsQuery = reservationsQuery.Include(r => r.ReservationDetails)
                 .ThenInclude(rd => rd.Court);
@@ -201,9 +227,7 @@ namespace ShuttleZone.Application.Services.Reservation
                 .Where(r => r.CustomerId == currentUser)
                 .Include(r => r.ReservationDetails)
                 .SelectMany(r => r.ReservationDetails).Include(r => r.Court).ThenInclude(c => c.Club).Include(r => r.Reservation);
-            
-            //var reservationDetailsResponse = reservationDetailsQuery
-            //    .ProjectTo<ReservationDetailsResponse>(_mapper.ConfigurationProvider);
+
             var reservationDetailsResponse = _mapper.Map<IList<ReservationDetailsResponse>>(reservationDetailsQuery).AsQueryable();
 
             return reservationDetailsResponse;

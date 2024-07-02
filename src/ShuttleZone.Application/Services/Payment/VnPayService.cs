@@ -12,7 +12,6 @@ using ShuttleZone.Domain.Enums;
 using ShuttleZone.Common.Exceptions;
 using System.Text.Json;
 using System.Text;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -24,24 +23,31 @@ namespace ShuttleZone.Application.Services.Payment
         private readonly VNPaySettings _vnPaySettings;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IMapper _mapper;
 
         public VnPayService(IOptions<VNPaySettings> vnPaySettings, IUnitOfWork unitOfWork,
-            IHttpClientFactory httpClientFactory, IMapper mapper)
+            IHttpClientFactory httpClientFactory)
         {
             _vnPaySettings = vnPaySettings.Value;
             _unitOfWork = unitOfWork;
             _httpClientFactory = httpClientFactory;
-            _mapper = mapper;
         }
 
         public string CreatePaymentUrl(HttpContext context, VnPayRequest vnPayRequest)
         {
-            var reservationId = new Guid(vnPayRequest.OrderInfo ?? throw new Exception("Invalid reservation"));
-            var reservation = _unitOfWork.ReservationRepository.Get(r => r.Id == reservationId) ?? throw new Exception("Invalid reservation");
+            if (vnPayRequest.OrderType.Equals(VnPayConstansts.ORDER_TYPE_BOOKING, StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(vnPayRequest.OrderInfo))
+            {
+                var reservationId = new Guid(vnPayRequest.OrderInfo ?? throw new Exception("Invalid reservation"));
+                var reservation = _unitOfWork.ReservationRepository.Get(r => r.Id == reservationId) ?? throw new Exception("Invalid reservation");
 
-            if (reservation.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED)
-                throw new HttpException(400, "Reservation is already paid");
+                if (reservation.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED)
+                    throw new HttpException(400, "Reservation is already paid");
+
+            }
+            else if (vnPayRequest.OrderType.Equals(VnPayConstansts.ORDER_TYPE_ADD_TO_WALLET, StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(vnPayRequest.OrderInfo))
+            {
+                var walletId = new Guid(vnPayRequest.OrderInfo ?? throw new Exception("Invalid wallet"));
+                var wallet = _unitOfWork.WalletRepository.Get(r => r.Id == walletId) ?? throw new Exception("Invalid wallet");
+            }
 
             var tick = DateTime.Now.Ticks.ToString();
 
@@ -55,7 +61,7 @@ namespace ShuttleZone.Application.Services.Payment
             vnpay.AddRequestData(VnPayConstansts.CURR_CODE, _vnPaySettings.CurrencyCode);
             vnpay.AddRequestData(VnPayConstansts.IP_ADDRESS, Utils.GetIpAddress(context));
             vnpay.AddRequestData(VnPayConstansts.LOCALE, _vnPaySettings.Locale);
-            vnpay.AddRequestData(VnPayConstansts.ORDER_INFOR, vnPayRequest.OrderInfo ?? "");
+            vnpay.AddRequestData(VnPayConstansts.ORDER_INFOR, vnPayRequest.OrderType + "-" + vnPayRequest.OrderInfo ?? "");
             vnpay.AddRequestData(VnPayConstansts.ORDER_TYPE, vnPayRequest.OrderType ?? "");
             vnpay.AddRequestData(VnPayConstansts.RETURN_URL, _vnPaySettings.ReturnUrl);
             vnpay.AddRequestData(VnPayConstansts.TXN_REF, tick);
@@ -86,34 +92,51 @@ namespace ShuttleZone.Application.Services.Payment
             }
             if (isIPN)
             {
+                var orderType = response.vnp_OrderInfo?.Split("-")[0] ?? "";
+                var orderId = new Guid(response.vnp_OrderInfo?.Split("-")[1] ?? throw new Exception("Invalid order"));
                 Double.TryParse(response.vnp_Amount, out double result);
-                var reservationId = new Guid(response.vnp_OrderInfo ?? throw new Exception("Invalid reservation"));
-                var reservation = _unitOfWork.ReservationRepository.Find(r => r.Id == reservationId)
-                    .Include(r => r.ReservationDetails).FirstOrDefault() ?? throw new Exception("Invalid reservation");
-                //improve later: check if reservation is already paid/have any transaction
 
                 var isPaySucceed = (response.vnp_ResponseCode?.Equals("00") ?? false)
                     && (response.vnp_TransactionStatus?.Equals("00") ?? false);
 
-                _unitOfWork.TransactionRepository.Add(new Domain.Entities.Transaction()
+                var transaction = new Domain.Entities.Transaction()
                 {
                     Id = new Guid(),
                     PaymentMethod = PaymentMethod.VNPAY,
                     Amount = result,
                     TransactionStatus = isPaySucceed
                     ? TransactionStatusEnum.SUCCESS : TransactionStatusEnum.FAIL,
-                    ReservationId = reservationId,
+                    ReservationId = orderType.Equals(VnPayConstansts.ORDER_TYPE_BOOKING, StringComparison.OrdinalIgnoreCase) ? orderId : null,
                     TxnRef = response.vnp_TxnRef,
                     TransactionNo = response.vnp_TransactionNo,
                     TransactionDate = response.vnp_PayDate
-                });
+                };
 
-                foreach (var detail in reservation.ReservationDetails)
+                
+                //update db for booking
+                if (orderType.Equals(VnPayConstansts.ORDER_TYPE_BOOKING, StringComparison.OrdinalIgnoreCase))
                 {
-                    detail.ReservationDetailStatus = isPaySucceed ? ReservationStatusEnum.PAYSUCCEED : ReservationStatusEnum.PAYFAIL;
-                }
+                    var reservation = _unitOfWork.ReservationRepository.Find(r => r.Id == orderId)
+                 .Include(r => r.ReservationDetails).FirstOrDefault();
 
-                reservation.ReservationStatusEnum = isPaySucceed ? ReservationStatusEnum.PAYSUCCEED : ReservationStatusEnum.PAYFAIL;
+                    if (reservation != null)
+                    {
+                        foreach (var detail in reservation.ReservationDetails)
+                        {
+                            detail.ReservationDetailStatus = isPaySucceed ? ReservationStatusEnum.PAYSUCCEED : ReservationStatusEnum.PAYFAIL;
+                        }
+
+                        reservation.ReservationStatusEnum = isPaySucceed ? ReservationStatusEnum.PAYSUCCEED : ReservationStatusEnum.PAYFAIL;
+                    }
+                    _unitOfWork.TransactionRepository.Add(transaction);
+
+                }//update db for add to wallet
+                else if (orderType.Equals(VnPayConstansts.ORDER_TYPE_ADD_TO_WALLET, StringComparison.OrdinalIgnoreCase))
+                {
+                    var wallet = _unitOfWork.WalletRepository.Get(w => w.Id == orderId) ?? throw new HttpException(400, "Invalid wallet");
+                    wallet.Balance += result;
+                    wallet.Transactions.Add(transaction);
+                }
 
                 var isSuccess = await _unitOfWork.CompleteAsync();
             }
@@ -132,7 +155,7 @@ namespace ShuttleZone.Application.Services.Payment
                 vnp_TransactionNo = transaction.TransactionNo,
                 vnp_CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss"),
                 vnp_IpAddr = "127.0.0.1",
-                vnp_OrderInfo = transaction.ReservationId.ToString(),
+                vnp_OrderInfo = transaction.ReservationId.ToString() ?? "",
                 vnp_RequestId = GenerateRequestId(),
                 vnp_Version = _vnPaySettings.Version,
                 vnp_TransactionDate = transaction.TransactionDate,
@@ -173,7 +196,7 @@ namespace ShuttleZone.Application.Services.Payment
                 vnp_TmnCode = _vnPaySettings.TmnCode,
                 vnp_CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss"),
                 vnp_IpAddr = "127.0.0.1",
-                vnp_OrderInfo = transaction.ReservationId.ToString(),
+                vnp_OrderInfo = transaction.ReservationId.ToString() ?? "",
                 vnp_TransactionNo = transaction.TransactionNo,
                 vnp_TxnRef = transaction.TxnRef,
                 vnp_TransactionDate = transaction.TransactionDate,
