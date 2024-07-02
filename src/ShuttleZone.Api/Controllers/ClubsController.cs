@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.Services;
+using ShuttleZone.Application.Services.Account;
 using ShuttleZone.Application.Services.ReservationDetail;
 using ShuttleZone.Domain.WebRequests.Club;
+using ShuttleZone.Domain.WebRequests.ShuttleZoneUser;
 using ShuttleZone.Domain.WebResponses;
 using SystemRole = ShuttleZone.Domain.Constants.SystemRole;
 
@@ -19,15 +21,17 @@ public class ClubsController : BaseApiController
 {
     private readonly IClubService _clubService;
     private readonly IReservationDetailService _reservationDetailService;
+    private readonly IAccountService _accountService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ClubsController"/> class.
     /// </summary>
     /// <param name="clubService">The service for club management.</param>
-    public ClubsController(IClubService clubService, IReservationDetailService reservationDetailService)
+    public ClubsController(IClubService clubService, IReservationDetailService reservationDetailService, IAccountService accountService)
     {
         _clubService = clubService;
         _reservationDetailService = reservationDetailService;
+        _accountService = accountService;
     }
 
     /// <summary>
@@ -98,6 +102,21 @@ public class ClubsController : BaseApiController
         return await HandleResultAsync(
             async () => await _clubService.AddClubAsync(request).ConfigureAwait(false)
         ).ConfigureAwait(false);
+    }
 
+    [HttpPut("/api/clubs/{key}/assign-staff")]
+    public async Task<IActionResult> AssignStaff([FromRoute] Guid key, [FromBody] AssignStaffRequest request)
+    {
+        request.ClubId = key;
+        return await HandleResultAsync(
+            async () => await _accountService.AssignStaff(request).ConfigureAwait(false)
+        ).ConfigureAwait(false);
+    }
+
+    [HttpGet("/api/clubs/staffs")]
+    [EnableQuery]
+    public  IActionResult GetClubStaff()   
+    {
+        return HandleResult(() =>  _clubService.GetMyStaff());
     }
 }
