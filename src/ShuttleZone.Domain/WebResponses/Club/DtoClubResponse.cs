@@ -48,8 +48,7 @@ public record DtoOpenDateInWeek
 {
     public int Id { get; set; }
     public string Date { get; set; } = null!;
-}
-
+}   
 public record DtoStaffProfile
 {
     public Guid Id { get; set; }
