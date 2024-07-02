@@ -1,4 +1,5 @@
 using ShuttleZone.Domain.Enums;
+using ShuttleZone.Domain.WebResponses.ShuttleZoneUser;
 
 namespace ShuttleZone.Domain.WebResponses;
 
@@ -19,6 +20,7 @@ public record DtoClubResponse
     public ICollection<DtoReviewResponse> Reviews { get; set; } = new List<DtoReviewResponse>();
     public ICollection<DtoClubImageResponse> ClubImages { get; set; } = new List<DtoClubImageResponse>();
     public ICollection<DtoOpenDateInWeek> OpenDateInWeeks { get; set; } = new List<DtoOpenDateInWeek>();
+    public ICollection<DtoStaffProfile> Staffs { get; set; } = new List<DtoStaffProfile>();
 }
 
 public record DtoReviewResponse
@@ -46,4 +48,12 @@ public record DtoOpenDateInWeek
 {
     public int Id { get; set; }
     public string Date { get; set; } = null!;
+}
+
+public record DtoStaffProfile
+{
+    public Guid Id { get; set; }
+    public string UserName { get; set; } = null!;
+    public int Gender { get; set; }
+    public string ProfileImage { get; set; } = null!;
 }

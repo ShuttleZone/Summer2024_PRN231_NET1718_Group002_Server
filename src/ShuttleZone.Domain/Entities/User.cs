@@ -22,4 +22,7 @@ public class User : IdentityUser<Guid>
     public Guid WalletId { get; set; }
     public Wallet? Wallet { get; set; } 
     public ICollection<PackageUser>? PackageUsers { get; set; }
+    
+    public Guid? ClubId { get; set; }
+    public Club? Club { get; set; }
 }
