@@ -14,6 +14,7 @@ using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Club;
 using ShuttleZone.Application.Services.Token;
 using ShuttleZone.Application.Common.Interfaces;
+using ShuttleZone.Common.Exceptions;
 
 namespace ShuttleZone.Application.Services;
 
@@ -109,6 +110,10 @@ public class ClubService : IClubService
         if (_currentUser.Id == null)
             throw new Exception("Not found ID");
         var owner = _userRepository.Find(x => x.Id == Guid.Parse(_currentUser.Id)).FirstOrDefault() ?? throw new Exception("not have user");
+
+        if (!IsWithinSubscription(owner))
+            throw new Exception("User do not have any subscription");
+             
         var club = _mapper.Map<Club>(request);
         club.OwnerId = owner.Id;
         await _clubRepository.AddAsync(club);
@@ -141,6 +146,15 @@ public class ClubService : IClubService
         return _mapper.Map<DtoClubResponse>(club);
     }
 
+    public async Task<IQueryable<DtoClubStaff>> GetMyStaff()
+    {
+        var owner = await _userRepository.GetAsync(x => x.Id.ToString() == _currentUser.Id) 
+                    ?? throw new HttpException(statusCode: 404, message:"Not Found User.");
+        var userClubIds = owner.Clubs.Select(x => x.Id).ToList();
+        var staff = _userRepository.Find(x => x.ClubId != null && userClubIds.Contains((Guid)x.ClubId));
+        return _mapper.ProjectTo<DtoClubStaff>(staff);
+    }
+
     public IQueryable<DtoClubResponse> GetMyClubs()
     {
         var userId = _currentUser.Id;
@@ -153,4 +167,12 @@ public class ClubService : IClubService
 
         return queryableClubs;
     }
+
+    private bool IsWithinSubscription(User user)
+    {
+        if (user.PackageUsers is null ||  user.PackageUsers.Count == 0)
+            return false;
+        return user.PackageUsers.Any(userPackageUser => userPackageUser.EndDate >= DateTime.Now);
+    }
+    
 }

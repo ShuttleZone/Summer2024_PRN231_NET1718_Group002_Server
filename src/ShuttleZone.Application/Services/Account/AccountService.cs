@@ -5,9 +5,12 @@ using ShuttleZone.Application.Services.Email;
 using ShuttleZone.Application.Services.Token;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.Common.Exceptions;
+using ShuttleZone.DAL.DependencyInjection.Repositories.User;
+using ShuttleZone.DAL.Repositories;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebRequests.Account;
+using ShuttleZone.Domain.WebRequests.ShuttleZoneUser;
 
 namespace ShuttleZone.Application.Services.Account;
 
@@ -19,18 +22,20 @@ public class AccountService : IAccountService
     private readonly SignInManager<User> _signInManager;
     private readonly IUser _currentUser;
     private readonly IEmailService _emailService;
+    private readonly IUserRepository _userRepository;
 
     public AccountService(UserManager<User> userManager, 
         ITokenService tokenService, 
         SignInManager<User> signInManager, 
         IUser currentUser,
-        IEmailService emailService)
+        IEmailService emailService, IClubRepository clubRepository, IUserRepository userRepository)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _signInManager = signInManager;
         _currentUser = currentUser;
         _emailService = emailService;
+        _userRepository = userRepository;
     }
     
     public async Task<NewAccountDto?> Register(RegisterDto registerDto)
@@ -144,5 +149,30 @@ public class AccountService : IAccountService
         if (!result.Succeeded)
             throw new HttpException(400, result.Errors.First().Description);
        
+    }
+
+    public async Task AssignStaff(AssignStaffRequest request)
+    {
+        // throw new NotImplementedException();
+        var owner = _userRepository.Find(x => x.Id.ToString() == _currentUser.Id).Include(x => x.Clubs).FirstOrDefault() ??
+                    throw new HttpException(404, "User not found.");
+        var club = owner.Clubs.FirstOrDefault(x => x.Id == request.ClubId) ??
+                   throw new HttpException(404, $"User do not have club id {request.ClubId}");
+        var staff = new User
+        {
+            UserName = request.UserName,
+            Email = request.Email,
+            PhoneNumber = request.PhoneNumber,
+            Fullname = request.FullName,
+            Gender = request.Gender,
+            ClubId = request.ClubId,
+            EmailConfirmed = true
+        };
+        var result = await _userManager.CreateAsync(staff, request.Password);
+        if (!result.Succeeded)
+        {
+            throw new Exception(result.Errors.First().Description);
+        }
+        await _userManager.AddToRoleAsync(staff, "Staff");
     }
 }

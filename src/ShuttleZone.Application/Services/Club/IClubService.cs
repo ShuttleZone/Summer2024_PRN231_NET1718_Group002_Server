@@ -1,6 +1,6 @@
 
 using ShuttleZone.Domain.WebRequests.Club;
-
+using ShuttleZone.Domain.WebRequests.ShuttleZoneUser;
 using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Club;
 
@@ -34,6 +34,5 @@ public interface IClubService
     bool RejectClubRequest(Guid ClubId);
 
     Task<DtoClubResponse> AddClubAsync(CreateClubRequest request);
-
-
+    Task<IQueryable<DtoClubStaff>> GetMyStaff();
 }

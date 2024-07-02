@@ -1,3 +1,4 @@
+using System.Collections;
 using ShuttleZone.Domain.Common;
 using ShuttleZone.Domain.Enums;
 
@@ -16,6 +17,8 @@ public class Club : BaseAuditableEntity<Guid>
     
     public Guid OwnerId { get; set; }
     public User Owner { get; set; } = null!;
+
+    public ICollection<User> Staffs { get; set; } = new List<User>();
 
     public ICollection<Review> Reviews = new List<Review>();
     public ICollection<ClubImage> ClubImages = new List<ClubImage>();

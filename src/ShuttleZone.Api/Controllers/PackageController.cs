@@ -54,5 +54,4 @@ public class PackageController: BaseApiController
             return Ok(result);
         return BadRequest("Error in changing status !");
     }
-
 }
