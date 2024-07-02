@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
@@ -146,12 +147,13 @@ public class ClubService : IClubService
         return _mapper.Map<DtoClubResponse>(club);
     }
 
-    public async Task<IQueryable<DtoClubStaff>> GetMyStaff()
+    public  IQueryable<DtoClubStaff> GetMyStaff()
     {
-        var owner = await _userRepository.GetAsync(x => x.Id.ToString() == _currentUser.Id) 
-                    ?? throw new HttpException(statusCode: 404, message:"Not Found User.");
+        var owner = _userRepository.Find(x => x.Id.ToString() == _currentUser.Id)
+            .Include(x => x.Clubs)
+            .FirstOrDefault()  ?? throw new HttpException(statusCode: 404, message:"Not Found User.");
         var userClubIds = owner.Clubs.Select(x => x.Id).ToList();
-        var staff = _userRepository.Find(x => x.ClubId != null && userClubIds.Contains((Guid)x.ClubId));
+        var staff =  _userRepository.Find(x => x.ClubId != null && userClubIds.Contains((Guid)x.ClubId));
         return _mapper.ProjectTo<DtoClubStaff>(staff);
     }
 

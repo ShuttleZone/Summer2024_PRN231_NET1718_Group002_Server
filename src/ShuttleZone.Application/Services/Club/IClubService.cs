@@ -34,5 +34,5 @@ public interface IClubService
     bool RejectClubRequest(Guid ClubId);
 
     Task<DtoClubResponse> AddClubAsync(CreateClubRequest request);
-    Task<IQueryable<DtoClubStaff>> GetMyStaff();
+    IQueryable<DtoClubStaff> GetMyStaff();
 }

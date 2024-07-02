@@ -113,10 +113,10 @@ public class ClubsController : BaseApiController
         ).ConfigureAwait(false);
     }
 
-    [HttpPut("/api/staffs")]
+    [HttpGet("/api/clubs/staffs")]
     [EnableQuery]
-    public async Task<IActionResult> GetClub1Staff()   
+    public  IActionResult GetClubStaff()   
     {
-        return await HandleResultAsync(async () => await _clubService.GetMyStaff());
+        return HandleResult(() =>  _clubService.GetMyStaff());
     }
 }
