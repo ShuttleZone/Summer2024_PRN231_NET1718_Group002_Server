@@ -15,7 +15,7 @@ namespace ShuttleZone.DAL.Repositories.Wallets
             var wallet = Find(w=>w.UserId == userId).FirstOrDefault();
             if(wallet != null)
             {
-                wallet.Balance = balance;
+                wallet.Balance += balance;
             }
             else
             {

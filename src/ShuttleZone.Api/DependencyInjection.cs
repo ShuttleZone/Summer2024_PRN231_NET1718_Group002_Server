@@ -22,6 +22,7 @@ using ShuttleZone.Domain.WebResponses.Reservations;
 using ShuttleZone.Domain.WebResponses.ShuttleZoneUser;
 using ShuttleZone.Domain.WebResponses.UserContests;
 using ShuttleZone.Domain.WebResponses.Notifications;
+using ShuttleZone.Domain.WebResponses.Wallets;
 
 
 namespace ShuttleZone.Api.DependencyInjection;
@@ -153,6 +154,10 @@ public static class DependencyInjection
         #endregion
 
         builder.EntitySet<DtoReviewResponse>(GetControllerShortName<ReviewsController>());
+        #region Wallet
+
+        builder.EntitySet<WalletResponse>(GetControllerShortName<WalletController>());
+        #endregion
 
         builder.EnableLowerCamelCase();
 
