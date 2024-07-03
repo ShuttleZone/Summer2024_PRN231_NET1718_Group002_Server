@@ -27,7 +27,9 @@ public class ContestService(
     public IQueryable<DtoContestResponse> GetContests()
     {
         var queryableClubs = _unitOfWork.ContestRepository
-            .GetAll();
+            .GetAll()
+            .Include(c => c.Reservation)
+            .Where(c => c.Reservation!.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED);
         var dtoClubs = queryableClubs
             .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
 
