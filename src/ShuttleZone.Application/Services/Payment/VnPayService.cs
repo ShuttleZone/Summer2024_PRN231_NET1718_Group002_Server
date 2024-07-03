@@ -61,7 +61,7 @@ namespace ShuttleZone.Application.Services.Payment
             vnpay.AddRequestData(VnPayConstansts.CURR_CODE, _vnPaySettings.CurrencyCode);
             vnpay.AddRequestData(VnPayConstansts.IP_ADDRESS, Utils.GetIpAddress(context));
             vnpay.AddRequestData(VnPayConstansts.LOCALE, _vnPaySettings.Locale);
-            vnpay.AddRequestData(VnPayConstansts.ORDER_INFOR, vnPayRequest.OrderType + "-" + vnPayRequest.OrderInfo ?? "");
+            vnpay.AddRequestData(VnPayConstansts.ORDER_INFOR, vnPayRequest.OrderType + "," + vnPayRequest.OrderInfo ?? "");
             vnpay.AddRequestData(VnPayConstansts.ORDER_TYPE, vnPayRequest.OrderType ?? "");
             vnpay.AddRequestData(VnPayConstansts.RETURN_URL, _vnPaySettings.ReturnUrl);
             vnpay.AddRequestData(VnPayConstansts.TXN_REF, tick);
@@ -92,8 +92,8 @@ namespace ShuttleZone.Application.Services.Payment
             }
             if (isIPN)
             {
-                var orderType = response.vnp_OrderInfo?.Split("-")[0] ?? "";
-                var orderId = new Guid(response.vnp_OrderInfo?.Split("-")[1] ?? throw new Exception("Invalid order"));
+                var orderType = response.vnp_OrderInfo?.Split(",")[0] ?? "";
+                var orderId = new Guid(response.vnp_OrderInfo?.Split(",")[1] ?? throw new Exception("Invalid order"));
                 Double.TryParse(response.vnp_Amount, out double result);
 
                 var isPaySucceed = (response.vnp_ResponseCode?.Equals("00") ?? false)
