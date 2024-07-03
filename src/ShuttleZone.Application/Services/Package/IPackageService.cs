@@ -16,4 +16,8 @@ public interface IPackageService
     Task<bool> DeletePackage(Guid packageId);
 
     Task<bool> UpdateStatus(Guid packageId);
+
+    UserPackageResponseDto GetCurrentUserPackage(Guid userId);
+
+    List<UserPackageResponseDto> GetUserPackageHistory(Guid userId);
 }

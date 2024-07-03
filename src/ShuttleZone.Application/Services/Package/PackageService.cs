@@ -106,4 +106,26 @@ public class PackageService : IPackageService
         }
         throw new KeyNotFoundException();
     }
+
+    public  UserPackageResponseDto GetCurrentUserPackage(Guid userId)
+    {
+        var package = _unitOfWork.PackageRepository
+            .Find(p => p.PackageUser!.Select(pu => pu.UserId).Contains(userId))
+            .Include(p => p.PackageUser)
+            .FirstOrDefault();
+        var dto = _mapper.Map<UserPackageResponseDto>(package);
+
+        return dto;
+    }
+
+    public List<UserPackageResponseDto> GetUserPackageHistory(Guid userId)
+    {
+        var package = _unitOfWork.PackageRepository
+            .GetAll()
+            .Include(p => p.PackageUser)
+            .ToList();
+        var dto = _mapper.Map<List<UserPackageResponseDto>>(package);
+
+        return dto;
+    }
 }
