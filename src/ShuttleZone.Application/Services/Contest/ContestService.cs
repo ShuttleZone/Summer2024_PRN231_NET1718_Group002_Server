@@ -198,6 +198,13 @@ public class ContestService(
         var contest = _unitOfWork.ContestRepository.Find(c => c.Id == contestId).Include(c => c.UserContests).FirstOrDefault()
             ?? throw new HttpException(400, $"Contest with id {contestId} is not existed");
 
+        var isInPast = contest.ContestDate < DateTime.Now;
+        if (isInPast)
+            throw new HttpException(400, $"Contest with id {contestId} is already happened");
+
+        if (contest.ContestStatus == ContestStatusEnum.Closed)
+            throw new HttpException(400, $"Contest with id {contestId} is already closed");
+
         var isJoined = contest.UserContests.Exists(c => c.ParticipantsId == userId);
         if (isJoined)
             throw new HttpException(400, $"You are already in this contest");
