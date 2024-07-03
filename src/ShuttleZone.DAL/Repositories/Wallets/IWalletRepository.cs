@@ -5,6 +5,9 @@ namespace ShuttleZone.DAL.Repositories.Wallets
 {
     public interface IWalletRepository : IGenericRepository<Wallet>
     {
-       void UpdateWalletBalance(Guid userId, double balance);
+       void UpdateWalletBalanceByUserId(Guid userId, double balance);
+       void UpdateWalletBalanceByWalletId(Guid walletId, double balance);
+
+
     }
 }

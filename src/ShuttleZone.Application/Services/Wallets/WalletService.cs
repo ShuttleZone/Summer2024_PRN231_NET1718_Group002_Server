@@ -17,6 +17,17 @@ namespace ShuttleZone.Application.Services.Wallets
         public async Task<WalletResponse> GetMyWalletAsync(Guid currentUserId)
         {
             var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == currentUserId);
+            if (wallet == null)
+            {
+                wallet = new Domain.Entities.Wallet()
+                {
+                    Id = new Guid(),
+                    UserId = currentUserId,
+                    Balance = 0
+                };
+                await _unitOfWork.WalletRepository.AddAsync(wallet);
+                await _unitOfWork.CompleteAsync();
+            }
 
             return _mapper.Map<WalletResponse>(wallet);
         }

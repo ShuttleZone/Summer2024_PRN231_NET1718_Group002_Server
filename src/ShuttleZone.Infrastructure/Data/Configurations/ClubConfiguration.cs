@@ -13,10 +13,13 @@ public class ClubConfiguration : IEntityTypeConfiguration<Club>
         builder.HasKey(c => c.Id);
         builder.Property(c => c.Created).ValueGeneratedOnAdd();
         builder.Property(c => c.LastModified).ValueGeneratedOnUpdate();
+
         builder.HasOne(c => c.Owner)
-            .WithMany(c => c.Clubs)
+            .WithMany()
             .HasForeignKey(c => c.OwnerId)
-            .IsRequired(false);
+            .OnDelete(DeleteBehavior.Restrict);
+       
+
         builder.HasData(new Club
         {
             Id = Guid.Parse("8a20240f-c00e-4d1d-9928-7bfc309ff6ce"),

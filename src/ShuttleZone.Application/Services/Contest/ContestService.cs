@@ -272,7 +272,7 @@ public class ContestService(
        foreach (var winner in winners)
         {
             var refundAmount = contest.Reservation != null ? contest.Reservation.TotalPrice : 0;
-            _unitOfWork.WalletRepository.UpdateWalletBalance(winner.ParticipantsId, refundAmount);
+            _unitOfWork.WalletRepository.UpdateWalletBalanceByUserId(winner.ParticipantsId, refundAmount);
             var transaction = new Domain.Entities.Transaction()
             {
                 Id = new Guid(),
