@@ -54,4 +54,13 @@ public class PackageController: BaseApiController
             return Ok(result);
         return BadRequest("Error in changing status !");
     }
+
+    [HttpGet("/api/Package/getUserPackage/{userId}")]
+    public IActionResult GetUserPackage(Guid userId)
+    {
+        var result =  _packageService.GetCurrentUserPackage(userId);
+        if (result != null)
+            return Ok(result);
+        return BadRequest("Not found");
+    }
 }
