@@ -134,6 +134,7 @@ namespace ShuttleZone.Application.Services.Payment
                 else if (orderType.Equals(VnPayConstansts.ORDER_TYPE_ADD_TO_WALLET, StringComparison.OrdinalIgnoreCase))
                 {
                     var wallet = _unitOfWork.WalletRepository.Get(w => w.Id == orderId) ?? throw new HttpException(400, "Invalid wallet");
+
                     wallet.Balance += result;
                     wallet.Transactions.Add(transaction);
                 }

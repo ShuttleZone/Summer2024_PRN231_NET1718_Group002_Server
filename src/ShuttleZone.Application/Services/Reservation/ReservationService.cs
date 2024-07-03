@@ -58,7 +58,7 @@ namespace ShuttleZone.Application.Services.Reservation
             if (refundAmount > 0)
             {
                 //refund to wallet            
-                _unitOfWork.WalletRepository.UpdateWalletBalance(reservation.CustomerId ?? Guid.Empty, refundAmount);
+                _unitOfWork.WalletRepository.UpdateWalletBalanceByUserId(reservation.CustomerId ?? Guid.Empty, refundAmount);
 
                 var transaction = new Domain.Entities.Transaction()
                 {
@@ -116,7 +116,7 @@ namespace ShuttleZone.Application.Services.Reservation
                 //refund to vnPay
                 //await _vnPayService.RefundPaymentAsync(reservationDetail.Reservation.Id, reservationDetail.Price, VnPayConstansts.LESS_THAN_TOTAL_REFUND);
                 //refund to wallet
-                _unitOfWork.WalletRepository.UpdateWalletBalance(reservationDetail.Reservation.CustomerId ?? Guid.Empty, reservationDetail.Price);
+                _unitOfWork.WalletRepository.UpdateWalletBalanceByUserId(reservationDetail.Reservation.CustomerId ?? Guid.Empty, reservationDetail.Price);
 
                 var transaction = new Domain.Entities.Transaction()
                 {

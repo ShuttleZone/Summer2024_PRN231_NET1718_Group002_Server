@@ -110,8 +110,11 @@ public class ClubService : IClubService
     {
         if (_currentUser.Id == null)
             throw new Exception("Not found ID");
-        var owner = _userRepository.Find(x => x.Id == Guid.Parse(_currentUser.Id)).FirstOrDefault() ?? throw new Exception("not have user");
-
+        //nhi: you not include package user, so it not actually check the subscription       
+        var owner = _userRepository.Find(x => x.Id == Guid.Parse(_currentUser.Id))
+            .Include(u=>u.PackageUsers)
+            .FirstOrDefault() ?? throw new Exception("not have user");
+        
         if (!IsWithinSubscription(owner))
             throw new Exception("User do not have any subscription");
              
