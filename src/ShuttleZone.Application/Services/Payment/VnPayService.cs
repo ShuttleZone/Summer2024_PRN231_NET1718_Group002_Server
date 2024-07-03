@@ -135,7 +135,7 @@ namespace ShuttleZone.Application.Services.Payment
                 {
                     var wallet = _unitOfWork.WalletRepository.Get(w => w.Id == orderId) ?? throw new HttpException(400, "Invalid wallet");
 
-                    wallet.Balance += result;
+                    wallet.Balance += (result/100);
                     wallet.Transactions.Add(transaction);
                 }
 
