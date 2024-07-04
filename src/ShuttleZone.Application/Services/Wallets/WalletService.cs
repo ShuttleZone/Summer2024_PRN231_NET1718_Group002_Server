@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.Common.Constants;
 using ShuttleZone.Common.Exceptions;
@@ -13,7 +14,7 @@ using ShuttleZone.Domain.WebResponses.Wallets;
 namespace ShuttleZone.Application.Services.Wallets
 {
     [AutoRegister]
-    public class WalletService(IUnitOfWork _unitOfWork, IMapper _mapper) : IWalletService
+    public class WalletService(IUnitOfWork _unitOfWork, IMapper _mapper, IUser _user) : IWalletService
     {
         public async Task<WalletResponse> GetMyWalletAsync(Guid currentUserId)
         {
@@ -42,6 +43,15 @@ namespace ShuttleZone.Application.Services.Wallets
         public async Task PutWalletAsync(Guid walletId, VnPayRequest request)
         {
             var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.Id == walletId) ?? throw new HttpException(400, "Invalid wallet");
+
+            wallet.Balance += request.Amount;
+            var transaction = new Domain.Entities.Transaction()
+            {
+                Id = new Guid(),
+                PaymentMethod = PaymentMethod.WALLET,
+                Amount = request.Amount,
+                TransactionStatus = TransactionStatusEnum.SUCCESS,
+            };
 
             if (request.OrderType.Equals(VnPayConstansts.ORDER_TYPE_BOOKING, StringComparison.OrdinalIgnoreCase))
             {
@@ -97,16 +107,22 @@ namespace ShuttleZone.Application.Services.Wallets
                     });
 
             }
-
-
-            wallet.Balance += request.Amount;
-            var transaction = new Domain.Entities.Transaction()
+            else if (request.OrderType.Equals(VnPayConstansts.ORDER_TYPE_PACKAGE, StringComparison.OrdinalIgnoreCase))
             {
-                Id = new Guid(),
-                PaymentMethod = PaymentMethod.WALLET,
-                Amount = request.Amount,
-                TransactionStatus = TransactionStatusEnum.SUCCESS,
-            };
+                var packageId = new Guid(request.OrderInfo ?? throw new Exception("Invalid package"));
+                var package = await _unitOfWork.PackageRepository.GetAsync(p => p.Id == packageId) ?? throw new Exception("Invalid package");
+                var packageUser = new PackageUser
+                {
+                    Id = new Guid(),
+                    UserId = new Guid(_user.Id ?? throw new HttpException(401, "You are not logined")),
+                    PackageId = packageId,
+                    TransactionId = transaction.Id,
+                    StartDate = DateTime.Now,
+                    EndDate = package.PackageType == PackageType.MONTH ? DateTime.Now.AddMonths(1)
+                    : package.PackageType == PackageType.YEAR ? DateTime.Now.AddYears(1)
+                    : DateTime.Now.AddYears(100000)
+                };
+            }
 
             wallet.Transactions.Add(transaction);
             await _unitOfWork.CompleteAsync();

@@ -8,7 +8,7 @@ public class Transaction : BaseAuditableEntity<Guid>
 {
     public PaymentMethod PaymentMethod { get; set; }
     public double Amount { get; set; }
-    public TransactionStatusEnum TransactionStatus { get; set; }
+    public TransactionStatusEnum TransactionStatus { get; set; } = TransactionStatusEnum.SUCCESS;
     public Guid? ReservationId { get; set; }
     public Reservation? Reservation { get; set; } 
     //tick
