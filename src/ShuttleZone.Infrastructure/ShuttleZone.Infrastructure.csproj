@@ -14,6 +14,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" />
+    <PackageReference Include="payOS" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ShuttleZone.Domain\ShuttleZone.Domain.csproj" />
