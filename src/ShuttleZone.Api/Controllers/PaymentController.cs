@@ -4,15 +4,18 @@ using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Payment;
 using ShuttleZone.Domain.WebRequests.Payment;
 using ShuttleZone.Domain.WebResponses.Payment;
+using Exception = System.Exception;
 
 namespace ShuttleZone.Api.Controllers
 {
     public class PaymentController : BaseApiController
     {
         private readonly IVnPayService _vnPayService;
-        public PaymentController(IVnPayService vnPayService)
+        private readonly IPayOsService _payOsService;
+        public PaymentController(IVnPayService vnPayService, IPayOsService payOsService)
         {
             _vnPayService = vnPayService;
+            _payOsService = payOsService;
         }
 
         [HttpPost("create-payment-url")]
@@ -79,6 +82,37 @@ namespace ShuttleZone.Api.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost("/create-payment-link-PayOs")]
+        public async Task<IActionResult> GetPayOsPaymentLink([FromQuery] PayOsRequest request)
+        {
+            try
+            {
+                var result = await _payOsService.CreatePaymentLinkPackage(request);
+                
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        
+        [HttpGet("/GetPayOsOrder/{orderId}")]
+        public async Task<IActionResult> GetOrder([FromRoute] int orderId)
+        {
+            try
+            {
+                var result = await _payOsService.GetOrder(orderId);
+                return Ok(result);
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+
+        }
+        
 
     }
 }

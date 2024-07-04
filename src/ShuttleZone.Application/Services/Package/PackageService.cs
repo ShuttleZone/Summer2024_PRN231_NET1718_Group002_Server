@@ -39,7 +39,8 @@ public class PackageService : IPackageService
 
     public IQueryable<PackageResponseDto>? GetPackagesAdmin()
     {
-        var packages = _unitOfWork.PackageRepository.GetAll();
+        var packages = _unitOfWork.PackageRepository.GetAll()
+            .Include(p => p.PackageUser);
         if (packages != null)
         {
             var packagesDtos = _mapper.ProjectTo<PackageResponseDto>(packages);
@@ -111,15 +112,11 @@ public class PackageService : IPackageService
 
     public  UserPackageResponseDto GetCurrentUserPackage(Guid userId)
     {
-        var package = _unitOfWork.PackageRepository
-            .Find(p => p.PackageUser != null &&
-                       p.PackageUser.Select(pu => pu.UserId)
-                           .Contains(userId) &&
-                       p.PackageUser.Any(pu => pu.PackageUserStatus == PackageUserStatus.VALID))
-            .Include(p => p.PackageUser)
-            .FirstOrDefault();
+        var package = _unitOfWork.PackageUserRepository
+            .Find(p => p.UserId == userId)
+            .Include(p => p.Package)
+            .FirstOrDefault(p => p.PackageUserStatus == PackageUserStatus.VALID);
         var dto = _mapper.Map<UserPackageResponseDto>(package);
-
         return dto;
     }
 

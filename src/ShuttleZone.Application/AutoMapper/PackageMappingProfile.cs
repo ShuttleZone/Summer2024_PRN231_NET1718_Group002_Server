@@ -16,8 +16,9 @@ public class PackageMappingProfile : Profile
         CreateMap<UpdatePackageDto, Package>();
 
         CreateMap<Package, UserPackageResponseDto>();
-        CreateMap<PackageUser, UserPackageResponseDto.PackageUserDto>()
-            .ForMember(dest => dest.StartDate, opt => opt.MapFrom(p => p.StartDate))
-            .ForMember(dest => dest.EndDate, opt => opt.MapFrom(p => p.EndDate));
+        CreateMap<PackageUser, PackageResponseDto.PackageUserDto>();
+
+        CreateMap<PackageUser, UserPackageResponseDto>();
+        CreateMap<Package, UserPackageResponseDto.PackageDto>();
     }
 }

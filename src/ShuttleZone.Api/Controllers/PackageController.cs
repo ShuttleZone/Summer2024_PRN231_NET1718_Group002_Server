@@ -60,13 +60,13 @@ public class PackageController: BaseApiController
     }
 
     [HttpGet("/api/Package/getUserPackage")]
+    [EnableQuery]
     public IActionResult GetUserPackage()
     {
         var userId = new Guid(_user.Id?? throw new ArgumentNullException());
         var result =  _packageService.GetCurrentUserPackage(userId);
-        if (result != null)
-            return Ok(result);
-        return BadRequest("Not found");
+        return Ok(result);
+       
     }
 
     [HttpPost("/api/Package/subPackage")]

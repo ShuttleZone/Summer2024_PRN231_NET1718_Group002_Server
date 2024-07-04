@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Net.payOS;
 using ShuttleZone.Api.Services;
 using ShuttleZone.Application.Common.Interfaces;
+using ShuttleZone.Application.Services.Payment;
 using ShuttleZone.Application.SignalRHub;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Infrastructure.Data;
@@ -109,6 +111,13 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddVNPaySettings(builder.Configuration);
+IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
+PayOS payOS = new PayOS(configuration["Environment:PAYOS_CLIENT_ID"] ?? throw new Exception("Cannot find environment"),
+    configuration["Environment:PAYOS_API_KEY"] ?? throw new Exception("Cannot find environment"),
+    configuration["Environment:PAYOS_CHECKSUM_KEY"] ?? throw new Exception("Cannot find environment"));
+builder.Services.AddSingleton(payOS);
+
 builder.Services.AddEmailSettings(builder.Configuration);
 // Register IHttpClientFactory
 builder.Services.AddHttpClient();

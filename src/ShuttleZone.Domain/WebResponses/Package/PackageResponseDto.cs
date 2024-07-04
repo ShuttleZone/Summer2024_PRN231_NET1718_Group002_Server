@@ -1,3 +1,5 @@
+using ShuttleZone.Domain.Enums;
+
 namespace ShuttleZone.Domain.WebResponses.Package;
 
 public record PackageResponseDto
@@ -6,6 +8,17 @@ public record PackageResponseDto
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
     public decimal Price { get; set; }
-    public string PackageStatus { get; set; } = null!;
-    public string PackageType { get; set; } = null!;
+    public PackageStatus PackageStatus { get; set; }
+    public PackageType PackageType { get; set; } 
+    
+    public ICollection<PackageUserDto>? PackageUser { get; set; } = new List<PackageUserDto>();
+    
+    public class PackageUserDto
+    {
+        public Guid UserId { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public PackageUserStatus PackageUserStatus { get; set; }
+
+    }
 }
