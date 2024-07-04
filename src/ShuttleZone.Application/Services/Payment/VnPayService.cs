@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
 using System;
+using Azure.Core;
 
 
 namespace ShuttleZone.Application.Services.Payment
@@ -79,6 +80,15 @@ namespace ShuttleZone.Application.Services.Payment
                     throw new HttpException(400, $"The contest is full slot");
 
                 vnPayRequest.OrderInfo = contestId + "," + _user.Id;
+            }else if(vnPayRequest.OrderType.Equals(VnPayConstansts.ORDER_TYPE_PACKAGE, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(vnPayRequest.OrderInfo))
+            {
+                var packageId = new Guid(vnPayRequest.OrderInfo ?? throw new Exception("Invalid package"));
+                var package = _unitOfWork.PackageRepository.Get(p => p.Id == packageId) ?? throw new Exception("Invalid package");
+                vnPayRequest.OrderInfo = packageId + "," + _user.Id;
+            }
+            else
+            {
+                throw new HttpException(400, "Invalid order type");
             }
 
             var tick = DateTime.Now.Ticks.ToString();
@@ -175,7 +185,7 @@ namespace ShuttleZone.Application.Services.Payment
                 {
                     var userId = new Guid(response.vnp_OrderInfo?.Split(",")[2] ?? throw new Exception("Invalid user"));
                     var user = await _unitOfWork.UserRepository.Find(u => u.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("Invalid user");
-                    var contest = _unitOfWork.ContestRepository.Find(c => c.Id == orderId).Include(c => c.UserContests).FirstOrDefault()
+                    var contest = _unitOfWork.ContestRepository.Find(c => c.Id == orderId).Include(c => c.UserContests).Include(c=>c.Reservation).FirstOrDefault()
                         ?? throw new HttpException(400, $"Contest with id {orderId} is not existed");
 
                     contest.UserContests.Add(
@@ -184,10 +194,28 @@ namespace ShuttleZone.Application.Services.Payment
                                                    ParticipantsId = user.Id,
                                                    ContestId = orderId
                                                });
+                    transaction.ReservationId = contest.Reservation!.Id;
 
-                    _unitOfWork.TransactionRepository.Add(transaction);
+                }//update db for buy package
+                else if (orderType.Equals(VnPayConstansts.ORDER_TYPE_PACKAGE, StringComparison.OrdinalIgnoreCase))
+                {
+                    var userId = new Guid(response.vnp_OrderInfo?.Split(",")[2] ?? throw new Exception("Invalid user"));
+                    var user = await _unitOfWork.UserRepository.Find(u => u.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("Invalid user");
+                    var package = _unitOfWork.PackageRepository.Find(c => c.Id == orderId).FirstOrDefault()
+                        ?? throw new HttpException(400, $"Package with id {orderId} is not existed");
+                    var packageUser = new PackageUser
+                    {
+                        Id = new Guid(),
+                        UserId = new Guid(_user.Id ?? throw new HttpException(401, "You are not logined")),
+                        PackageId = orderId,
+                        TransactionId = transaction.Id,
+                        StartDate = DateTime.Now,
+                        EndDate = package.PackageType == PackageType.MONTH ? DateTime.Now.AddMonths(1)
+                        : package.PackageType == PackageType.YEAR ? DateTime.Now.AddYears(1)
+                        : DateTime.Now.AddYears(100000)
+                    };
                 }
-
+                _unitOfWork.TransactionRepository.Add(transaction);
                 var isSuccess = await _unitOfWork.CompleteAsync();
             }
 
