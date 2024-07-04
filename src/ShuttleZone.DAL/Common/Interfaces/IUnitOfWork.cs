@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using ShuttleZone.DAL.DependencyInjection.Repositories.Package;
+using ShuttleZone.DAL.DependencyInjection.Repositories.PackageUser;
 using ShuttleZone.DAL.DependencyInjection.Repositories.Review;
 using ShuttleZone.DAL.DependencyInjection.Repositories.User;
 using ShuttleZone.DAL.Repositories;
@@ -24,6 +25,7 @@ namespace ShuttleZone.DAL.Common.Interfaces
         IPackageRepository PackageRepository { get; }
         IUserRepository UserRepository { get; }
         INotificationRepository NotificationRepository { get; }
+        IPackageUserRepository PackageUserRepository { get; }
         
         Task<bool> CompleteAsync(CancellationToken cancellationToken = default);      
 
