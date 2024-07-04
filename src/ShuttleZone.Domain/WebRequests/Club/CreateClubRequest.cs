@@ -10,7 +10,6 @@ public sealed class CreateClubRequest
     public ICollection<string> DaysInWeekOpen { get; set; } = new List<string>();
     public string? ClubDescription { get; set; } = string.Empty;
     public ICollection<IFormFile> Files { get; set; } = new List<IFormFile>();
-
     public string CourtsJson { get; set; } = string.Empty;
 }
 

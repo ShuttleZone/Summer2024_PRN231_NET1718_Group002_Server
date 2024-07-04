@@ -108,12 +108,17 @@ public class ClubService : IClubService
 
     public async Task<DtoClubResponse> AddClubAsync(CreateClubRequest request)
     {
+        if (string.IsNullOrEmpty(request.CourtsJson))
+            throw new HttpException(statusCode: 400, message: "Câu lạc bộ khi được tạo phải có ít nhất một club.");
+        
         if (_currentUser.Id == null)
-            throw new Exception("Not found ID");
-        var owner = _userRepository.Find(x => x.Id == Guid.Parse(_currentUser.Id)).FirstOrDefault() ?? throw new Exception("not have user");
+            throw new Exception("Id user không tồn tại.");
+        var owner = _userRepository.Find(x => x.Id == Guid.Parse(_currentUser.Id))
+            .Include(x => x.PackageUsers)
+            .FirstOrDefault() ?? throw new Exception("User không tồn tại.");
 
         if (!IsWithinSubscription(owner))
-            throw new Exception("User do not have any subscription");
+            throw new HttpException(400,"User do not have any subscription");
              
         var club = _mapper.Map<Club>(request);
         club.OwnerId = owner.Id;
@@ -151,7 +156,7 @@ public class ClubService : IClubService
     {
         var owner = _userRepository.Find(x => x.Id.ToString() == _currentUser.Id)
             .Include(x => x.Clubs)
-            .FirstOrDefault()  ?? throw new HttpException(statusCode: 404, message:"Not Found User.");
+            .FirstOrDefault()  ?? throw new HttpException(statusCode: 404, message:"User không tồn tại.");
         var userClubIds = owner.Clubs.Select(x => x.Id).ToList();
         var staff =  _userRepository.Find(x => x.ClubId != null && userClubIds.Contains((Guid)x.ClubId));
         return _mapper.ProjectTo<DtoClubStaff>(staff);
