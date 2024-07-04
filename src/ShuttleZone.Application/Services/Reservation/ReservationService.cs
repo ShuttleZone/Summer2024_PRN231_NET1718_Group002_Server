@@ -58,6 +58,9 @@ namespace ShuttleZone.Application.Services.Reservation
             if (refundAmount > 0)
             {
                 //refund to wallet            
+                //nhi: Jul 4 2024
+                //improve later: should refund to all transaction have this reservationId cause if person create contest cancel reservation
+                //all joined people need be refunded
                 _unitOfWork.WalletRepository.UpdateWalletBalanceByUserId(reservation.CustomerId ?? Guid.Empty, refundAmount);
 
                 var transaction = new Domain.Entities.Transaction()
@@ -111,7 +114,7 @@ namespace ShuttleZone.Application.Services.Reservation
             reservationDetail.ReservationDetailStatus = ReservationStatusEnum.CANCELLED;
             reservationDetail.Reservation.TotalPrice -= reservationDetail.Price;
 
-            if (reservationDetail.Reservation.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED)
+            if (reservationDetail.ReservationDetailStatus == ReservationStatusEnum.PAYSUCCEED)
             {
                 //refund to vnPay
                 //await _vnPayService.RefundPaymentAsync(reservationDetail.Reservation.Id, reservationDetail.Price, VnPayConstansts.LESS_THAN_TOTAL_REFUND);
@@ -125,12 +128,15 @@ namespace ShuttleZone.Application.Services.Reservation
                     Amount = reservationDetail.Price,
                     TransactionStatus = TransactionStatusEnum.SUCCESS,
                 };
+                //nhi: Jul 4 2024
+                //improve later: should refund to all transaction have this reservationId cause if person create contest cancel reservation
+                //all joined people need be refunded 
                 var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == reservationDetail.Reservation.CustomerId) ?? throw new HttpException(400, "Invalid wallet");
                 wallet.Transactions.Add(transaction);
 
                 //notifiy to user
                 var notificationRequest = new NotificationRequest
-                {
+                {                    
                     UserId = reservationDetail.Reservation.CustomerId ?? throw new HttpException(400, $"Invalid user with reservation {reservationDetail.Reservation.Id}"),
                     Description = $"You have cancelled court booking. {reservationDetail.Price} VND has refunded to your wallet",
                 };

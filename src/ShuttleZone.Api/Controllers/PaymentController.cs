@@ -1,5 +1,7 @@
 ﻿using Azure;
+using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Payment;
 using ShuttleZone.Domain.WebRequests.Payment;
@@ -18,37 +20,25 @@ namespace ShuttleZone.Api.Controllers
         [HttpPost("create-payment-url")]
         public IActionResult CreatePaymentUrl([FromBody] VnPayRequest request)
         {
-            var context = HttpContext;
-            var url = _vnPayService.CreatePaymentUrl(context, request);
-            return Ok(url);
+            var context = HttpContext;          
+            return HandleResult(() => _vnPayService.CreatePaymentUrl(context, request));
+
         }
 
         [HttpGet("payment-callback")]
         public async Task<IActionResult> PaymentCallBack([FromQuery] VnPayResponse response)
         {
-            try
-            {
-                var result = await _vnPayService.PaymentExecuteAsync(response, true);
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            return await HandleResultAsync(
+            async () =>  await _vnPayService.PaymentExecuteAsync(response).ConfigureAwait(false)
+            ).ConfigureAwait(false);
         }
 
         [HttpGet("/IPN")]
         public async Task<IActionResult> IPN([FromQuery] VnPayResponse response)
         {
-            try
-            {
-                var result = await _vnPayService.PaymentExecuteAsync(response, true);
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            return await HandleResultAsync(
+            async () => await _vnPayService.PaymentExecuteAsync(response, true).ConfigureAwait(false)
+            ).ConfigureAwait(false);
 
         }
 

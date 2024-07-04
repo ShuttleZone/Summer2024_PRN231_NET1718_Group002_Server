@@ -23,7 +23,10 @@ namespace ShuttleZone.Api.Controllers
         [EnableQuery]
         public async Task<IActionResult> Put(Guid key, [FromBody]VnPayRequest request)
         {
-            return Ok(await _walletService.PutWalletAsync(key, request));
+            return await HandleResultAsync(
+            async () => await _walletService.PutWalletAsync(key, request).ConfigureAwait(false)
+            ).ConfigureAwait(false);
+         
         }
     }
 }
