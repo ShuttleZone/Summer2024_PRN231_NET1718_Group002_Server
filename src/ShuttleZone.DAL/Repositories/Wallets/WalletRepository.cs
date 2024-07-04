@@ -10,12 +10,12 @@ namespace ShuttleZone.DAL.Repositories.Wallets
         {
         }
 
-        public void UpdateWalletBalance(Guid userId, double balance)
+        public void UpdateWalletBalanceByUserId(Guid userId, double balance)
         {
-            var wallet = Find(w=>w.UserId == userId).FirstOrDefault();
-            if(wallet != null)
+            var wallet = Find(w => w.UserId == userId).FirstOrDefault();
+            if (wallet != null)
             {
-                wallet.Balance = balance;
+                wallet.Balance += balance;
             }
             else
             {
@@ -27,7 +27,14 @@ namespace ShuttleZone.DAL.Repositories.Wallets
                 };
                 Add(newWallet);
             }
-           
+        }
+
+        public void UpdateWalletBalanceByWalletId(Guid walletId, double balance)
+        {
+            var wallet = Find(w => w.Id == walletId).FirstOrDefault() ?? throw new ArgumentNullException("Invalid wallet");
+
+            wallet.Balance += balance;
+
         }
     }
 }

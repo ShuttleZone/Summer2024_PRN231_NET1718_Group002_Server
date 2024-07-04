@@ -6,7 +6,8 @@ namespace ShuttleZone.Domain.Entities
     {
         public double Balance { get; set; } = 0;
         public Guid UserId { get; set; }
-        public User User { get; set; } = null!;    
-      
+        public User User { get; set; } = null!;
+        public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+
     }
 }

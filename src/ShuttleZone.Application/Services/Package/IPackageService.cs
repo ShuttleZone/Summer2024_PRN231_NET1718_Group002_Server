@@ -8,12 +8,11 @@ namespace ShuttleZone.Application.DependencyInjection.Services.Package;
 public interface IPackageService
 {
     Task<CreatePackageDto> CreatePackage(CreatePackageDto createPackageDto);
-
     IQueryable<PackageResponseDto>? GetPackagesAdmin();
-
     Task<UpdatePackageDto> UpdatePackage(UpdatePackageDto updatePackageDto);
-
     Task<bool> DeletePackage(Guid packageId);
-
     Task<bool> UpdateStatus(Guid packageId);
+    UserPackageResponseDto GetCurrentUserPackage(Guid userId);
+    List<UserPackageResponseDto> GetUserPackageHistory(Guid userId);
+    Task<bool> SubPackageManager(SubPackageDto subPackageDto, Guid userId);
 }

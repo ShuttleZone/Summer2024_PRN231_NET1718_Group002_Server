@@ -27,7 +27,9 @@ public class ContestService(
     public IQueryable<DtoContestResponse> GetContests()
     {
         var queryableClubs = _unitOfWork.ContestRepository
-            .GetAll();
+            .GetAll()
+            .Include(c => c.Reservation)
+            .Where(c => c.Reservation!.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED);
         var dtoClubs = queryableClubs
             .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
 
@@ -198,6 +200,13 @@ public class ContestService(
         var contest = _unitOfWork.ContestRepository.Find(c => c.Id == contestId).Include(c => c.UserContests).FirstOrDefault()
             ?? throw new HttpException(400, $"Contest with id {contestId} is not existed");
 
+        var isInPast = contest.ContestDate < DateTime.Now;
+        if (isInPast)
+            throw new HttpException(400, $"Contest with id {contestId} is already happened");
+
+        if (contest.ContestStatus == ContestStatusEnum.Closed)
+            throw new HttpException(400, $"Contest with id {contestId} is already closed");
+
         var isJoined = contest.UserContests.Exists(c => c.ParticipantsId == userId);
         if (isJoined)
             throw new HttpException(400, $"You are already in this contest");
@@ -263,7 +272,17 @@ public class ContestService(
        foreach (var winner in winners)
         {
             var refundAmount = contest.Reservation != null ? contest.Reservation.TotalPrice : 0;
-            _unitOfWork.WalletRepository.UpdateWalletBalance(winner.ParticipantsId, refundAmount);
+            _unitOfWork.WalletRepository.UpdateWalletBalanceByUserId(winner.ParticipantsId, refundAmount);
+            var transaction = new Domain.Entities.Transaction()
+            {
+                Id = new Guid(),
+                PaymentMethod = PaymentMethod.WALLET,
+                Amount = refundAmount,
+                TransactionStatus = TransactionStatusEnum.SUCCESS,
+            };
+            var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId==winner.ParticipantsId) ?? throw new HttpException(400, "Invalid wallet");
+            wallet.Transactions.Add(transaction);
+            _unitOfWork.TransactionRepository.Add(transaction);
             //notifiy to user
             var notificationRequest = new NotificationRequest
             {

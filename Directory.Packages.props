@@ -21,6 +21,7 @@
     <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="8.0.5" />
     <PackageVersion Include="Moq" Version="4.20.70" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="payOS" Version="1.0.6" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageVersion Include="Grpc.AspNetCore" Version="2.57.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.0" />

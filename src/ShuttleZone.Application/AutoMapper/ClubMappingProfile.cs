@@ -15,8 +15,7 @@ public class ClubMappingProfile : Profile
 
         CreateMap<Club, DtoClubResponse>()
             .ForMember(dto => dto.OwnerName, opt => opt.MapFrom(x => x.Owner.UserName));
-        CreateMap<Club, ClubRequestDetailReponse>()
-            .ForMember(dest=>dest.ClubStatusEnum, opt=>opt.MapFrom(src=>src.ClubStatusEnum.ToString()));
+        CreateMap<Club, ClubRequestDetailReponse>();
 
         CreateMap<OpenDateInWeek, OpenDateInWeekResponse>();
         CreateMap<Review, DtoReviewResponse>();

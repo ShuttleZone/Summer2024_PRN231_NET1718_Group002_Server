@@ -1,6 +1,7 @@
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.DependencyInjection.Repositories.Package;
+using ShuttleZone.DAL.DependencyInjection.Repositories.PackageUser;
 using ShuttleZone.DAL.DependencyInjection.Repositories.Review;
 using ShuttleZone.DAL.DependencyInjection.Repositories.User;
 using ShuttleZone.DAL.Repositories;
@@ -31,9 +32,10 @@ namespace ShuttleZone.DAL.Common.Implementations
         public ITransactionRepository TransactionRepository => new TransactionRepository(_context, _readOnlyContext);
         public IReviewRepository ReviewRepository  => new ReviewRepository(_context,_readOnlyContext);
         public IPackageRepository PackageRepository => new PackageRepository(_context, _readOnlyContext);
+        public IPackageUserRepository PackageUserRepository => new PackageUserRepository(_context, _readOnlyContext);
         public IContestRepository ContestRepository => new ContestRepository(_context, _readOnlyContext);
         public IWalletRepository WalletRepository => new WalletRepository(_context, _readOnlyContext);
-
+    
         public IUserRepository UserRepository => new UserRepository(_context, _readOnlyContext);
 
         public INotificationRepository NotificationRepository => new NotificationRepository(_context, _readOnlyContext);

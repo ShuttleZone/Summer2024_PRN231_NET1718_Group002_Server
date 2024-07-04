@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
+using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.DependencyInjection.Services.Package;
+using ShuttleZone.Domain.Constants;
 using ShuttleZone.Domain.WebRequests.Packages;
 using ShuttleZone.Domain.WebResponses.Package;
 
@@ -10,10 +13,11 @@ namespace ShuttleZone.Api.Controllers;
 public class PackageController: BaseApiController
 {
     private readonly IPackageService _packageService;
-
-    public PackageController(IPackageService packageService)
+    private readonly IUser _user;
+    public PackageController(IPackageService packageService, IUser user)
     {
         _packageService = packageService;
+        _user = user;
     }
 
     [HttpPost("/api/Package/create-package")]
@@ -53,5 +57,25 @@ public class PackageController: BaseApiController
         if (result == true)
             return Ok(result);
         return BadRequest("Error in changing status !");
+    }
+
+    [HttpGet("/api/Package/getUserPackage")]
+    [EnableQuery]
+    public IActionResult GetUserPackage()
+    {
+        var userId = new Guid(_user.Id?? throw new ArgumentNullException());
+        var result =  _packageService.GetCurrentUserPackage(userId);
+        return Ok(result);
+       
+    }
+
+    [HttpPost("/api/Package/subPackage")]
+    // [Authorize(Roles = SystemRole.Manager)]
+    public async Task<IActionResult> SubPackage([FromBody] SubPackageDto subPackageDto)
+    {
+        var userId = new Guid(_user.Id?? throw new ArgumentNullException());
+        var result = await _packageService.SubPackageManager(subPackageDto, userId);
+        return Ok(result);
+        
     }
 }

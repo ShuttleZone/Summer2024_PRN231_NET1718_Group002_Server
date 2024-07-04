@@ -109,7 +109,7 @@ public class ClubService : IClubService
     public async Task<DtoClubResponse> AddClubAsync(CreateClubRequest request)
     {
         if (string.IsNullOrEmpty(request.CourtsJson))
-            throw new HttpException(statusCode: 400, message: "Câu lạc bộ khi được tạo phải có ít nhất một club.");
+            throw new HttpException(statusCode: 400, message: "The created club should have at least one court.");
         
         if (_currentUser.Id == null)
             throw new Exception("Id user không tồn tại.");

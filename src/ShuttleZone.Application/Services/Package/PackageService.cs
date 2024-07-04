@@ -2,7 +2,9 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.Common.Exceptions;
 using ShuttleZone.DAL.Common.Interfaces;
+using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.Enums;
 using ShuttleZone.Domain.WebRequests.Packages;
 using ShuttleZone.Domain.WebResponses.Package;
@@ -37,7 +39,8 @@ public class PackageService : IPackageService
 
     public IQueryable<PackageResponseDto>? GetPackagesAdmin()
     {
-        var packages = _unitOfWork.PackageRepository.GetAll();
+        var packages = _unitOfWork.PackageRepository.GetAll()
+            .Include(p => p.PackageUser);
         if (packages != null)
         {
             var packagesDtos = _mapper.ProjectTo<PackageResponseDto>(packages);
@@ -105,5 +108,74 @@ public class PackageService : IPackageService
             }
         }
         throw new KeyNotFoundException();
+    }
+
+    public  UserPackageResponseDto GetCurrentUserPackage(Guid userId)
+    {
+        var package = _unitOfWork.PackageUserRepository
+            .Find(p => p.UserId == userId)
+            .Include(p => p.Package)
+            .FirstOrDefault(p => p.PackageUserStatus == PackageUserStatus.VALID);
+        var dto = _mapper.Map<UserPackageResponseDto>(package);
+        return dto;
+    }
+
+    public List<UserPackageResponseDto> GetUserPackageHistory(Guid userId)
+    {
+        var package = _unitOfWork.PackageRepository
+            .GetAll()
+            .Include(p => p.PackageUser)
+            .ToList();
+        var dto = _mapper.Map<List<UserPackageResponseDto>>(package);
+
+        return dto;
+    }
+
+    public async Task<bool> SubPackageManager(SubPackageDto subPackageDto, Guid userId)
+    {
+        
+        var package = await _unitOfWork.PackageRepository.GetAsync(p => p.Id == subPackageDto.packageId);
+        if (package == null)
+            throw new InvalidOperationException("Package not found !");
+        
+        var userWallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == userId);
+        if (userWallet == null)
+        {
+            throw new InvalidOperationException("User does not have wallet yet !");
+        }
+        if(userWallet.Balance < (double)package.Price)
+        {
+            throw new ArgumentException("Balance is insufficient !");
+        }
+        
+        
+        var addTransaction = new Transaction
+        {
+            Id = new Guid(),
+            PaymentMethod = PaymentMethod.WALLET,
+            Amount = (double)package.Price,
+            TransactionStatus = TransactionStatusEnum.SUCCESS,
+            Created = DateTime.Now,
+            CreatedBy = userId.ToString(),
+            TransactionDate = DateTime.Now.ToString(),
+        };
+        
+        await _unitOfWork.TransactionRepository.AddAsync(addTransaction);
+        await _unitOfWork.CompleteAsync();
+        
+        var packageUser = new PackageUser
+        {
+            Id = new Guid(),
+            UserId = userId,
+            PackageId = package.Id,
+            TransactionId = addTransaction.Id,
+            StartDate = DateTime.Now,
+            EndDate = DateTime.Now
+        };
+
+        await _unitOfWork.PackageUserRepository.AddAsync(packageUser);
+        await _unitOfWork.CompleteAsync();
+
+        return true;
     }
 }
