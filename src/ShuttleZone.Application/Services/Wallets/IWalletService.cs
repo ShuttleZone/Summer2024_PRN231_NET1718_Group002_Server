@@ -7,6 +7,6 @@ namespace ShuttleZone.Application.Services.Wallets
     {
         Task<IQueryable<WalletResponse>> GetWalletsAsync();
         Task<WalletResponse> GetMyWalletAsync(Guid currentUserId);
-        Task<WalletResponse> PutWalletAsync(Guid walletId, VnPayRequest request);
+        Task PutWalletAsync(Guid walletId, VnPayRequest request);
     }
 }

@@ -24,5 +24,6 @@
         public const string ORDER_TYPE_PACKAGE = "PACKAGE";
         public const string ORDER_TYPE_BOOKING = "BOOKING";
         public const string ORDER_TYPE_ADD_TO_WALLET = "ADDTOWALLET";
+        public const string ORDER_TYPE_JOIN_CONTEST = "JOINCONTEST";
     }
 }
