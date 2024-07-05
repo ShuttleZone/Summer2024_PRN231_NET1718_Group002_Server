@@ -13,6 +13,12 @@ public class ContestMappingProfile : Profile
     {
         CreateMap<Contest, DtoContestResponse>()
             .ForMember(dest => dest.UserContests, opt => opt.MapFrom(src => src.UserContests));
+        CreateMap<UserContest, UserContestDto>()
+            .ForMember(dest => dest.Fullname, opt => opt.MapFrom(uc => uc.Participant.Fullname))
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(uc => uc.Participant.Email))
+            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(uc => uc.Participant.PhoneNumber))
+            .ForMember(dest => dest.Gender, opt => opt.MapFrom(uc => uc.Participant.Gender));
+
         CreateMap<Reservation, ReservationDto>()
             .ForMember(dest => dest.BookingDate, opt => opt.MapFrom(r => r.BookingDate))
             .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(r => r.TotalPrice))

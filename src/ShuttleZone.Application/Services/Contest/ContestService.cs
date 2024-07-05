@@ -55,9 +55,13 @@ public class ContestService(
     public  List<DtoContestResponse?> GetMyContest(Guid userId)
     {
         var myContests = _unitOfWork.ContestRepository.GetAll()
-            .Where(c => c.UserContests.Select(uc => uc.ParticipantsId).Contains(userId));
+            .Where(c => c.UserContests.Select(uc => uc.ParticipantsId).Contains(userId))
+            .Include(c => c.Reservation)
+            .ThenInclude(r => r!.ReservationDetails)
+            .ThenInclude(rd => rd.Court)
+            .ThenInclude(c => c.Club)
+            .Include(c => c.UserContests);  
             var dtos = _mapper.Map<List<DtoContestResponse?>>(myContests);
-
             return dtos;
     }
 
