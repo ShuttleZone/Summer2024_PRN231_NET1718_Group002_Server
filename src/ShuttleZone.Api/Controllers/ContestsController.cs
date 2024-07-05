@@ -38,11 +38,12 @@ public class ContestsController : BaseApiController
     }
 
     // [Authorize(Roles = SystemRole.Manager)]
-    [HttpGet("/api/Contets/get-my-contests")]
+    [HttpGet("/api/Contests/get-my-contests")]
     public IActionResult GetMyContests()
     {
         var userId = new Guid(_user.Id?? throw new ArgumentNullException());
-        return Ok( _contestService.GetMyContest(userId));
+        var result = _contestService.GetMyContest(userId);
+        return Ok(result);
     }
 
     [Authorize(Roles = SystemRole.Manager)]
