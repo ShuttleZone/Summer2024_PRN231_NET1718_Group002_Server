@@ -5,7 +5,7 @@ using ShuttleZone.Grpc;
 namespace ShuttleZone.Api.Controllers;
 [ApiController]
 [Route("/api/[controller]")]
-public class TestController : ControllerBase
+public class GrpcController : ControllerBase
 {
     [HttpGet]
     public IActionResult TestGrpc(Guid courtId)
