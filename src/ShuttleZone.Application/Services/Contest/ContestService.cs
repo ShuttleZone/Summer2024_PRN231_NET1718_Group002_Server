@@ -80,16 +80,16 @@ public class ContestService(
     {
         HttpException.New()
             .WithStatusCode(400)
-            .WithErrorMessage("Number of players is invalid.")
+            .WithErrorMessage("Số người chơi không hợp lệ")
             .ThrowIf(request.MaxPlayer % 2 != 0);
 
         HttpException.New()
             .WithStatusCode(401)
-            .WithErrorMessage("You are not authorized to create a contest")
+            .WithErrorMessage("Bạn cần đăng nhập để thực hiện chức năng này.")
             .ThrowIfNull(_currentUser.Id)
             .ThrowIf(!Guid.TryParse(_currentUser.Id, out var userIdAsGuid));
 
-        var minTimeToStart = DateTime.Now.AddMinutes(30);
+        var minTimeToStart = DateTime.Now.AddDays(1);
         var minDuration = TimeSpan.FromMinutes(30);
 
         var court = await _unitOfWork.CourtRepository
@@ -99,7 +99,7 @@ public class ContestService(
 
         HttpException.New()
             .WithStatusCode(404)
-            .WithErrorMessage($"Court {request.CourtId} does not exist.")
+            .WithErrorMessage($"Không tìm thấy sân với id {request.CourtId}.")
             .ThrowIfNull(court);
 
         foreach (var slot in request.ContestSlots)
@@ -120,13 +120,13 @@ public class ContestService(
                 );
             HttpException.New()
                 .WithStatusCode(409)
-                .WithErrorMessage($"Court is not open at the selected time ({slot.StartTime} - {slot.EndTime}).")
+                .WithErrorMessage($"Sân không mở cửa vào thời gian này (từ {court.Club.OpenTime} đến {court.Club.CloseTime}).")
                 .ThrowIf(slot.StartTime.TimeOfDay < court.Club.OpenTime.ToTimeSpan() || slot.EndTime.TimeOfDay > court.Club.CloseTime.ToTimeSpan())
-                .WithErrorMessage($"Court can only be booked in at least 30 minutes in the future.")
+                .WithErrorMessage("Cuộc thi đấu phải được đặt trước ít nhất 1 ngày.")
                 .ThrowIf(slot.StartTime < minTimeToStart)
-                .WithErrorMessage($"Contest duration must be at least {minDuration} minutes.")
+                .WithErrorMessage($"Thời gian thi đấu phải ít nhất {minDuration.TotalMinutes} phút.")
                 .ThrowIf(slot.StartTime - slot.EndTime >= minDuration)
-                .WithErrorMessage($"Court has already been booked from {slot.StartTime} to {slot.EndTime}.")
+                .WithErrorMessage("Sân đã được đặt vào thời gian này.")
                 .ThrowIf(courtBooked);
         }
 
@@ -178,11 +178,11 @@ public class ContestService(
     {
         HttpException.New()
             .WithStatusCode(401)
-            .WithErrorMessage("You need to log in to view this page.")
+            .WithErrorMessage("Bạn cần đăng nhập để thực hiện chức năng này.")
             .ThrowIfNull(_currentUser.Id)
             .ThrowIf(!Guid.TryParse(_currentUser.Id, out var userIdAsGuid))
             .WithStatusCode(403)
-            .WithErrorMessage("You are not authorized to view this page.")
+            .WithErrorMessage("Bạn không có quyền truy cập chức năng này.")
             .ThrowIf(_currentUser.Role != ShuttleZone.Domain.Constants.SystemRole.Manager);
 
         var contestsResponse = _unitOfWork.ClubRepository
