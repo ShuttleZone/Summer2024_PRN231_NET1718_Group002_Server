@@ -25,7 +25,7 @@ namespace ShuttleZone.Application.Services.Reservation
         {
             var reservation = _unitOfWork.ReservationRepository.Find(r => r.Id == reservationId)
                 .Include(r => r.ReservationDetails)
-                .FirstOrDefault() ?? throw new HttpException(400, "Resevation is unexisted");
+                .FirstOrDefault() ?? throw new HttpException(400, "Đặt chỗ không tồn tại");
 
 
             if (//payment failed
@@ -33,18 +33,18 @@ namespace ShuttleZone.Application.Services.Reservation
                 || reservation.ReservationStatusEnum == ReservationStatusEnum.PAYFAIL
                 || reservation.ReservationStatusEnum == ReservationStatusEnum.CANCELLED)
             {
-                var status = reservation.ReservationStatusEnum == Domain.Enums.ReservationStatusEnum.CANCELLED ? ReservationStatusEnum.CANCELLED.ToString().ToLower() : "pay failed";
-                throw new HttpException(400, $"Reservation is already in {status} status. You not need to cancel.");
+                var status = reservation.ReservationStatusEnum == Domain.Enums.ReservationStatusEnum.CANCELLED ? ReservationStatusEnum.CANCELLED.ToString().ToLower() : "Thanh toán thất bại";
+                throw new HttpException(400, $"Đặt chỗ đã ở trạng thái {status}. Bạn không cần hủy");
             }
             //if (reservation.ReservationDetails.Any(rd => rd.ReservationDetailStatus == ReservationStatusEnum.CANCELLED))
             //    throw new HttpException(400, "Reservation contain cancel booked court. You have cancelled reservation detail, can not cancel this reservation");
 
             if (reservation.ReservationDetails.Any(r => r.StartTime < DateTime.Now))
-                throw new HttpException(400, "Cannot cancel a reservation that has already started or is in the past.");
+                throw new HttpException(400, "Không thể hủy đặt chỗ đã bắt đầu hoặc đã qua.");
 
             var alloweCancelByTime = reservation.ReservationDetails.Any(r => DateTime.Now < r.StartTime.AddDays(-1));
             if (!alloweCancelByTime)
-                throw new HttpException(400, "Reservation contain reservation detail that can only be cancelled 24 hours before the start time.");
+                throw new HttpException(400, "Đặt chỗ chỉ có thể hủy 24 giờ trước thời gian bắt đầu.");
 
             var refundAmount = reservation.ReservationDetails.Where(rd => rd.ReservationDetailStatus == ReservationStatusEnum.PAYSUCCEED).Sum(rd => rd.Price);
             reservation.ReservationStatusEnum = ReservationStatusEnum.CANCELLED;
@@ -76,8 +76,8 @@ namespace ShuttleZone.Application.Services.Reservation
                 //notifiy to user
                 var notificationRequest = new NotificationRequest
                 {
-                    UserId = reservation.CustomerId ?? throw new HttpException(400, $"Invalid user with reservation {reservation.Id}"),
-                    Description = $"You have cancelled reservation. {refundAmount} VND has refunded to your wallet",
+                    UserId = reservation.CustomerId ?? throw new HttpException(400, "Người dùng không hợp lệ"),
+                    Description = $"Bạn đã hủy đặt chỗ. {refundAmount} VND đã được hoàn lại vào ví của bạn",
                 };
                 var notification = _notificationHubService.CreateNotification(notificationRequest);
                 await _unitOfWork.NotificationRepository.AddAsync(notification);
@@ -93,23 +93,23 @@ namespace ShuttleZone.Application.Services.Reservation
                 .Include(r => r.Reservation)
                 .FirstOrDefault();
             if (reservationDetail == null)
-                throw new HttpException(400, "Court Booking is unexisted");
+                throw new HttpException(400, "Đặt chỗ không tồn tại");
 
             if (//pay failed
                 (reservationDetail.ReservationDetailStatus == ReservationStatusEnum.PENDING && reservationDetail.Reservation.ExpiredTime < DateTime.Now)
                 || reservationDetail.ReservationDetailStatus == ReservationStatusEnum.PAYFAIL
                 || reservationDetail.ReservationDetailStatus == ReservationStatusEnum.CANCELLED)
             {
-                var status = reservationDetail.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.CANCELLED ? ReservationStatusEnum.CANCELLED.ToString().ToLower() : "pay failed";
-                throw new HttpException(400, $"Court Booking is already in {status} status. You not need to cancel");
+                var status = reservationDetail.ReservationDetailStatus == Domain.Enums.ReservationStatusEnum.CANCELLED ? ReservationStatusEnum.CANCELLED.ToString().ToLower() : "Thanh toán thất bại";
+                throw new HttpException(400, $"Đặt chỗ đã ở trạng thái {status}. Bạn không cần hủy");
             }
 
             if (reservationDetail.StartTime < DateTime.Now)
-                throw new HttpException(400, "Cannot cancel a Court Booking that has already started or is in the past.");
+                throw new HttpException(400, "Không thể hủy đặt chỗ đã bắt đầu hoặc đã qua.");
 
             var alloweCancelByTime = DateTime.Now < reservationDetail.StartTime.AddDays(-1);
             if (!alloweCancelByTime)
-                throw new HttpException(400, "Court Booking can only be cancelled 24 hours before the start time.");
+                throw new HttpException(400, "Đặt chỗ chỉ có thể hủy 24 giờ trước thời gian bắt đầu.");
 
             reservationDetail.ReservationDetailStatus = ReservationStatusEnum.CANCELLED;
             reservationDetail.Reservation.TotalPrice -= reservationDetail.Price;
@@ -131,14 +131,14 @@ namespace ShuttleZone.Application.Services.Reservation
                 //nhi: Jul 4 2024
                 //improve later: should refund to all transaction have this reservationId cause if person create contest cancel reservation
                 //all joined people need be refunded 
-                var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == reservationDetail.Reservation.CustomerId) ?? throw new HttpException(400, "Invalid wallet");
+                var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == reservationDetail.Reservation.CustomerId) ?? throw new HttpException(400, "Ví không hợp lệ");
                 wallet.Transactions.Add(transaction);
 
                 //notifiy to user
                 var notificationRequest = new NotificationRequest
                 {                    
-                    UserId = reservationDetail.Reservation.CustomerId ?? throw new HttpException(400, $"Invalid user with reservation {reservationDetail.Reservation.Id}"),
-                    Description = $"You have cancelled court booking. {reservationDetail.Price} VND has refunded to your wallet",
+                    UserId = reservationDetail.Reservation.CustomerId ?? throw new HttpException(400, "Người dùng không hợp lệ"),
+                    Description = $"Bạn đã hủy đặt chỗ. {reservationDetail.Price} VND đã được hoàn lại vào ví của bạn",
                 };
                 var notification = _notificationHubService.CreateNotification(notificationRequest);
                 await _unitOfWork.NotificationRepository.AddAsync(notification);
@@ -156,15 +156,15 @@ namespace ShuttleZone.Application.Services.Reservation
             if (!isStaff)
             {
                 var user = await _userManager.FindByIdAsync(currentUser.ToString()
-                                                            ?? throw new ArgumentNullException("UserId is null"))
-                    ?? throw new InvalidOperationException("User not found");
+                                                            ?? throw new ArgumentNullException("Người dùng không tồn tại"))
+                    ?? throw new InvalidOperationException("Người dùng không tồn tại");
                 requestEntity.CustomerId = currentUser;
             }
 
 
             if (request.ReservationDetails == null || !request.ReservationDetails.Any())
             {
-                throw new ArgumentException("At least one ReservationDetail is required.");
+                throw new ArgumentException("Cần ít nhất một đơn đặt chỗ.");
             }
             else
             {
@@ -173,17 +173,17 @@ namespace ShuttleZone.Application.Services.Reservation
 
                     if (detail.StartTime < DateTime.Now.AddMinutes(30))
                     {
-                        throw new ArgumentException("That reservations can only be made for a time at least 30 minutes in the future.");
+                        throw new ArgumentException("Đơn đặt chỗ phải được tạo ít nhất 30 phút trước thời gian bắt đầu.");
                     }
                     if (detail.StartTime >= detail.EndTime)
                     {
-                        throw new ArgumentException("StartTime must be less than EndTime for ReservationDetails.");
+                        throw new ArgumentException("Thời gian bắt đầu phải trước thời gian kết thúc.");
                     }
 
                     var courtExisted = _unitOfWork.CourtRepository.Exists(c => c.Id == detail.CourtId);
                     if (!courtExisted)
                     {
-                        throw new InvalidOperationException($"Court {detail.CourtId} does not exist.");
+                        throw new InvalidOperationException($"Sân {detail.CourtId} không tồn tại.");
                     }
 
                     var clubEntity = _unitOfWork.CourtRepository.Find(c => c.Id == detail.CourtId)
@@ -197,14 +197,14 @@ namespace ShuttleZone.Application.Services.Reservation
 
                         if (!isOpen)
                         {
-                            throw new ArgumentException($"Can book on {dayOfWeekString}. This club close on this date.");
+                            throw new ArgumentException($"Câu lạc bộ không mở cửa vào ngày {dayOfWeekString}.");
                         }
                     }
 
                     var hasOverlap = HasOverlappingReservation(detail.CourtId, detail.StartTime, detail.EndTime);
                     if (hasOverlap)
                     {
-                        throw new InvalidOperationException($"Court {detail.CourtId} is already booked during the requested time.");
+                        throw new InvalidOperationException($"Sân {detail.CourtId} đã được đặt trước.");
                     }
                 }
             }
