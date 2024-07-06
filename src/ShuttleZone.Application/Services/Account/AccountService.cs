@@ -81,7 +81,7 @@ public class AccountService : IAccountService
         else
         {
                 await _userManager.DeleteAsync(appUser);
-            throw new Exception("Register role failed!");
+            throw new Exception("Vai trò đăng ký không thành công!");
         }
 
     }
@@ -91,13 +91,13 @@ public class AccountService : IAccountService
         var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Account!.ToLower() || u.UserName == loginDto.Account.ToLower());
         if (user == null)
         {
-           throw new Exception("User not found!");
+           throw new Exception("Không tìm thấy người dùng!");
         }
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false );
 
         if (!result.Succeeded)
-            throw new Exception("Unauthorized");
+            throw new Exception("Mật khẩu không chính xác!");
 
         var loginAcc = new NewAccountDto
         {
@@ -117,32 +117,32 @@ public class AccountService : IAccountService
     {
         HttpException.New()
             .WithStatusCode(401)
-            .WithErrorMessage("Unauthorized")
+            .WithErrorMessage("Bạn chưa đăng nhập!")
             .ThrowIfNull(_currentUser.Id);
 
         var user = await _userManager.FindByIdAsync(_currentUser.Id.ToString());
 
         HttpException.New()
             .WithStatusCode(404)
-            .WithErrorMessage("User not found!")
+            .WithErrorMessage("Người dùng không tồn tại!")
             .ThrowIfNull(user);
 
         var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
 
         HttpException.New()
             .WithStatusCode(400)
-            .WithErrorMessage(result.Errors.FirstOrDefault()?.Description ?? "An error occurred while processing your request")
+            .WithErrorMessage(result.Errors.FirstOrDefault()?.Description ?? "Đổi mật khẩu không thành công!")
             .ThrowIf(!result.Succeeded);
     }
 
     public async Task ConfirmEmailAsync(string userId, string token)
     {
         if (userId == null || token == null)
-            throw new HttpException(400, "Invalid token");
+            throw new HttpException(400, "Mã thông báo không hợp lệ");
 
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
-            throw new HttpException(400, "User not found");
+            throw new HttpException(400, "Người dùng không tồn tại!");
 
         var result = await _userManager.ConfirmEmailAsync(user, token);
 
@@ -155,9 +155,9 @@ public class AccountService : IAccountService
     {
         // throw new NotImplementedException();
         var owner = _userRepository.Find(x => x.Id.ToString() == _currentUser.Id).Include(x => x.Clubs).FirstOrDefault() ??
-                    throw new HttpException(404, "User not found.");
+                    throw new HttpException(404, "Người dùng không tồn tại!");
         var club = owner.Clubs.FirstOrDefault(x => x.Id == request.ClubId) ??
-                   throw new HttpException(404, $"User do not have club id {request.ClubId}");
+                   throw new HttpException(404, $"Người dùng không có quyền thêm nhân viên vào câu lạc bộ {request.ClubId}");
         var staff = new User
         {
             UserName = request.UserName,

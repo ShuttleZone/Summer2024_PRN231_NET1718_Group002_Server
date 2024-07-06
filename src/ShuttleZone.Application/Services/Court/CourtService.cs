@@ -43,7 +43,7 @@ public class CourtService : ICourtService
     {
         var clubExists = await _clubRepository.ExistsAsync(x => x.Id == request.ClubId, cancellationToken);
         if (!clubExists)
-            throw new Exception("Club does not exist");
+            throw new Exception("Câu lạc bộ không tồn tại");
 
         var court = _mapper.Map<CourtEntity>(request);
         court.Created = DateTime.Now;
@@ -55,7 +55,7 @@ public class CourtService : ICourtService
         var createdCourt = await _courtRepository.Find(x => x.Id == court.Id)
             .ProjectTo<DtoCourtResponse>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
-        ArgumentNullException.ThrowIfNull(createdCourt, "Court not created");
+        ArgumentNullException.ThrowIfNull(createdCourt, "Có lỗi xảy ra khi tạo sân");
 
         return createdCourt;
     }
@@ -90,7 +90,7 @@ public class CourtService : ICourtService
 
     public bool MaintainCourt(Guid courtId)
     {
-        var staff = _userRepository.Get(x => x.Id.ToString() == _user.Id) ?? throw new Exception("Invalid Staff");
+        var staff = _userRepository.Get(x => x.Id.ToString() == _user.Id) ?? throw new Exception("Người dùng không tồn tại");
         var court = _courtRepository.GetAll().FirstOrDefault(c => c.Id == courtId);
         try
         {
