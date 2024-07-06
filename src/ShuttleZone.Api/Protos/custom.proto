@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcServer";
+
+package custom;
+
+service CustomService {
+    rpc SendMessage (CustomRequest) returns (CustomReply);
+}
+
+message CustomRequest {
+    string text = 1;
+}
+
+message CustomReply {
+    string reply = 1;
+}
