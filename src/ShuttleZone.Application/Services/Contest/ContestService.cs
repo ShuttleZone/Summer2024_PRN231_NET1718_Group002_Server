@@ -52,7 +52,7 @@ public class ContestService(
         return dtoReturn;
     }
 
-    public  List<DtoContestResponse?> GetMyContest(Guid userId)
+    public  IQueryable<DtoContestResponse?> GetMyContest(Guid userId)
     {
         var myContests = _unitOfWork.ContestRepository.GetAll()
             .Where(c => c.UserContests.Select(uc => uc.ParticipantsId).Contains(userId))
@@ -61,7 +61,8 @@ public class ContestService(
             .ThenInclude(rd => rd.Court)
             .ThenInclude(c => c.Club)
             .Include(c => c.UserContests);  
-            var dtos = _mapper.Map<List<DtoContestResponse?>>(myContests);
+            var dtos = myContests
+                .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
             return dtos;
     }
 
