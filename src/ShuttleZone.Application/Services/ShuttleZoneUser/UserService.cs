@@ -38,7 +38,7 @@ public class UserService : IUserService
                 .Include(x => x.Reservations)
                 .Include(x => x.Wallet)
                 .FirstOrDefault()
-            ?? throw new Exception("User Not Found");
+            ?? throw new Exception("Người dùng không tồn tại.");
         var totalReservation = user.Reservations.Count;
         var totalWinContest = user.UserContests.Select(x => x.isWinner).Count();
 
@@ -78,7 +78,7 @@ public class UserService : IUserService
         var list = new List<IFormFile>();
         list.Add(file);
         var imageUrl = (await _fileService.UploadMultipleFileAsync(list)).FirstOrDefault();
-        var user = await _userRepository.GetAsync(x => x.Id.ToString() == _user.Id) ?? throw new Exception("Not Found User.");
+        var user = await _userRepository.GetAsync(x => x.Id.ToString() == _user.Id) ?? throw new Exception("Người dùng không tồn tại");
         user.ProfilePic = imageUrl;
         _userRepository.Update(user);
         await _unitOfWork.CompleteAsync();
