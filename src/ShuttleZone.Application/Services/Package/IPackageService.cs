@@ -15,4 +15,5 @@ public interface IPackageService
     UserPackageResponseDto GetCurrentUserPackage(Guid userId);
     List<UserPackageResponseDto> GetUserPackageHistory(Guid userId);
     Task<bool> SubPackageManager(SubPackageDto subPackageDto, Guid userId);
+    Task<bool> UnSubPackageManager(Guid userId);
 }

@@ -68,6 +68,16 @@ public class PackageController: BaseApiController
         return Ok(result);
        
     }
+    
+    [HttpGet("/api/Package/getUserPackageHistory")]
+    [EnableQuery]
+    public IActionResult GetPackageHistory()
+    {
+        var userId = new Guid(_user.Id?? throw new ArgumentNullException());
+        var result =  _packageService.GetUserPackageHistory(userId);
+        return Ok(result);
+       
+    }
 
     [HttpPost("/api/Package/subPackage")]
     // [Authorize(Roles = SystemRole.Manager)]
@@ -77,5 +87,14 @@ public class PackageController: BaseApiController
         var result = await _packageService.SubPackageManager(subPackageDto, userId);
         return Ok(result);
         
+    }
+    
+    [HttpPut("/api/Package/unsubPackage")]
+    public IActionResult UnSubPackage()
+    {
+        var userId = new Guid(_user.Id?? throw new ArgumentNullException());
+        var result =  _packageService.UnSubPackageManager(userId);
+        return Ok(result);
+       
     }
 }
