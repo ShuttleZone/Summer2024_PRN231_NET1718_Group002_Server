@@ -23,7 +23,14 @@ using ShuttleZone.Domain.WebResponses.ShuttleZoneUser;
 using ShuttleZone.Domain.WebResponses.UserContests;
 using ShuttleZone.Domain.WebResponses.Notifications;
 using ShuttleZone.Domain.WebResponses.Wallets;
-
+using ShuttleZone.Api.Middlewares;
+using Microsoft.OpenApi.Models;
+using ShuttleZone.Domain.Entities;
+using ShuttleZone.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Net.payOS;
 
 namespace ShuttleZone.Api.DependencyInjection;
 
@@ -178,6 +185,121 @@ public static class DependencyInjection
     public static IServiceCollection AddEmailSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<EmailSettings>(configuration.GetSection(nameof(EmailSettings)));
+        return services;
+    }
+
+    public static IServiceCollection AddGlobalExceptionHandler(this IServiceCollection services)
+    {
+        services.AddExceptionHandler<GlobalExceptionHandlerMiddleware>();
+        services.AddProblemDetails();
+        return services;
+    }
+
+    public static IServiceCollection AddCustomSwaggerGen(this IServiceCollection services)
+    {
+        services.AddSwaggerGen(option =>
+        {
+            option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+            option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                In = ParameterLocation.Header,
+                Description = "Please enter a valid token",
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                BearerFormat = "JWT",
+                Scheme = "Bearer"
+            });
+            option.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type=ReferenceType.SecurityScheme,
+                            Id="Bearer"
+                        }
+                    },
+                    new string[]{}
+                }
+            });
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddCustomIdentity(this IServiceCollection services)
+    {
+        services.AddIdentity<User, Role>(options =>
+        {
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequiredLength = 6;
+            options.Password.RequireNonAlphanumeric = true;
+            options.Password.RequireUppercase = true;
+            /// <summary>
+            /// nhi: 21/6/2024 update for email confirmation.
+            /// </summary>
+            options.User.RequireUniqueEmail = true;
+            options.SignIn.RequireConfirmedEmail = true;
+        })
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();    
+
+        return services;
+    }
+
+    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddAuthentication(options =>   
+        {
+            options.DefaultAuthenticateScheme = 
+            options.DefaultChallengeScheme = 
+            options.DefaultForbidScheme = 
+            options.DefaultScheme = 
+            options.DefaultSignInScheme = 
+            options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                RequireExpirationTime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    System.Text.Encoding.UTF8.GetBytes(configuration["JWT:SigningKey"]!)),
+                ClockSkew = new TimeSpan(0,0,5)
+            };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+
+                    var path = context.HttpContext.Request.Path;
+                    if (!string.IsNullOrEmpty(accessToken) &&
+                        path.StartsWithSegments("/hubs"))
+                    {
+                        context.Token = accessToken;
+                    }
+
+                    return Task.CompletedTask;
+                }
+            };
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddPayOS(this IServiceCollection services, IConfiguration configuration)
+    {
+        PayOS payOS = new PayOS(configuration["Environment:PAYOS_CLIENT_ID"] ?? throw new Exception("Cannot find environment"),
+            configuration["Environment:PAYOS_API_KEY"] ?? throw new Exception("Cannot find environment"),
+            configuration["Environment:PAYOS_CHECKSUM_KEY"] ?? throw new Exception("Cannot find environment"));
+        services.AddSingleton(payOS);
+
         return services;
     }
 

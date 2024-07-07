@@ -2,7 +2,6 @@
 using System.Net.Mail;
 using System.Net;
 using ShuttleZone.Common.Settings;
-using Microsoft.Extensions.Options;
 using ShuttleZone.Common.Attributes;
 
 namespace ShuttleZone.Application.Services.Email
@@ -11,9 +10,9 @@ namespace ShuttleZone.Application.Services.Email
     public class EmailService : IEmailService
     {
         private readonly EmailSettings _emailSettings;
-        public EmailService(IOptions<EmailSettings> emailSettings)
+        public EmailService(EmailSettings emailSettings)
         {
-            _emailSettings = emailSettings.Value;
+            _emailSettings = emailSettings;
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string body, bool isBodyHtml = false)

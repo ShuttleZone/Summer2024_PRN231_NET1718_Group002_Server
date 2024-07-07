@@ -1,15 +1,6 @@
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using Net.payOS;
 using ShuttleZone.Api.Services;
 using ShuttleZone.Application.Common.Interfaces;
-using ShuttleZone.Application.Services.Payment;
 using ShuttleZone.Application.SignalRHub;
-using ShuttleZone.Domain.Entities;
-using ShuttleZone.Infrastructure.Data;
 using ShuttleZone.Infrastructure.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,34 +11,7 @@ DataAccessHelper.Initialize(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddApplicationSettings(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(option =>
-{
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
-    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Please enter a valid token",
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        BearerFormat = "JWT",
-        Scheme = "Bearer"
-    });
-    option.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
-                }
-            },
-            new string[]{}
-        }
-    });
-});
-
+builder.Services.AddCustomSwaggerGen();
 builder.Services.AddODataControllers();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
@@ -56,73 +20,12 @@ builder.Services.AddAppCors(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUser, CurrentUser>();
 builder.Services.AddSignalR();
-
-builder.Services.AddIdentity<User, Role>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequiredLength = 6;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequireUppercase = true;
-    /// <summary>
-    /// nhi: 21/6/2024 update for email confirmation.
-    /// </summary>
-    options.User.RequireUniqueEmail = true;
-    options.SignIn.RequireConfirmedEmail = true;
-})
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();    
-    
-builder.Services.AddAuthentication(options =>   
-{
-    options.DefaultAuthenticateScheme = 
-    options.DefaultChallengeScheme = 
-    options.DefaultForbidScheme = 
-    options.DefaultScheme = 
-    options.DefaultSignInScheme = 
-    options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        RequireExpirationTime = true,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"]!)),
-        ClockSkew = new TimeSpan(0,0,5)
-    };
-
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            var accessToken = context.Request.Query["access_token"];
-
-            var path = context.HttpContext.Request.Path;
-            if (!string.IsNullOrEmpty(accessToken) &&
-                path.StartsWithSegments("/hubs"))
-            {
-                context.Token = accessToken;
-            }
-
-            return Task.CompletedTask;
-        }
-    };
-});
-
-builder.Services.AddVNPaySettings(builder.Configuration);
-IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-
-PayOS payOS = new PayOS(configuration["Environment:PAYOS_CLIENT_ID"] ?? throw new Exception("Cannot find environment"),
-    configuration["Environment:PAYOS_API_KEY"] ?? throw new Exception("Cannot find environment"),
-    configuration["Environment:PAYOS_CHECKSUM_KEY"] ?? throw new Exception("Cannot find environment"));
-builder.Services.AddSingleton(payOS);
-
-builder.Services.AddEmailSettings(builder.Configuration);
+builder.Services.AddCustomIdentity();
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddPayOS(builder.Configuration);
 // Register IHttpClientFactory
 builder.Services.AddHttpClient();
+builder.Services.AddGlobalExceptionHandler();
 
 var app = builder.Build();
 
@@ -144,6 +47,7 @@ app.UseAuthorization();
 app.UseCors("AllowReactApp");
 app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notification").AllowAnonymous(); ;
+app.UseExceptionHandler();
 app.EnsureMigrations();
 
 app.Run();

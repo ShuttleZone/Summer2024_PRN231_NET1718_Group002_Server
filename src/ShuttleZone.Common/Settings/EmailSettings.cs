@@ -1,5 +1,8 @@
-﻿namespace ShuttleZone.Common.Settings
+﻿using ShuttleZone.Common.Attributes;
+
+namespace ShuttleZone.Common.Settings
 {
+    [ApplicationSetting]
     public class EmailSettings
     {
         public string MailServer { get; set; } = string.Empty;
