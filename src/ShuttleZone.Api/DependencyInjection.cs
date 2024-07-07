@@ -23,7 +23,7 @@ using ShuttleZone.Domain.WebResponses.ShuttleZoneUser;
 using ShuttleZone.Domain.WebResponses.UserContests;
 using ShuttleZone.Domain.WebResponses.Notifications;
 using ShuttleZone.Domain.WebResponses.Wallets;
-
+using ShuttleZone.Api.Middlewares;
 
 namespace ShuttleZone.Api.DependencyInjection;
 
@@ -178,6 +178,13 @@ public static class DependencyInjection
     public static IServiceCollection AddEmailSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<EmailSettings>(configuration.GetSection(nameof(EmailSettings)));
+        return services;
+    }
+
+    public static IServiceCollection AddGlobalExceptionHandler(this IServiceCollection services)
+    {
+        services.AddExceptionHandler<GlobalExceptionHandlerMiddleware>();
+        services.AddProblemDetails();
         return services;
     }
 

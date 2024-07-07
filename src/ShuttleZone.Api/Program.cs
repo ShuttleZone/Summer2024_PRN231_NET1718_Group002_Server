@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -6,7 +5,6 @@ using Microsoft.OpenApi.Models;
 using Net.payOS;
 using ShuttleZone.Api.Services;
 using ShuttleZone.Application.Common.Interfaces;
-using ShuttleZone.Application.Services.Payment;
 using ShuttleZone.Application.SignalRHub;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Infrastructure.Data;
@@ -123,6 +121,7 @@ builder.Services.AddSingleton(payOS);
 builder.Services.AddEmailSettings(builder.Configuration);
 // Register IHttpClientFactory
 builder.Services.AddHttpClient();
+builder.Services.AddGlobalExceptionHandler();
 
 var app = builder.Build();
 
@@ -144,6 +143,7 @@ app.UseAuthorization();
 app.UseCors("AllowReactApp");
 app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notification").AllowAnonymous(); ;
+app.UseExceptionHandler();
 app.EnsureMigrations();
 
 app.Run();

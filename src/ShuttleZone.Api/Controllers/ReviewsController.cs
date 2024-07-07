@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.DependencyInjection.Services.Review;
