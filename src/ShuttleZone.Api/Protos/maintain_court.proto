@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "ShuttleZone.Grpc";
+
+package maintain_court;
+
+service MaintainCourtService {
+    rpc Maintain (MaintainCourtRequest) returns (MaintainCourtResponse);
+}
+
+message MaintainCourtRequest {
+    string court_id = 1;
+}
+
+message MaintainCourtResponse {
+    bool response = 1;
+}

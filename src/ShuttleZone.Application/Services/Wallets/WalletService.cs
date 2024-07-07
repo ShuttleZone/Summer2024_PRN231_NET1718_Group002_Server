@@ -42,7 +42,7 @@ namespace ShuttleZone.Application.Services.Wallets
 
         public async Task PutWalletAsync(Guid walletId, VnPayRequest request)
         {
-            var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.Id == walletId) ?? throw new HttpException(400, "Invalid wallet");
+            var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.Id == walletId) ?? throw new HttpException(400, "Ví không tồn tại");
 
             wallet.Balance += request.Amount;
             var transaction = new Domain.Entities.Transaction()
@@ -55,7 +55,7 @@ namespace ShuttleZone.Application.Services.Wallets
 
             if (request.OrderType.Equals(VnPayConstansts.ORDER_TYPE_BOOKING, StringComparison.OrdinalIgnoreCase))
             {
-                var reservationId = new Guid(request.OrderInfo ?? throw new Exception("Invalid reservation"));
+                var reservationId = new Guid(request.OrderInfo ?? throw new Exception("Đơn đặt sân không tồn tại"));
                 var reservation = _unitOfWork.ReservationRepository.Find(r => r.Id == reservationId)
                     .Include(r => r.ReservationDetails).FirstOrDefault();
 
@@ -72,12 +72,12 @@ namespace ShuttleZone.Application.Services.Wallets
             }
             else if (request.OrderType.Equals(VnPayConstansts.ORDER_TYPE_JOIN_CONTEST, StringComparison.OrdinalIgnoreCase))
             {
-                var contestId = new Guid(request.OrderInfo ?? throw new Exception("Invalid reservation"));
-                var user = await _unitOfWork.UserRepository.Find(u => u.Id == wallet.UserId).FirstOrDefaultAsync() ?? throw new Exception("Invalid user");
+                var contestId = new Guid(request.OrderInfo ?? throw new Exception("Đơn đặt sân không tồn tại"));
+                var user = await _unitOfWork.UserRepository.Find(u => u.Id == wallet.UserId).FirstOrDefaultAsync() ?? throw new Exception("Người dùng không tồn tại");
                 var contest = _unitOfWork.ContestRepository.Find(c => c.Id == contestId).Include(c => c.UserContests)
                     .Include(c => c.Reservation)
                     .FirstOrDefault()
-            ?? throw new HttpException(400, $"Contest with id {contestId} is not existed");
+            ?? throw new HttpException(400, $"Cuộc thi với id {contestId} không tồn tại");
 
                 var reservationStartTime = _unitOfWork.ReservationRepository
                                          .Find(r => r.Id == contest.Reservation!.Id)
@@ -86,18 +86,18 @@ namespace ShuttleZone.Application.Services.Wallets
                                          .Min();
 
                 if (reservationStartTime < DateTime.Now)
-                    throw new HttpException(400, $"Contest with id {contestId} is already happened");
+                    throw new HttpException(400, $"Cuộc thi với id {contestId} đã bắt đầu");
 
                 if (contest.ContestStatus == ContestStatusEnum.Closed)
-                    throw new HttpException(400, $"Contest with id {contestId} is already closed");
+                    throw new HttpException(400, $"Cuộc thi với id {contestId} đã đóng");
 
                 var isJoined = contest.UserContests.Exists(c => c.ParticipantsId == user.Id);
                 if (isJoined)
-                    throw new HttpException(400, $"You are already in this contest");
+                    throw new HttpException(400, "Bạn đã tham gia cuộc thi này");
 
                 var isSlotRemaining = contest.MaxPlayer > contest.UserContests.Count();
                 if (!isSlotRemaining)
-                    throw new HttpException(400, $"The contest is full slot");
+                    throw new HttpException(400, "Cuộc thi đã đủ người tham gia");
 
                 contest.UserContests.Add(
                     new UserContest
@@ -109,9 +109,8 @@ namespace ShuttleZone.Application.Services.Wallets
             }
             else if (request.OrderType.Equals(VnPayConstansts.ORDER_TYPE_PACKAGE, StringComparison.OrdinalIgnoreCase))
             {
-                var packageId = new Guid(request.OrderInfo ?? throw new Exception("Invalid package"));
-                var package = await _unitOfWork.PackageRepository.GetAsync(p => p.Id == packageId) ?? throw new Exception("Invalid package");
-                
+              var packageId = new Guid(request.OrderInfo ?? throw new Exception("Gói không tồn tại"));
+                var package = await _unitOfWork.PackageRepository.GetAsync(p => p.Id == packageId) ?? throw new Exception("Gói không tồn tại");
                 var packageCheck = await _unitOfWork.PackageUserRepository
                     .ExistsAsync(p => p.UserId == new Guid(_user.Id!)
                                       && p.PackageUserStatus == PackageUserStatus.VALID);
@@ -119,10 +118,11 @@ namespace ShuttleZone.Application.Services.Wallets
                 
                 await _unitOfWork.TransactionRepository.AddAsync(transaction);
                 await _unitOfWork.CompleteAsync();
+
                 var packageUser = new PackageUser
                 {
                     Id = new Guid(),
-                    UserId = new Guid(_user.Id ?? throw new HttpException(401, "You are not logined")),
+                    UserId = new Guid(_user.Id ?? throw new HttpException(401, "Bạn cần đăng nhập để thực hiện chức năng này")),
                     PackageId = packageId,
                     TransactionId = transaction.Id,
                     StartDate = DateTime.Now,
