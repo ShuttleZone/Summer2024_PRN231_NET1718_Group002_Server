@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using ShuttleZone.Application.Helpers;
+﻿using ShuttleZone.Application.Helpers;
 using ShuttleZone.Common.Constants;
 using ShuttleZone.Common.Settings;
 using ShuttleZone.Domain.WebRequests.Payment;
@@ -15,9 +14,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
-using System;
-using Azure.Core;
-
 
 namespace ShuttleZone.Application.Services.Payment
 {
@@ -29,10 +25,10 @@ namespace ShuttleZone.Application.Services.Payment
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IUser _user;
 
-        public VnPayService(IOptions<VNPaySettings> vnPaySettings, IUnitOfWork unitOfWork,
+        public VnPayService(VNPaySettings vnPaySettings, IUnitOfWork unitOfWork,
             IHttpClientFactory httpClientFactory, IUser user)
         {
-            _vnPaySettings = vnPaySettings.Value;
+            _vnPaySettings = vnPaySettings;
             _unitOfWork = unitOfWork;
             _httpClientFactory = httpClientFactory;
             _user = user;

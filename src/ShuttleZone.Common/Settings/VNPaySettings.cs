@@ -1,5 +1,8 @@
-﻿namespace ShuttleZone.Common.Settings
+﻿using ShuttleZone.Common.Attributes;
+
+namespace ShuttleZone.Common.Settings
 {
+    [ApplicationSetting]
     public class VNPaySettings
     {
         public string TmnCode { get; set; } = string.Empty;
