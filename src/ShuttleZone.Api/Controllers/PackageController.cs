@@ -90,10 +90,10 @@ public class PackageController: BaseApiController
     }
     
     [HttpPut("/api/Package/unsubPackage")]
-    public IActionResult UnSubPackage()
+    public async Task<IActionResult> UnSubPackage()
     {
-        var userId = new Guid(_user.Id?? throw new ArgumentNullException());
-        var result =  _packageService.UnSubPackageManager(userId);
+        var userId = new Guid(_user.Id?? throw new ArgumentNullException("Đăng nhập để thực hiện chức năng"));
+        var result = await _packageService.UnSubPackageManager(userId);
         return Ok(result);
        
     }

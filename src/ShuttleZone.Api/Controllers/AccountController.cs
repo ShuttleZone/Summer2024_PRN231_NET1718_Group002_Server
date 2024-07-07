@@ -361,7 +361,7 @@ public class AccountController : BaseApiController
             Token = token,
             RefreshToken = refreshModel.RefreshToken
         };
-        return Ok("Token Refreshed: " + loginAcc.Token);
+        return Ok(loginAcc.Token);
     }
 
     [HttpDelete("revoke")]
