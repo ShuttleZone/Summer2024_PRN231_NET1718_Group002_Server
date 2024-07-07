@@ -43,21 +43,21 @@ namespace ShuttleZone.Application.Services.Payment
             if (vnPayRequest.OrderType.Equals(VnPayConstansts.ORDER_TYPE_BOOKING, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(vnPayRequest.OrderInfo))
             {
                 var reservationId = new Guid(vnPayRequest.OrderInfo ?? throw new Exception("Invalid reservation"));
-                var reservation = _unitOfWork.ReservationRepository.Get(r => r.Id == reservationId) ?? throw new Exception("Invalid reservation");
+                var reservation = _unitOfWork.ReservationRepository.Get(r => r.Id == reservationId) ?? throw new Exception("Đơn đặt chỗ không tồn tại");
 
                 if (reservation.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED)
-                    throw new HttpException(400, "Reservation is already paid");
+                    throw new HttpException(400, "Đơn đặt chỗ đã được thanh toán");
 
             }
             else if (vnPayRequest.OrderType.Equals(VnPayConstansts.ORDER_TYPE_ADD_TO_WALLET, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(vnPayRequest.OrderInfo))
             {
-                var walletId = new Guid(vnPayRequest.OrderInfo ?? throw new Exception("Invalid wallet"));
-                var wallet = _unitOfWork.WalletRepository.Get(r => r.Id == walletId) ?? throw new Exception("Invalid wallet");
+                var walletId = new Guid(vnPayRequest.OrderInfo ?? throw new Exception("Ví không tồn tại"));
+                var wallet = _unitOfWork.WalletRepository.Get(r => r.Id == walletId) ?? throw new Exception("Ví không tồn tại");
             }
             else if (vnPayRequest.OrderType.Equals(VnPayConstansts.ORDER_TYPE_JOIN_CONTEST, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(vnPayRequest.OrderInfo))
             {
-                var contestId = new Guid(vnPayRequest.OrderInfo ?? throw new Exception("Invalid contest"));
-                var contest = _unitOfWork.ContestRepository.Get(r => r.Id == contestId) ?? throw new Exception("Invalid contest");
+                var contestId = new Guid(vnPayRequest.OrderInfo ?? throw new Exception("Cuộc thi không tồn tại"));
+                var contest = _unitOfWork.ContestRepository.Get(r => r.Id == contestId) ?? throw new Exception("Cuộc thi không tồn tại");
 
                 var reservationStartTime = _unitOfWork.ReservationRepository
                                          .Find(r => r.Id == contest.Reservation!.Id)
@@ -66,30 +66,30 @@ namespace ShuttleZone.Application.Services.Payment
                                          .Min();
 
                 if (reservationStartTime < DateTime.Now)
-                    throw new HttpException(400, $"Contest with id {contestId} is already happened");
+                    throw new HttpException(400, "Cuộc thi đã bắt đầu");
 
                 if (contest.ContestStatus == ContestStatusEnum.Closed)
-                    throw new HttpException(400, $"Contest with id {contestId} is already closed");
+                    throw new HttpException(400, "Cuộc thi đã kết thúc");
 
                 var isJoined = contest.UserContests.Exists(c => c.ParticipantsId == new Guid(_user.Id ?? ""));
                 if (isJoined)
-                    throw new HttpException(400, $"You are already in this contest");
+                    throw new HttpException(400, "Bạn đã tham gia cuộc thi");
 
                 var isSlotRemaining = contest.MaxPlayer > contest.UserContests.Count();
                 if (!isSlotRemaining)
-                    throw new HttpException(400, $"The contest is full slot");
+                    throw new HttpException(400, "Cuộc thi đã đủ người tham gia");
 
                 vnPayRequest.OrderInfo = contestId + "," + _user.Id;
             }
             else if (vnPayRequest.OrderType.Equals(VnPayConstansts.ORDER_TYPE_PACKAGE, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(vnPayRequest.OrderInfo))
             {
-                var packageId = new Guid(vnPayRequest.OrderInfo ?? throw new Exception("Invalid package"));
-                var package = _unitOfWork.PackageRepository.Get(p => p.Id == packageId) ?? throw new Exception("Invalid package");
+                var packageId = new Guid(vnPayRequest.OrderInfo ?? throw new Exception("Gói không tồn tại"));
+                var package = _unitOfWork.PackageRepository.Get(p => p.Id == packageId) ?? throw new Exception("Gói không tồn tại");
                 vnPayRequest.OrderInfo = packageId + "," + _user.Id;
             }
             else
             {
-                throw new HttpException(400, "Invalid order type");
+                throw new HttpException(400, "Đơn hàng không hợp lệ");
             }
 
             var tick = DateTime.Now.Ticks.ToString();
@@ -131,12 +131,12 @@ namespace ShuttleZone.Application.Services.Payment
 
             if (!checkSignature)
             {
-                throw new Exception("SecureHash does not match");
+                throw new Exception("Mã xác thực không hợp lệ");
             }
             if (isIPN)
             {
                 var orderType = response.vnp_OrderInfo?.Split(",")[0] ?? "";
-                var orderId = new Guid(response.vnp_OrderInfo?.Split(",")[1] ?? throw new Exception("Invalid order"));
+                var orderId = new Guid(response.vnp_OrderInfo?.Split(",")[1] ?? throw new Exception("Đơn hàng không hợp lệ"));
                 Double.TryParse(response.vnp_Amount, out double result);
 
                 var isPaySucceed = (response.vnp_ResponseCode?.Equals("00") ?? false)
@@ -177,17 +177,17 @@ namespace ShuttleZone.Application.Services.Payment
                     }//update db for add to wallet
                     else if (orderType.Equals(VnPayConstansts.ORDER_TYPE_ADD_TO_WALLET, StringComparison.OrdinalIgnoreCase))
                     {
-                        var wallet = _unitOfWork.WalletRepository.Get(w => w.Id == orderId) ?? throw new HttpException(400, "Invalid wallet");
+                        var wallet = _unitOfWork.WalletRepository.Get(w => w.Id == orderId) ?? throw new HttpException(400, "Ví không tồn tại");
 
                         wallet.Balance += (result / 100);
                         wallet.Transactions.Add(transaction);
                     }//update db for join contest
                     else if (orderType.Equals(VnPayConstansts.ORDER_TYPE_JOIN_CONTEST, StringComparison.OrdinalIgnoreCase))
                     {
-                        var userId = new Guid(response.vnp_OrderInfo?.Split(",")[2] ?? throw new Exception("Invalid user"));
-                        var user = await _unitOfWork.UserRepository.Find(u => u.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("Invalid user");
+                        var userId = new Guid(response.vnp_OrderInfo?.Split(",")[2] ?? throw new Exception("Người dùng không hợp lệ"));
+                        var user = await _unitOfWork.UserRepository.Find(u => u.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("Người dùng không hợp lệ");
                         var contest = _unitOfWork.ContestRepository.Find(c => c.Id == orderId).Include(c => c.UserContests).Include(c => c.Reservation).FirstOrDefault()
-                            ?? throw new HttpException(400, $"Contest with id {orderId} is not existed");
+                            ?? throw new HttpException(400, "Cuộc thi không tồn tại");
 
                         contest.UserContests.Add(
                                                    new UserContest
@@ -200,8 +200,8 @@ namespace ShuttleZone.Application.Services.Payment
                     }//update db for buy package
                     else if (orderType.Equals(VnPayConstansts.ORDER_TYPE_PACKAGE, StringComparison.OrdinalIgnoreCase))
                     {
-                        var userId = new Guid(response.vnp_OrderInfo?.Split(",")[2] ?? throw new Exception("Invalid user"));
-                        var user = await _unitOfWork.UserRepository.Find(u => u.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("Invalid user");
+                        var userId = new Guid(response.vnp_OrderInfo?.Split(",")[2] ?? throw new Exception("Người dùng không hợp lệ"));
+                        var user = await _unitOfWork.UserRepository.Find(u => u.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("Người dùng không hợp lệ");
                         var package = _unitOfWork.PackageRepository.Find(c => c.Id == orderId).FirstOrDefault()
                             ?? throw new HttpException(400, $"Package with id {orderId} is not existed");
                         var packageCheck = await _unitOfWork.PackageUserRepository
@@ -212,10 +212,11 @@ namespace ShuttleZone.Application.Services.Payment
 
                         await _unitOfWork.TransactionRepository.AddAsync(transaction);
                         await _unitOfWork.CompleteAsync();
+
                         var packageUser = new PackageUser
                         {
                             Id = new Guid(),
-                            UserId = new Guid(_user.Id ?? throw new HttpException(401, "You are not logined")),
+                            UserId = new Guid(_user.Id ?? throw new HttpException(401, "Bạn cần đăng nhập để thực hiện chức năng này")),
                             PackageId = orderId,
                             TransactionId = transaction.Id,
                             StartDate = DateTime.Now,
@@ -238,7 +239,7 @@ namespace ShuttleZone.Application.Services.Payment
         public async Task<VnPayQueryDrResponse?> QueryPaymentAsync(Guid reservationId)
         {
             var transaction = _unitOfWork.TransactionRepository.Get(t => t.ReservationId == reservationId)
-                ?? throw new HttpException(400, "Transaction with reservation not found");
+                ?? throw new HttpException(400, "Giao dịch không tồn tại");
             var queryRequest = new VnPayQueryRequest()
             {
                 vnp_Command = VnPayConstansts.QUERY_COMMAND,
@@ -277,7 +278,7 @@ namespace ShuttleZone.Application.Services.Payment
         {
 
             var transaction = _unitOfWork.TransactionRepository.Get(t => t.ReservationId == reservationId)
-                ?? throw new HttpException(400, "Transaction with reservation not found");
+                ?? throw new HttpException(400, "Giao dịch không tồn tại"); 
 
             var refundRequest = new VnPayRefundRequest()
             {

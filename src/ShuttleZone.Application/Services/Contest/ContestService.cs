@@ -81,16 +81,16 @@ public class ContestService(
     {
         HttpException.New()
             .WithStatusCode(400)
-            .WithErrorMessage("Number of players is invalid.")
+            .WithErrorMessage("Số người chơi không hợp lệ")
             .ThrowIf(request.MaxPlayer % 2 != 0);
 
         HttpException.New()
             .WithStatusCode(401)
-            .WithErrorMessage("You are not authorized to create a contest")
+            .WithErrorMessage("Bạn cần đăng nhập để thực hiện chức năng này.")
             .ThrowIfNull(_currentUser.Id)
             .ThrowIf(!Guid.TryParse(_currentUser.Id, out var userIdAsGuid));
 
-        var minTimeToStart = DateTime.Now.AddMinutes(30);
+        var minTimeToStart = DateTime.Now.AddDays(1);
         var minDuration = TimeSpan.FromMinutes(30);
 
         var court = await _unitOfWork.CourtRepository
@@ -100,7 +100,7 @@ public class ContestService(
 
         HttpException.New()
             .WithStatusCode(404)
-            .WithErrorMessage($"Court {request.CourtId} does not exist.")
+            .WithErrorMessage($"Không tìm thấy sân với id {request.CourtId}.")
             .ThrowIfNull(court);
 
         foreach (var slot in request.ContestSlots)
@@ -121,13 +121,13 @@ public class ContestService(
                 );
             HttpException.New()
                 .WithStatusCode(409)
-                .WithErrorMessage($"Court is not open at the selected time ({slot.StartTime} - {slot.EndTime}).")
+                .WithErrorMessage($"Sân không mở cửa vào thời gian này (từ {court.Club.OpenTime} đến {court.Club.CloseTime}).")
                 .ThrowIf(slot.StartTime.TimeOfDay < court.Club.OpenTime.ToTimeSpan() || slot.EndTime.TimeOfDay > court.Club.CloseTime.ToTimeSpan())
-                .WithErrorMessage($"Court can only be booked in at least 30 minutes in the future.")
+                .WithErrorMessage("Cuộc thi đấu phải được đặt trước ít nhất 1 ngày.")
                 .ThrowIf(slot.StartTime < minTimeToStart)
-                .WithErrorMessage($"Contest duration must be at least {minDuration} minutes.")
+                .WithErrorMessage($"Thời gian thi đấu phải ít nhất {minDuration.TotalMinutes} phút.")
                 .ThrowIf(slot.StartTime - slot.EndTime >= minDuration)
-                .WithErrorMessage($"Court has already been booked from {slot.StartTime} to {slot.EndTime}.")
+                .WithErrorMessage("Sân đã được đặt vào thời gian này.")
                 .ThrowIf(courtBooked);
         }
 
@@ -179,11 +179,11 @@ public class ContestService(
     {
         HttpException.New()
             .WithStatusCode(401)
-            .WithErrorMessage("You need to log in to view this page.")
+            .WithErrorMessage("Bạn cần đăng nhập để thực hiện chức năng này.")
             .ThrowIfNull(_currentUser.Id)
             .ThrowIf(!Guid.TryParse(_currentUser.Id, out var userIdAsGuid))
             .WithStatusCode(403)
-            .WithErrorMessage("You are not authorized to view this page.")
+            .WithErrorMessage("Bạn không có quyền truy cập chức năng này.")
             .ThrowIf(_currentUser.Role != ShuttleZone.Domain.Constants.SystemRole.Manager);
 
         var contestsResponse = _unitOfWork.ClubRepository
@@ -203,22 +203,22 @@ public class ContestService(
     public async Task JoinContest(Guid contestId, Guid userId)
     {
         var contest = _unitOfWork.ContestRepository.Find(c => c.Id == contestId).Include(c => c.UserContests).FirstOrDefault()
-            ?? throw new HttpException(400, $"Contest with id {contestId} is not existed");
+            ?? throw new HttpException(400, $"Cuộc thi không tồn tại");
 
         var isInPast = contest.ContestDate < DateTime.Now;
         if (isInPast)
-            throw new HttpException(400, $"Contest with id {contestId} is already happened");
+            throw new HttpException(400, "Cuộc thi đã kết thúc");
 
         if (contest.ContestStatus == ContestStatusEnum.Closed)
-            throw new HttpException(400, $"Contest with id {contestId} is already closed");
+            throw new HttpException(400, "Cuộc thi đã kết thúc");
 
         var isJoined = contest.UserContests.Exists(c => c.ParticipantsId == userId);
         if (isJoined)
-            throw new HttpException(400, $"You are already in this contest");
+            throw new HttpException(400, "Bạn đã tham gia cuộc thi này");
 
         var isSlotRemaining = contest.MaxPlayer > contest.UserContests.Count();
         if (!isSlotRemaining)
-            throw new HttpException(400, $"The contest is full slot");
+            throw new HttpException(400, "Cuộc thi đã đủ người tham gia");
 
         contest.UserContests.Add(
             new UserContest
@@ -234,17 +234,17 @@ public class ContestService(
     public async Task UpdateContestAsync(UpdateContestRequest request)
     {
         var contest = _unitOfWork.ContestRepository.Find(c => c.Id == request.Id).Include(c => c.UserContests).FirstOrDefault()
-            ?? throw new HttpException(400, $"Contest with id {request.Id} is not existed");
+            ?? throw new HttpException(400, $"Cuộc thi không tồn tại");
 
         //check if contest is already updated, can not update       
         if (contest.ContestStatus == ContestStatusEnum.Closed)
         {
-            throw new HttpException(400, $"Contest with id {request.Id} is already updated. Can not update one more time. Cause money has refunded to customer");
+            throw new HttpException(400, $"Cuộc thi đã kết thúc, không thể cập nhật");
         }
 
         //validation for time, if contest does not happen, is not allowed update 
         if (contest.ContestDate > DateTime.Now)
-            throw new HttpException(400, $"Contest with id {request.Id} is not happened, can not update");
+            throw new HttpException(400, $"Cuộc thi chưa diễn ra, không thể cập nhật");
 
         if (request.UserContests!.Count() == 2)
         {
@@ -256,13 +256,13 @@ public class ContestService(
         var winners = request.UserContests.Where(uc => uc.isWinner);
         var test = winners.Count();
         if (winners.Count() > contest.UserContests.Count()/2)
-            throw new HttpException(400, $"Total player is {contest.UserContests.Count()}. Only less or equal half of total player is winner allowed");
+            throw new HttpException(400, $"Tổng số người chơi là {contest.UserContests.Count()}. Chỉ ít hơn hoặc bằng một nửa tổng số người chơi được phép là người chiến thắng");
 
         foreach (var userContest in request.UserContests ?? new List<UserContestRequest>())
         {
             var UserContestExisted = contest.UserContests.FirstOrDefault(uc => uc.ParticipantsId == userContest.ParticipantsId);
             if (UserContestExisted == null)
-                throw new HttpException(400, $"User with id {userContest.ParticipantsId} is not in this contest");
+                throw new HttpException(400, $"Người chơi {userContest.ParticipantsId} không tồn tại trong cuộc thi");
             UserContestExisted.isWinner = userContest.isWinner;
             UserContestExisted.Point = userContest.Point;
         }
@@ -285,14 +285,14 @@ public class ContestService(
                 Amount = refundAmount,
                 TransactionStatus = TransactionStatusEnum.SUCCESS,
             };
-            var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId==winner.ParticipantsId) ?? throw new HttpException(400, "Invalid wallet");
+            var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId==winner.ParticipantsId) ?? throw new HttpException(400, "Ví không tồn tại");
             wallet.Transactions.Add(transaction);
             _unitOfWork.TransactionRepository.Add(transaction);
             //notifiy to user
             var notificationRequest = new NotificationRequest
             {
                 UserId = winner.ParticipantsId,
-                Description = $"You have won the contest. You are have refunded {refundAmount} VND"
+                Description = $"Bạn đã thắng cuộc thi. Số tiền {refundAmount} đã được hoàn lại vào ví của bạn",
             };
             var notification = _notificationHubService.CreateNotification(notificationRequest);
             await _unitOfWork.NotificationRepository.AddAsync(notification);
@@ -319,7 +319,7 @@ public class ContestService(
     public async Task<ContestResponse> GetContestAsync(Guid id)
     {
         var contest = (await _unitOfWork.ContestRepository.GetAllAsync())
-            .Where(c => c.Id == id).FirstOrDefault() ?? throw new HttpException(400, $"Invalid contest with Id {id}");
+            .Where(c => c.Id == id).FirstOrDefault() ?? throw new HttpException(400, $"Cuộc thi không tồn tại");
 
         return _mapper.Map<ContestResponse>(contest);
     }

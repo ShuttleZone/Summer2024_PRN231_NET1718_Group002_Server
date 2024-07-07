@@ -81,7 +81,7 @@ public class PackageService : IPackageService
                 return true;
             }
 
-            throw new Exception("Package is currently in use by managers !");
+            throw new Exception("Gói đã được sử dụng!");
         }
 
         return false;
@@ -139,16 +139,16 @@ public class PackageService : IPackageService
         
         var package = await _unitOfWork.PackageRepository.GetAsync(p => p.Id == subPackageDto.packageId);
         if (package == null)
-            throw new InvalidOperationException("Package not found !");
+            throw new InvalidOperationException("Gói không tồn tại!");
         
         var userWallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == userId);
         if (userWallet == null)
         {
-            throw new InvalidOperationException("User does not have wallet yet !");
+            throw new InvalidOperationException("Người dùng không có ví!");
         }
         if(userWallet.Balance < (double)package.Price)
         {
-            throw new ArgumentException("Balance is insufficient !");
+            throw new ArgumentException("Số dư không đủ!");
         }
         
         
@@ -201,3 +201,4 @@ public class PackageService : IPackageService
         return false;
     }
 }
+

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Common.Attributes;
+using ShuttleZone.Common.Exceptions;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.DependencyInjection.Repositories.User;
 using ShuttleZone.DAL.Repositories;
@@ -43,7 +44,7 @@ public class CourtService : ICourtService
     {
         var clubExists = await _clubRepository.ExistsAsync(x => x.Id == request.ClubId, cancellationToken);
         if (!clubExists)
-            throw new Exception("Club does not exist");
+            throw new Exception("Câu lạc bộ không tồn tại");
 
         var court = _mapper.Map<CourtEntity>(request);
         court.Created = DateTime.Now;
@@ -55,7 +56,7 @@ public class CourtService : ICourtService
         var createdCourt = await _courtRepository.Find(x => x.Id == court.Id)
             .ProjectTo<DtoCourtResponse>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken);
-        ArgumentNullException.ThrowIfNull(createdCourt, "Court not created");
+        ArgumentNullException.ThrowIfNull(createdCourt, "Có lỗi xảy ra khi tạo sân");
 
         return createdCourt;
     }
@@ -90,27 +91,16 @@ public class CourtService : ICourtService
 
     public bool MaintainCourt(Guid courtId)
     {
-        var staff = _userRepository.Get(x => x.Id.ToString() == _user.Id) ?? throw new Exception("Invalid Staff");
+        var staff = _userRepository.Get(x => x.Id.ToString() == _user.Id) ?? throw new Exception("Người dùng không tồn tại");
         var court = _courtRepository.GetAll().FirstOrDefault(c => c.Id == courtId);
-        try
-        {
-            if (court != null)
-            {
-                if (court.CourtStatus == CourtStatus.Available)
-                {
-                    court.CourtStatus = CourtStatus.Maintain;
-                    court.LastModified = DateTime.Now;
-                    court.LastModifiedBy = staff.UserName;
-                    _courtRepository.Update(court);
-                        return true;
-                }
-            }
-            throw new KeyNotFoundException();
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
+
+        if (court == null) throw new HttpException(404,$"Không tìm thấy sân {courtId}");
+        // if (court.CourtStatus != CourtStatus.Available) throw new HttpException(409, $"Không thể bảo trì sân này vì sân vẫn chưa được hoạt động");
+        court.CourtStatus = CourtStatus.Maintain;
+        court.LastModified = DateTime.Now;
+        court.LastModifiedBy = staff.UserName;
+        _courtRepository.Update(court);
+        return true;
     }
 
     public IQueryable<DtoCourtResponse> GetAllCourts()

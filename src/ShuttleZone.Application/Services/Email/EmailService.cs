@@ -35,7 +35,7 @@ namespace ShuttleZone.Application.Services.Email
         {
             var encodedToken = WebUtility.UrlEncode(token);
             var returnUrl = $"{_emailSettings.ReturnUrl}?userId={user.Id}&token={encodedToken}";
-            await SendEmailAsync(user.Email!, "Confirm Your Account Registration", EmailHelper.GetEmailTemplateForConfirmationEmail(returnUrl), true);
+            await SendEmailAsync(user.Email!, "Xác nhận đăng ký tài khoản của bạn", EmailHelper.GetEmailTemplateForConfirmationEmail(returnUrl), true);
         }
     }
 
@@ -113,18 +113,18 @@ namespace ShuttleZone.Application.Services.Email
                     <img src='https://vigig.blob.core.windows.net/shuttle-zone-minor/app-logofvPkrKVZJ2%25.png' alt='Logo'>
                 </div>
                 <div class='email-body'>
-                    <h2>Email Confirmation</h2>
+                    <h2>Email xác nhận</h2>
                     <p>
-                        Thank you for registering! Please click the button below to confirm your email address and complete your registration.
+                        Cảm ơn bạn đã đăng ký! Vui lòng nhấp vào nút bên dưới để xác nhận địa chỉ email của bạn và hoàn tất đăng ký.
                     </p>
                     <a href='";
 
             string part2 = confirmationLink;
 
-            string part3 = @"' class='email-button'>Confirm Email</a>
+            string part3 = @"' class='email-button'>Xác nhận</a>
                 </div>
                 <div class='email-footer'>
-                    <p>If you did not create an account, no further action is required.</p>
+                    <p>Nếu bạn không muốn tạo tài khoản thì không cần thực hiện thêm hành động nào.</p>
                     <p>&copy; 2024 ShuttleZone. All rights reserved.</p>
                 </div>
             </div>
