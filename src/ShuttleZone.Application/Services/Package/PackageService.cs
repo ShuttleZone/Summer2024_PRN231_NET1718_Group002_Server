@@ -122,10 +122,13 @@ public class PackageService : IPackageService
 
     public List<UserPackageResponseDto> GetUserPackageHistory(Guid userId)
     {
-        var package = _unitOfWork.PackageRepository
+        var package = _unitOfWork.PackageUserRepository
             .GetAll()
-            .Include(p => p.PackageUser)
+            .Where(pc => pc.UserId == userId)
+            .Include(pc => pc.Package)
+            .OrderByDescending(p => p.StartDate)
             .ToList();
+            
         var dto = _mapper.Map<List<UserPackageResponseDto>>(package);
 
         return dto;
@@ -177,5 +180,24 @@ public class PackageService : IPackageService
         await _unitOfWork.CompleteAsync();
 
         return true;
+    }
+
+    public async Task<bool> UnSubPackageManager(Guid userId)
+    {
+        var packageUser = _unitOfWork.PackageUserRepository
+            .Find(c => c.UserId == userId
+                       && c.PackageUserStatus ==
+                       PackageUserStatus.VALID
+            ).FirstOrDefault();
+
+        if (packageUser != null)
+        {
+            packageUser.PackageUserStatus = PackageUserStatus.CANCELLED;
+            _unitOfWork.PackageUserRepository.Update(packageUser!);
+            await _unitOfWork.CompleteAsync();
+            return true;
+        }
+           
+        return false;
     }
 }

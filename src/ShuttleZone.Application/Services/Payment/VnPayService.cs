@@ -204,6 +204,14 @@ namespace ShuttleZone.Application.Services.Payment
                         var user = await _unitOfWork.UserRepository.Find(u => u.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("Invalid user");
                         var package = _unitOfWork.PackageRepository.Find(c => c.Id == orderId).FirstOrDefault()
                             ?? throw new HttpException(400, $"Package with id {orderId} is not existed");
+                        var packageCheck = await _unitOfWork.PackageUserRepository
+                            .ExistsAsync(p => p.UserId == new Guid(_user.Id!)
+                                              && p.PackageUserStatus == PackageUserStatus.VALID
+                                              || p.EndDate < DateTime.Now);
+                        if (packageCheck) throw new ArgumentException("Hiện tại người dùng đã đăng kí gói. Hãy huỷ gói hiện tại để sử dụng gói khác");
+
+                        await _unitOfWork.TransactionRepository.AddAsync(transaction);
+                        await _unitOfWork.CompleteAsync();
                         var packageUser = new PackageUser
                         {
                             Id = new Guid(),
@@ -215,9 +223,12 @@ namespace ShuttleZone.Application.Services.Payment
                             : package.PackageType == PackageType.YEAR ? DateTime.Now.AddYears(1)
                             : DateTime.Now.AddYears(100000)
                         };
+                       
+                        await _unitOfWork.PackageUserRepository.AddAsync(packageUser);
+                        
                     }
                 }
-                _unitOfWork.TransactionRepository.Add(transaction);
+                // _unitOfWork.TransactionRepository.Add(transaction);
                 var isSuccess = await _unitOfWork.CompleteAsync();
             }
 

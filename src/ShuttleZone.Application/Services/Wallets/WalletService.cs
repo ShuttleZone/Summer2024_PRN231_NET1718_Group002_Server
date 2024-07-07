@@ -111,6 +111,14 @@ namespace ShuttleZone.Application.Services.Wallets
             {
                 var packageId = new Guid(request.OrderInfo ?? throw new Exception("Invalid package"));
                 var package = await _unitOfWork.PackageRepository.GetAsync(p => p.Id == packageId) ?? throw new Exception("Invalid package");
+                
+                var packageCheck = await _unitOfWork.PackageUserRepository
+                    .ExistsAsync(p => p.UserId == new Guid(_user.Id!)
+                                      && p.PackageUserStatus == PackageUserStatus.VALID);
+                if (packageCheck) throw new ArgumentException("Hiện tại người dùng đã đăng kí gói. Hãy huỷ gói hiện tại để sử dụng gói khác");
+                
+                await _unitOfWork.TransactionRepository.AddAsync(transaction);
+                await _unitOfWork.CompleteAsync();
                 var packageUser = new PackageUser
                 {
                     Id = new Guid(),
@@ -122,6 +130,11 @@ namespace ShuttleZone.Application.Services.Wallets
                     : package.PackageType == PackageType.YEAR ? DateTime.Now.AddYears(1)
                     : DateTime.Now.AddYears(100000)
                 };
+                
+             
+
+                await _unitOfWork.PackageUserRepository.AddAsync(packageUser);
+
             }
 
             wallet.Transactions.Add(transaction);
