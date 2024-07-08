@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
-using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.Services.File;
 using ShuttleZone.Application.Services.ShuttleZoneUser;
 using ShuttleZone.Domain.WebRequests.ShuttleZoneUser;
+using SystemRole = ShuttleZone.Domain.Constants.SystemRole;
 
 namespace ShuttleZone.Api.Controllers;
 
@@ -45,6 +45,13 @@ public class UsersController : BaseApiController
     public IActionResult Test(IFormFile file)
     {
         return HandleResult(async () => await _fileService.UploadSingleFileAsync(file));
+    }
+    
+    [Authorize(Roles = SystemRole.Staff)]
+    [HttpGet("/api/users-booking")]
+    public IActionResult GetUsersForBooking()
+    {
+        return HandleResult(() => _userService.GetUsersForBooking());
     }
 
     // [HttpPut("/api/assign-staff")]
