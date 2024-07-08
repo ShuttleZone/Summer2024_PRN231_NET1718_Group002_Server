@@ -12,7 +12,7 @@ public class ReservationConfiguration : IEntityTypeConfiguration<Reservation>
         builder.HasOne(r => r.Customer)
             .WithMany(r => r.Reservations)
             .HasForeignKey(r => r.CustomerId)
-            .IsRequired();
+            .IsRequired(false);
         // builder.HasData(
         //     new Reservation
         //     {
