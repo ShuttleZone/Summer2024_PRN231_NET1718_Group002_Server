@@ -57,17 +57,18 @@ namespace ShuttleZone.Application.Services.Wallets
             {
                 var reservationId = new Guid(request.OrderInfo ?? throw new Exception("Đơn đặt sân không tồn tại"));
                 var reservation = _unitOfWork.ReservationRepository.Find(r => r.Id == reservationId)
-                    .Include(r => r.ReservationDetails).FirstOrDefault();
+                    .Include(r => r.ReservationDetails).FirstOrDefault() ?? throw new Exception("Đơn đặt sân không tồn tại");
 
-                if (reservation != null)
+                if (reservation.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED)
+                    throw new HttpException(400, "Đơn đặt chỗ đã được thanh toán");
+
+
+                foreach (var detail in reservation.ReservationDetails)
                 {
-                    foreach (var detail in reservation.ReservationDetails)
-                    {
-                        detail.ReservationDetailStatus = ReservationStatusEnum.PAYSUCCEED;
-                    }
-
-                    reservation.ReservationStatusEnum = ReservationStatusEnum.PAYSUCCEED;
+                    detail.ReservationDetailStatus = ReservationStatusEnum.PAYSUCCEED;
                 }
+
+                reservation.ReservationStatusEnum = ReservationStatusEnum.PAYSUCCEED;
 
             }
             else if (request.OrderType.Equals(VnPayConstansts.ORDER_TYPE_JOIN_CONTEST, StringComparison.OrdinalIgnoreCase))
@@ -77,7 +78,7 @@ namespace ShuttleZone.Application.Services.Wallets
                 var contest = _unitOfWork.ContestRepository.Find(c => c.Id == contestId).Include(c => c.UserContests)
                     .Include(c => c.Reservation)
                     .FirstOrDefault()
-            ?? throw new HttpException(400, $"Cuộc thi với id {contestId} không tồn tại");
+            ?? throw new HttpException(400, $"Cuộc thi với không tồn tại");
 
                 var reservationStartTime = _unitOfWork.ReservationRepository
                                          .Find(r => r.Id == contest.Reservation!.Id)
@@ -86,10 +87,10 @@ namespace ShuttleZone.Application.Services.Wallets
                                          .Min();
 
                 if (reservationStartTime < DateTime.Now)
-                    throw new HttpException(400, $"Cuộc thi với id {contestId} đã bắt đầu");
+                    throw new HttpException(400, $"Cuộc thi với đã bắt đầu");
 
                 if (contest.ContestStatus == ContestStatusEnum.Closed)
-                    throw new HttpException(400, $"Cuộc thi với id {contestId} đã đóng");
+                    throw new HttpException(400, $"Cuộc thi với đã đóng");
 
                 var isJoined = contest.UserContests.Exists(c => c.ParticipantsId == user.Id);
                 if (isJoined)
@@ -109,13 +110,13 @@ namespace ShuttleZone.Application.Services.Wallets
             }
             else if (request.OrderType.Equals(VnPayConstansts.ORDER_TYPE_PACKAGE, StringComparison.OrdinalIgnoreCase))
             {
-              var packageId = new Guid(request.OrderInfo ?? throw new Exception("Gói không tồn tại"));
+                var packageId = new Guid(request.OrderInfo ?? throw new Exception("Gói không tồn tại"));
                 var package = await _unitOfWork.PackageRepository.GetAsync(p => p.Id == packageId) ?? throw new Exception("Gói không tồn tại");
                 var packageCheck = await _unitOfWork.PackageUserRepository
                     .ExistsAsync(p => p.UserId == new Guid(_user.Id!)
                                       && p.PackageUserStatus == PackageUserStatus.VALID);
                 if (packageCheck) throw new ArgumentException("Hiện tại người dùng đã đăng kí gói. Hãy huỷ gói hiện tại để sử dụng gói khác");
-                
+
                 await _unitOfWork.TransactionRepository.AddAsync(transaction);
                 await _unitOfWork.CompleteAsync();
 
@@ -130,16 +131,12 @@ namespace ShuttleZone.Application.Services.Wallets
                     : package.PackageType == PackageType.YEAR ? DateTime.Now.AddYears(1)
                     : DateTime.Now.AddYears(100000)
                 };
-                
-             
 
                 await _unitOfWork.PackageUserRepository.AddAsync(packageUser);
-
             }
 
             wallet.Transactions.Add(transaction);
             await _unitOfWork.CompleteAsync();
-
         }
     }
 }

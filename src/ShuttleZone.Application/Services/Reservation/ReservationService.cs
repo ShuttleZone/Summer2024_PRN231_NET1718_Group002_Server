@@ -183,7 +183,7 @@ namespace ShuttleZone.Application.Services.Reservation
                     var courtExisted = _unitOfWork.CourtRepository.Exists(c => c.Id == detail.CourtId);
                     if (!courtExisted)
                     {
-                        throw new InvalidOperationException($"Sân {detail.CourtId} không tồn tại.");
+                        throw new InvalidOperationException($"Sân không tồn tại.");
                     }
 
                     var clubEntity = _unitOfWork.CourtRepository.Find(c => c.Id == detail.CourtId)
@@ -204,7 +204,7 @@ namespace ShuttleZone.Application.Services.Reservation
                     var hasOverlap = HasOverlappingReservation(detail.CourtId, detail.StartTime, detail.EndTime);
                     if (hasOverlap)
                     {
-                        throw new InvalidOperationException($"Sân {detail.CourtId} đã được đặt trước.");
+                        throw new InvalidOperationException($"Sân đã được đặt trước.");
                     }
                 }
             }
