@@ -60,12 +60,12 @@ public class AccountController : BaseApiController
 
             if (existingUserByEmail != null)
             {
-                return StatusCode(500, $"User with email: {existingUserByEmail.Email} already exists!");
+                return StatusCode(500, $"Người dùng với email: {existingUserByEmail.Email} đã tồn tại!");
             }
 
             if (existingUserByUsername != null)
             {
-                return StatusCode(500, $"User with username: {existingUserByUsername.UserName} already exists!");
+                return StatusCode(500, $"Người dùng với tài khoản: {existingUserByUsername.UserName} đã tồn tại!");
             }
 
             var appUser = new User
@@ -143,12 +143,12 @@ public class AccountController : BaseApiController
 
             if (existingUserByEmail != null)
             {
-                return StatusCode(500, $"User with email: {existingUserByEmail.Email} already exists!");
+                return StatusCode(500, $"Người dùng với email: {existingUserByEmail.Email} đã tồn tại!");
             }
 
             if (existingUserByUsername != null)
             {
-                return StatusCode(500, $"User with username: {existingUserByUsername.UserName} already exists!");
+                return StatusCode(500, $"Người dùng với tài khoản: {existingUserByUsername.UserName} đã tồn tại!");
             }
 
             var appUser = new User
@@ -226,12 +226,12 @@ public class AccountController : BaseApiController
 
             if (existingUserByEmail != null)
             {
-                return StatusCode(500, $"User with email: {existingUserByEmail.Email} already exists!");
+                return StatusCode(500, $"Người dùng với email: {existingUserByEmail.Email} đã tồn tại!");
             }
 
             if (existingUserByUsername != null)
             {
-                return StatusCode(500, $"User with username: {existingUserByUsername.UserName} already exists!");
+                return StatusCode(500, $"Người dùng với tài khoản: {existingUserByUsername.UserName} đã tồn tại!");
             }
 
             var appUser = new User
@@ -297,10 +297,10 @@ public class AccountController : BaseApiController
     {
         var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Account!.ToLower() || u.UserName == loginDto.Account.ToLower());
         if (user == null)
-            return StatusCode(400, "User with account: " + loginDto.Account + " is not found!");
+            return StatusCode(400, "Người dùng với tài khoản: " + loginDto.Account + " không tồn tại!");
         var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
         if (!result.Succeeded)
-            return Unauthorized("Wrong password !");
+            return Unauthorized("Sai mật khẩu! Xin hãy thử lại");
 
         var refreshToken = _tokenService.CreateRefreshToken();
         user.RefreshToken = refreshToken;
