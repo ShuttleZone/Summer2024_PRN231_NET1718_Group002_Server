@@ -158,6 +158,9 @@ public class AccountService : IAccountService
                     throw new HttpException(404, "Người dùng không tồn tại!");
         var club = owner.Clubs.FirstOrDefault(x => x.Id == request.ClubId) ??
                    throw new HttpException(404, $"Người dùng không có quyền thêm nhân viên vào câu lạc bộ {request.ClubId}");
+        var isExistAccount = (await _userRepository.GetAllAsync()).Any(x => x.Email == request.Email);
+        if (isExistAccount)
+            throw new HttpException(400, $"Tài khoản với email {request.Email} đã tồn tại.");
         var staff = new User
         {
             UserName = request.UserName,
