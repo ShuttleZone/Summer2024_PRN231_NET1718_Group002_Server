@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Application.Common.Interfaces;
@@ -6,6 +8,7 @@ using ShuttleZone.Application.Services.File;
 using ShuttleZone.Common.Attributes;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.DAL.DependencyInjection.Repositories.User;
+using ShuttleZone.Domain.Constants;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests.ShuttleZoneUser;
 using ShuttleZone.Domain.WebResponses.ShuttleZoneUser;
@@ -20,8 +23,9 @@ public class UserService : IUserService
     private readonly UserManager<User> _userManager;
     private readonly IFileService _fileService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public UserService(IUser user, IUserRepository userRepository, IUnitOfWork unitOfWork, SignInManager<User> signInManager, UserManager<User> userManager, IFileService fileService)
+    public UserService(IUser user, IUserRepository userRepository, IUnitOfWork unitOfWork, SignInManager<User> signInManager, UserManager<User> userManager, IFileService fileService, IMapper mapper)
     {
         _user = user;
         _userRepository = userRepository;
@@ -29,6 +33,7 @@ public class UserService : IUserService
         _signInManager = signInManager;
         _userManager = userManager;
         _fileService = fileService;
+        _mapper = mapper;
     }
     
     public DtoUserProfile GetUserProfileInformation()
@@ -82,5 +87,17 @@ public class UserService : IUserService
         user.ProfilePic = imageUrl;
         _userRepository.Update(user);
         await _unitOfWork.CompleteAsync();
+    }
+
+    public IQueryable<DtoUserProfile> GetUsersForBooking()
+    {
+        var queryableUsers = _userRepository.GetAllAsNoTracking()
+            .Where(u =>
+                u.EmailConfirmed
+                && u.Roles.Select(ur => ur.Role != null ? ur.Role.NormalizedName : "")
+                    .Contains(SystemRole.Staff.ToUpper())
+            );
+        
+        return queryableUsers .ProjectTo<DtoUserProfile>(_mapper.ConfigurationProvider);
     }
 }

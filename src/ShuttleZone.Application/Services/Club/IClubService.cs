@@ -1,6 +1,4 @@
-
 using ShuttleZone.Domain.WebRequests.Club;
-using ShuttleZone.Domain.WebRequests.ShuttleZoneUser;
 using ShuttleZone.Domain.WebResponses;
 using ShuttleZone.Domain.WebResponses.Club;
 
@@ -35,4 +33,10 @@ public interface IClubService
 
     Task<DtoClubResponse> AddClubAsync(CreateClubRequest request);
     IQueryable<DtoClubStaff> GetMyStaff();
+
+    /// <summary>
+    /// Gets a club that the user is working at as a staff.
+    /// </summary>
+    /// <returns>A <see cref="DtoClubResponse"/>.</returns>
+    Task<DtoClubResponse> GetMyWorkingClubAsync();
 }

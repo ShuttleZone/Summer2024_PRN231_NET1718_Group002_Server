@@ -119,4 +119,14 @@ public class ClubsController : BaseApiController
     {
         return HandleResult(() =>  _clubService.GetMyStaff());
     }
+
+    [Authorize(Roles = SystemRole.Staff)]
+    [HttpGet("/api/clubs/staff/club")]
+    [EnableQuery]
+    public async Task<IActionResult> GetMyWorkingClub()   
+    {
+        return await HandleResultAsync(
+            async () =>  await _clubService.GetMyWorkingClubAsync().ConfigureAwait(false)
+        ).ConfigureAwait(false);
+    }
 }

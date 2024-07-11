@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
@@ -181,5 +180,30 @@ public class ClubService : IClubService
             return false;
         return user.PackageUsers.Any(userPackageUser => userPackageUser.EndDate >= DateTime.Now);
     }
-    
+
+    public async Task<DtoClubResponse> GetMyWorkingClubAsync()
+    {
+        var userId = _currentUser.Id;
+        HttpException.New()
+            .WithStatusCode(401)
+            .WithErrorMessage("Bạn không có quyền truy cập.")
+            .ThrowIfNull(userId)
+            .ThrowIf(!Guid.TryParse(userId, out var userIdAsGuid));
+        
+        var club = await _clubRepository
+            .FindAsNoTracking(
+                x => x.Staffs
+                    .Select(staff => staff.Id)
+                    .Contains(userIdAsGuid)
+            )
+            .ProjectTo<DtoClubResponse>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
+        HttpException.New()
+            .WithStatusCode(404)
+            .WithErrorMessage("Không tìm thấy câu lạc bộ.")
+            .ThrowIfNull(club);
+
+        return club;
+    }
 }
