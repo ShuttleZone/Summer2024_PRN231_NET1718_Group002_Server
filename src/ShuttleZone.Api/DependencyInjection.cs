@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Hangfire;
 using Microsoft.AspNetCore.OData;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
@@ -317,5 +318,18 @@ public static class DependencyInjection
         {
             writer.WriteStringValue(value.ToString(TimeFormat));
         }
+    }
+
+    public static IServiceCollection AddHangfire(this IServiceCollection services, IConfiguration configuration)
+    {
+        //client
+        services.AddHangfire(opt => opt.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(configuration.GetConnectionString("HangfireConnection")));
+        
+        // server 
+        services.AddHangfireServer();
+        return services;
     }
 }
