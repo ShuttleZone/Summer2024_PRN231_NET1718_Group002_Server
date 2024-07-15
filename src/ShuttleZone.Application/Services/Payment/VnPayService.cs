@@ -14,6 +14,10 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
+using ShuttleZone.Domain.WebRequests.Notifications;
+using ShuttleZone.Domain.WebResponses.Notifications;
+using ShuttleZone.Application.Services.Notifications;
+using AutoMapper;
 
 namespace ShuttleZone.Application.Services.Payment
 {
@@ -24,14 +28,18 @@ namespace ShuttleZone.Application.Services.Payment
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IUser _user;
+        private readonly INotificationHubService _notificationHubService;
+        private readonly IMapper _mapper;
 
         public VnPayService(VNPaySettings vnPaySettings, IUnitOfWork unitOfWork,
-            IHttpClientFactory httpClientFactory, IUser user)
+            IHttpClientFactory httpClientFactory, IUser user, INotificationHubService notificationHubService, IMapper mapper)
         {
             _vnPaySettings = vnPaySettings;
             _unitOfWork = unitOfWork;
             _httpClientFactory = httpClientFactory;
             _user = user;
+            _notificationHubService = notificationHubService;
+            _mapper = mapper;
         }
 
         public string CreatePaymentUrl(HttpContext context, VnPayRequest vnPayRequest)
@@ -161,12 +169,40 @@ namespace ShuttleZone.Application.Services.Payment
 
                         if (reservation != null)
                         {
-                            foreach (var detail in reservation.ReservationDetails)
+                            //customer open two tab which are both VnPay and Wallet, customer pay by Wallet first, the paymentLink by VnPay (VnPay tab) is still valid
+                            if (reservation.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED)
                             {
-                                detail.ReservationDetailStatus = isPaySucceed ? ReservationStatusEnum.PAYSUCCEED : ReservationStatusEnum.PAYFAIL;
+                                //refund to wallet
+                                _unitOfWork.WalletRepository.UpdateWalletBalanceByUserId(reservation.CustomerId ?? Guid.Empty, reservation.TotalPrice);
+                                var transactionRefund = new Domain.Entities.Transaction()
+                                {
+                                    Id = new Guid(),
+                                    PaymentMethod = PaymentMethod.WALLET,
+                                    Amount = reservation.TotalPrice,
+                                    TransactionStatus = TransactionStatusEnum.SUCCESS,
+                                };
+                                var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == reservation.CustomerId) ?? throw new HttpException(400, "Ví không hợp lệ");
+                                wallet.Transactions.Add(transaction);
+                                var notificationRequest = new NotificationRequest
+                                {
+                                    UserId = reservation.CustomerId ?? throw new HttpException(400, "Người dùng không hợp lệ"),
+                                    Description = $"Bạn đã thanh toán cho đặt chỗ hai lần bằng cả Ví và ngân hàng. " +
+                                    $"Chúng tôi đã hoàn lại {reservation.TotalPrice} VND vào ví của bạn",
+                                };
+                                var notification = _notificationHubService.CreateNotification(notificationRequest);
+                                await _unitOfWork.NotificationRepository.AddAsync(notification);
+                                await _notificationHubService.SendNotificationAsync((Guid)reservation.CustomerId, _mapper.Map<NotificationResponse>(notification));
                             }
+                            else
+                            {
 
-                            reservation.ReservationStatusEnum = isPaySucceed ? ReservationStatusEnum.PAYSUCCEED : ReservationStatusEnum.PAYFAIL;
+                                foreach (var detail in reservation.ReservationDetails)
+                                {
+                                    detail.ReservationDetailStatus = isPaySucceed ? ReservationStatusEnum.PAYSUCCEED : ReservationStatusEnum.PAYFAIL;
+                                }
+
+                                reservation.ReservationStatusEnum = isPaySucceed ? ReservationStatusEnum.PAYSUCCEED : ReservationStatusEnum.PAYFAIL;
+                            }
                         }
                         _unitOfWork.TransactionRepository.Add(transaction);
 
@@ -220,12 +256,12 @@ namespace ShuttleZone.Application.Services.Payment
                             : package.PackageType == PackageType.YEAR ? DateTime.Now.AddYears(1)
                             : DateTime.Now.AddYears(100000)
                         };
-                       
+
                         await _unitOfWork.PackageUserRepository.AddAsync(packageUser);
-                        
+
                     }
                 }
-                // _unitOfWork.TransactionRepository.Add(transaction);
+                 _unitOfWork.TransactionRepository.Add(transaction);
                 var isSuccess = await _unitOfWork.CompleteAsync();
             }
 
@@ -274,7 +310,7 @@ namespace ShuttleZone.Application.Services.Payment
         {
 
             var transaction = _unitOfWork.TransactionRepository.Get(t => t.ReservationId == reservationId)
-                ?? throw new HttpException(400, "Giao dịch không tồn tại"); 
+                ?? throw new HttpException(400, "Giao dịch không tồn tại");
 
             var refundRequest = new VnPayRefundRequest()
             {
