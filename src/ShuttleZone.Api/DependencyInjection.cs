@@ -326,7 +326,8 @@ public static class DependencyInjection
         services.AddHangfire(opt => opt.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
             .UseSimpleAssemblyNameTypeSerializer()
             .UseRecommendedSerializerSettings()
-            .UseSqlServerStorage("Server=(local);uid=sa;pwd=@dmin123;Database=ShuttleZone_BackgroundJob;Trusted_Connection=false;TrustServerCertificate=True"));
+            .UseSqlServerStorage(configuration.GetConnectionString("HangfireConnection")));
+            // .UseSqlServerStorage("Server=(local);uid=sa;pwd=@dmin123;Database=ShuttleZone_BackgroundJob;Trusted_Connection=false;TrustServerCertificate=True"));
         
         // server 
         services.AddHangfireServer();
