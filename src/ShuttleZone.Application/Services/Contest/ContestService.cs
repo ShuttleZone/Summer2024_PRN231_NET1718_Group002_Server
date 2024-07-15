@@ -200,6 +200,31 @@ public class ContestService(
         return contestsResponse;
     }
 
+    public IQueryable<DtoContestResponse> GetMyClubContestsStaff(Guid clubId)
+    {
+        HttpException.New()
+            .WithStatusCode(401)
+            .WithErrorMessage("Bạn cần đăng nhập để thực hiện chức năng này.")
+            .ThrowIfNull(_currentUser.Id)
+            .ThrowIf(!Guid.TryParse(_currentUser.Id, out var userIdAsGuid))
+            .WithStatusCode(403)
+            .WithErrorMessage("Bạn không có quyền truy cập chức năng này.")
+            .ThrowIf(_currentUser.Role != ShuttleZone.Domain.Constants.SystemRole.Staff);
+
+        var contestsResponse = _unitOfWork.ClubRepository
+            .FindAsNoTracking(c => c.Id == clubId)
+            .SelectMany(c => c.Courts)
+            .SelectMany(c => c.ReservationDetails)
+            .Where(r => r.Reservation != null)
+            .Select(r => r.Reservation)
+            .Where(r => r.Contest != null)
+            .Select(r => r.Contest)
+            .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider)
+            .AsSplitQuery();
+
+        return contestsResponse;
+    }
+
     public async Task JoinContest(Guid contestId, Guid userId)
     {
         var contest = _unitOfWork.ContestRepository.Find(c => c.Id == contestId).Include(c => c.UserContests).FirstOrDefault()
