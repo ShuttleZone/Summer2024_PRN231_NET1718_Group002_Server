@@ -10,6 +10,7 @@ using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Account;
 using ShuttleZone.Application.Services.Email;
 using ShuttleZone.Application.Services.Token;
+using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Domain.Constants;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests;
@@ -27,12 +28,14 @@ public class AccountController : BaseApiController
     private readonly SignInManager<User> _signInManager;
     private readonly IConfiguration _configuration;
     private readonly IEmailService _emailService;
+    private readonly IUnitOfWork _unitOfWork;
 
     public AccountController(IAccountService accountService,
         UserManager<User> userManager,
         ITokenService tokenService,
         SignInManager<User> signInManager,
         IEmailService emailService,
+        IUnitOfWork unitOfWork,
         IConfiguration configuration)
     {
         _accountService = accountService;
@@ -40,6 +43,7 @@ public class AccountController : BaseApiController
         _tokenService = tokenService;
         _signInManager = signInManager;
         _configuration = configuration;
+        _unitOfWork = unitOfWork;
         _emailService = emailService;
     }
 
@@ -60,12 +64,12 @@ public class AccountController : BaseApiController
 
             if (existingUserByEmail != null)
             {
-                return StatusCode(500, $"User with email: {existingUserByEmail.Email} already exists!");
+                return StatusCode(500, $"Người dùng với email: {existingUserByEmail.Email} đã tồn tại!");
             }
 
             if (existingUserByUsername != null)
             {
-                return StatusCode(500, $"User with username: {existingUserByUsername.UserName} already exists!");
+                return StatusCode(500, $"Người dùng với tài khoản: {existingUserByUsername.UserName} đã tồn tại!");
             }
 
             var appUser = new User
@@ -143,12 +147,12 @@ public class AccountController : BaseApiController
 
             if (existingUserByEmail != null)
             {
-                return StatusCode(500, $"User with email: {existingUserByEmail.Email} already exists!");
+                return StatusCode(500, $"Người dùng với email: {existingUserByEmail.Email} đã tồn tại!");
             }
 
             if (existingUserByUsername != null)
             {
-                return StatusCode(500, $"User with username: {existingUserByUsername.UserName} already exists!");
+                return StatusCode(500, $"Người dùng với tài khoản: {existingUserByUsername.UserName} đã tồn tại!");
             }
 
             var appUser = new User
@@ -226,12 +230,12 @@ public class AccountController : BaseApiController
 
             if (existingUserByEmail != null)
             {
-                return StatusCode(500, $"User with email: {existingUserByEmail.Email} already exists!");
+                return StatusCode(500, $"Người dùng với email: {existingUserByEmail.Email} đã tồn tại!");
             }
 
             if (existingUserByUsername != null)
             {
-                return StatusCode(500, $"User with username: {existingUserByUsername.UserName} already exists!");
+                return StatusCode(500, $"Người dùng với tài khoản: {existingUserByUsername.UserName} đã tồn tại!");
             }
 
             var appUser = new User
@@ -297,10 +301,10 @@ public class AccountController : BaseApiController
     {
         var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Account!.ToLower() || u.UserName == loginDto.Account.ToLower());
         if (user == null)
-            return StatusCode(400, "User with account: " + loginDto.Account + " is not found!");
+            return StatusCode(400, "Người dùng với tài khoản: " + loginDto.Account + " không tồn tại!");
         var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
         if (!result.Succeeded)
-            return Unauthorized("Wrong password !");
+            return Unauthorized("Sai mật khẩu! Xin hãy thử lại");
 
         var refreshToken = _tokenService.CreateRefreshToken();
         user.RefreshToken = refreshToken;
@@ -340,13 +344,18 @@ public class AccountController : BaseApiController
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody] RefreshModel refreshModel)
     {
-        var principal = GetPrincipalFromExpiredToken(refreshModel.AccessToken);
-        if (principal?.Identity!.Name is null)
+        User user = null;
+        if (string.IsNullOrEmpty(refreshModel.RefreshToken))
         {
-            return Unauthorized();
-        }
+            var principal = GetPrincipalFromExpiredToken(refreshModel.RefreshToken);
+            if (principal?.Identity!.Name is null)
+            {
+                return Unauthorized();
+            }
+           user = await _userManager.FindByNameAsync(principal.Identity.Name);
 
-        var user = await _userManager.FindByNameAsync(principal.Identity.Name);
+        }
+        user = GetUserFromRefreshToken(refreshModel.RefreshToken);
 
         if (user is null || user.RefreshToken != refreshModel.RefreshToken ||
             user.RefreshTokenExpiryTime < DateTime.UtcNow)
@@ -363,6 +372,7 @@ public class AccountController : BaseApiController
         };
         return Ok(loginAcc.Token);
     }
+    
 
     [HttpDelete("revoke")]
     public async Task<IActionResult> Revoke()
@@ -394,5 +404,11 @@ public class AccountController : BaseApiController
 
         return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
     }
+    private User GetUserFromRefreshToken(string? token)
+    {
+        var user = _unitOfWork.UserRepository.Get(u => u.RefreshToken.Equals(token));
+        return user;
+    }
+    
 
 }

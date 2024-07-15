@@ -37,7 +37,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role,
         base.OnConfiguring(optionsBuilder);
         optionsBuilder.UseSqlServer(DataAccessHelper.GetConnectionString());
 
-        // optionsBuilder.UseSqlServer("Server=localhost;Database=ShuttleZone;Trusted_Connection=false;user=sa;pwd=@dmin123;TrustServerCertificate=True");
+        //optionsBuilder.UseSqlServer("Server=localhost;Database=ShuttleZone;Trusted_Connection=false;user=sa;pwd=@dmin123;TrustServerCertificate=True");
 
         if (ApplicationEnvironment.IsDevelopment())
             optionsBuilder.EnableSensitiveDataLogging()

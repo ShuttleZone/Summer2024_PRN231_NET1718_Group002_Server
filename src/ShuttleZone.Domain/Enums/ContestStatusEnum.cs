@@ -5,6 +5,4 @@ public enum ContestStatusEnum
     Open,
     InProgress,
     Closed,
-    
-    
 }

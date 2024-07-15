@@ -12,6 +12,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageVersion>
+    <PackageVersion Include="Hangfire.Core" Version="1.7.34" />
+    <PackageVersion Include="Hangfire.Dashboard.Basic.Authentication" Version="7.0.1" />
+    <PackageVersion Include="Hangfire.SqlServer" Version="1.7.34" />  
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.5" />

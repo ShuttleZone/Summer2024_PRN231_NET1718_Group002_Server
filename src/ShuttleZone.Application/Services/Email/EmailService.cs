@@ -30,15 +30,30 @@ namespace ShuttleZone.Application.Services.Email
             await client.SendMailAsync(mailMessage);
         }
 
+        public async Task SendExpirationPackageEmail(ExpirationAnnouncementEmailObject emailObject)
+        {
+            await SendEmailAsync(emailObject.UserEmail, "Thông báo gói đăng kí sắp hết hạn", EmailHelper.GetEmailTemplateForExpirationAnnouncement(emailObject), true);
+        }
+
         public async Task SendEmailConfirmationAsync(User user, string token = "")
         {
             var encodedToken = WebUtility.UrlEncode(token);
             var returnUrl = $"{_emailSettings.ReturnUrl}?userId={user.Id}&token={encodedToken}";
             await SendEmailAsync(user.Email!, "Xác nhận đăng ký tài khoản của bạn", EmailHelper.GetEmailTemplateForConfirmationEmail(returnUrl), true);
         }
+        
+    }
+    public record ExpirationAnnouncementEmailObject()
+    {
+        public required string UserEmail { get; set; }
+        public required string RenewPackageUrl { get; set; } 
+        public required string CustomerName { get; set; } 
+        public required string PackageName { get; set; } 
+        public required string ExpirationDay { get; set; } 
+        public int RemainingDays { get; set; }
     }
 
-    public static class EmailHelper
+    public abstract class EmailHelper
     {
         public static string GetEmailTemplateForConfirmationEmail(string confirmationLink)
         {
@@ -133,6 +148,100 @@ namespace ShuttleZone.Application.Services.Email
             // Combine the parts
             return part1 + part2 + part3;
 
+        }
+
+        public static string GetEmailTemplateForExpirationAnnouncement(ExpirationAnnouncementEmailObject emailObject)
+        {
+            var head = @"<!DOCTYPE html>
+                        <html lang=""en"">
+                        <head>
+                            <meta charset=""UTF-8"">
+                            <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                            <title>Package Expiration Announcement</title>
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    background-color: #f4f4f4;
+                                    margin: 0;
+                                    padding: 0;
+                                    color: #333;
+                                }
+                                .container {
+                                    width: 100%;
+                                    max-width: 600px;
+                                    margin: 0 auto;
+                                    background-color: #fff;
+                                    padding: 20px;
+                                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                                }
+                                .header {
+                                    background-color: #007BFF;
+                                    color: #fff;
+                                    padding: 10px 0;
+                                    text-align: center;
+                                }
+                                .header h1 {
+                                    margin: 0;
+                                    font-size: 24px;
+                                }
+                                .content {
+                                    padding: 20px;
+                                }
+                                .content h2 {
+                                    color: #007BFF;
+                                    font-size: 20px;
+                                    margin-top: 0;
+                                }
+                                .content p {
+                                    line-height: 1.6;
+                                }
+                                .button-container {
+                                    text-align: center;
+                                    margin: 20px 0;
+                                }
+                                .button {
+                                    background-color: #007BFF;
+                                    color: #fff;
+                                    padding: 10px 20px;
+                                    text-decoration: none;
+                                    border-radius: 5px;
+                                }
+                                .button:hover {
+                                    background-color: #0056b3;
+                                }
+                                .footer {
+                                    text-align: center;
+                                    font-size: 12px;
+                                    color: #666;
+                                    margin-top: 20px;
+                                }
+                            </style>
+                        </head>";
+            var body = @$"
+                                <body>
+                    <div class=""container"">
+                        <div class=""header"">
+                            <h1>Package Expiration Notice</h1>
+                        </div>
+                        <div class=""content"">
+                            <h2>Dear {emailObject.CustomerName},</h2>
+                            <p>We hope this message finds you well. This is a reminder that your package with the following details is about to expire:</p>
+                            <p><strong>Package Name:</strong> {emailObject.PackageName}</p>
+                            <p><strong>Expiration Date:</strong> {emailObject.ExpirationDay}</p>
+                            <p>To ensure uninterrupted service, we recommend renewing your package before the expiration date. If you have any questions or need assistance with the renewal process, please do not hesitate to contact our support team.</p>
+                            {((emailObject.RemainingDays == 0) ? $" <div class=\"button-container\">\n<a href=\"{emailObject.RenewPackageUrl}\" class=\"button\">Renew Now</a>\n</div>" : "")}
+                            <p>Thank you for choosing our service. We look forward to continuing to serve you.</p>
+                            <p>Sincerely,</p>
+                            <p>ShuttleZone</p>
+                        </div>
+                        <div class=""footer"">
+                            <p>&copy; 2024 ShuttleZone. All rights reserved.</p>
+                        </div>
+                    </div>
+                    </body>
+                    </html>
+            ";
+            return head + body;
         }
     }
 }

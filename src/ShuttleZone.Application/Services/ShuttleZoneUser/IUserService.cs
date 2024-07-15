@@ -9,4 +9,5 @@ public interface IUserService
     DtoUserProfile GetUserProfileInformation();
     void UpdateUserProfile(UpdateProfileRequest request);
     Task UploadNewAvatar(IFormFile file);
+    IQueryable<DtoUserProfile> GetUsersForBooking();
 }

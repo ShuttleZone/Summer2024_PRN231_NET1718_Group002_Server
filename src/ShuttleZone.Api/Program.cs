@@ -1,3 +1,5 @@
+using Hangfire;
+using ShuttleZone.Api.DependencyInjection.BackgroundUtils;
 using ShuttleZone.Api.Services;
 using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.SignalRHub;
@@ -23,6 +25,7 @@ builder.Services.AddSignalR();
 builder.Services.AddCustomIdentity();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddPayOS(builder.Configuration);
+builder.Services.AddHangfire(builder.Configuration);
 // Register IHttpClientFactory
 builder.Services.AddHttpClient();
 builder.Services.AddGlobalExceptionHandler();
@@ -46,8 +49,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowReactApp");
 app.MapControllers();
-app.MapHub<NotificationHub>("/hubs/notification").AllowAnonymous(); ;
+app.UseHangfireDashboard();
+app.MapHangfireDashboard("/hangfire");
+app.MapHub<NotificationHub>("/hubs/notification").AllowAnonymous(); 
 app.UseExceptionHandler();
 app.EnsureMigrations();
-
+RecurringJobScheduler.ScheduleJob();
 app.Run();
