@@ -55,12 +55,19 @@ public class ContestsController : BaseApiController
     }
     
     [Authorize(Roles = SystemRole.Staff)]
+    [HttpGet("club-contest")]
+    public IActionResult GetMyContestsStaff()
+    {
+        return HandleResult(() => _contestService.GetMyClubContestsStaff());
+    }
+
+    [Authorize(Roles = SystemRole.Staff)]
     [HttpGet("/api/Contests/my-club-contests-staff({key:guid})")]
     public IActionResult GetMyContestsStaff([FromRoute] Guid key)
     {
         return HandleResult(() => _contestService.GetMyClubContestsStaff(key));
     }
-    
+
     // [EnableQuery]
     // public ActionResult<Contest> Get([FromRoute]Guid key)
     // {

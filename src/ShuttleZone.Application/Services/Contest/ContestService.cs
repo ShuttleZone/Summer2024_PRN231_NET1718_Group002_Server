@@ -52,7 +52,7 @@ public class ContestService(
         return dtoReturn;
     }
 
-    public  IQueryable<DtoContestResponse?> GetMyContest(Guid userId)
+    public IQueryable<DtoContestResponse?> GetMyContest(Guid userId)
     {
         var myContests = _unitOfWork.ContestRepository.GetAll()
             .Where(c => c.UserContests.Select(uc => uc.ParticipantsId).Contains(userId))
@@ -60,10 +60,10 @@ public class ContestService(
             .ThenInclude(r => r!.ReservationDetails)
             .ThenInclude(rd => rd.Court)
             .ThenInclude(c => c.Club)
-            .Include(c => c.UserContests);  
-            var dtos = myContests
-                .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
-            return dtos;
+            .Include(c => c.UserContests);
+        var dtos = myContests
+            .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
+        return dtos;
     }
 
     public IQueryable<Contest> GetContestDetail(Guid contestId)
@@ -200,7 +200,7 @@ public class ContestService(
         return contestsResponse;
     }
 
-    public IQueryable<DtoContestResponse> GetMyClubContestsStaff(Guid clubId)
+    public IQueryable<DtoContestResponse> GetMyClubContestsStaff(Guid? clubId = null)
     {
         HttpException.New()
             .WithStatusCode(401)
@@ -210,6 +210,13 @@ public class ContestService(
             .WithStatusCode(403)
             .WithErrorMessage("Bạn không có quyền truy cập chức năng này.")
             .ThrowIf(_currentUser.Role != ShuttleZone.Domain.Constants.SystemRole.Staff);
+
+        if (clubId == null)
+        {
+            var user = _unitOfWork.UserRepository.Find(u => u.Id == userIdAsGuid).FirstOrDefault() ?? throw new HttpException(400, "Không tồn tại người dùng.");
+
+            clubId = user.ClubId;
+        }
 
         var contestsResponse = _unitOfWork.ClubRepository
             .FindAsNoTracking(c => c.Id == clubId)
@@ -223,6 +230,7 @@ public class ContestService(
             .AsSplitQuery();
 
         return contestsResponse;
+
     }
 
     public async Task JoinContest(Guid contestId, Guid userId)
@@ -280,7 +288,7 @@ public class ContestService(
 
         var winners = request.UserContests.Where(uc => uc.isWinner);
         var test = winners.Count();
-        if (winners.Count() > contest.UserContests.Count()/2)
+        if (winners.Count() > contest.UserContests.Count() / 2)
             throw new HttpException(400, $"Tổng số người chơi là {contest.UserContests.Count()}. Chỉ ít hơn hoặc bằng một nửa tổng số người chơi được phép là người chiến thắng");
 
         foreach (var userContest in request.UserContests ?? new List<UserContestRequest>())
@@ -291,7 +299,7 @@ public class ContestService(
             UserContestExisted.isWinner = userContest.isWinner;
             UserContestExisted.Point = userContest.Point;
         }
-        contest.ContestStatus = ContestStatusEnum.Closed;        
+        contest.ContestStatus = ContestStatusEnum.Closed;
 
         //add later: refund money for winner
         //this can not be done now (with VNPAY) because with one contest, we can have multiple reservation, do not know which person to refund
@@ -299,7 +307,7 @@ public class ContestService(
         //_vnPayService.RefundPaymentAsync(contest.Reservation.Id, 0, VnPayConstansts.TOTAL_REFUND);
 
         //refund money to wallet of winner
-       foreach (var winner in winners)
+        foreach (var winner in winners)
         {
             var refundAmount = contest.Reservation != null ? contest.Reservation.TotalPrice : 0;
             _unitOfWork.WalletRepository.UpdateWalletBalanceByUserId(winner.ParticipantsId, refundAmount);
@@ -310,7 +318,7 @@ public class ContestService(
                 Amount = refundAmount,
                 TransactionStatus = TransactionStatusEnum.SUCCESS,
             };
-            var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId==winner.ParticipantsId) ?? throw new HttpException(400, "Ví không tồn tại");
+            var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == winner.ParticipantsId) ?? throw new HttpException(400, "Ví không tồn tại");
             wallet.Transactions.Add(transaction);
             _unitOfWork.TransactionRepository.Add(transaction);
             //notifiy to user
@@ -322,17 +330,17 @@ public class ContestService(
             var notification = _notificationHubService.CreateNotification(notificationRequest);
             await _unitOfWork.NotificationRepository.AddAsync(notification);
             await _notificationHubService.SendNotificationAsync(winner.ParticipantsId, _mapper.Map<NotificationResponse>(notification));
-           
+
         };
         try
         {
             await _unitOfWork.CompleteAsync();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
         }
-        
+
     }
 
     public async Task<IQueryable<ContestResponse>> GetAllContestsAsync()
