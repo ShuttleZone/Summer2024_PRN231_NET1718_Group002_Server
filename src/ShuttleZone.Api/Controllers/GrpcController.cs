@@ -10,7 +10,7 @@ public class GrpcController : ControllerBase
     [HttpGet]
     public IActionResult TestGrpc(Guid courtId)
     {
-        using var channel = GrpcChannel.ForAddress("http://localhost:5001");
+        using var channel = GrpcChannel.ForAddress("grpc://ourproject.io.vn:50051");
         var client = new MaintainCourtService.MaintainCourtServiceClient(channel);
         var response =  client.Maintain(new MaintainCourtRequest() { CourtId = courtId.ToString() });
         return Ok(response.Response);

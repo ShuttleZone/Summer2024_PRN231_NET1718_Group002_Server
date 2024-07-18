@@ -9,8 +9,11 @@ using MaintainCourtService = ShuttleZone.Grpc.Services.MaintainCourtService;
 
 var builder = WebApplication.CreateBuilder(args);
 DataAccessHelper.Initialize(builder.Configuration);
+
 // Add services to the container.
 builder.Services.AddGrpc();
+builder.Services.AddCors(opt => opt.AddPolicy("SERVER",
+    builder => { builder.WithOrigins("http://183.81.100.71","https://183.81.100.71").AllowAnyHeader().AllowAnyMethod().AllowCredentials();}));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 builder.Services.AddScoped<IReadOnlyApplicationDbContext, ApplicationDbContext>();

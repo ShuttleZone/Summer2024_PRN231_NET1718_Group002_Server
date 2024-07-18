@@ -13,7 +13,7 @@ public interface IContestService
     IQueryable<Contest> GetContestDetail(Guid contestId);
     Task<DtoContestResponse> CreateContestAsync(CreateContestRequest request, CancellationToken cancellationToken);
     IQueryable<DtoContestResponse> GetMyClubContests(Guid clubId);
-    IQueryable<DtoContestResponse> GetMyClubContestsStaff(Guid clubId);
+    IQueryable<DtoContestResponse> GetMyClubContestsStaff(Guid? clubId = null);
 
     Task JoinContest(Guid contestId, Guid userId);
     Task UpdateContestAsync(UpdateContestRequest request);

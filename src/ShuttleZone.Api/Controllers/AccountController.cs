@@ -9,12 +9,14 @@ using Microsoft.IdentityModel.Tokens;
 using ShuttleZone.Api.Controllers.BaseControllers;
 using ShuttleZone.Application.Services.Account;
 using ShuttleZone.Application.Services.Email;
+using ShuttleZone.Application.Services.OAuth;
 using ShuttleZone.Application.Services.Token;
 using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Domain.Constants;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.WebRequests;
 using ShuttleZone.Domain.WebRequests.Account;
+using ShuttleZone.Domain.WebRequests.Auth;
 
 namespace ShuttleZone.Api.Controllers;
 
@@ -29,6 +31,7 @@ public class AccountController : BaseApiController
     private readonly IConfiguration _configuration;
     private readonly IEmailService _emailService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IGoogleOauthService _oauthService;
 
     public AccountController(IAccountService accountService,
         UserManager<User> userManager,
@@ -36,13 +39,14 @@ public class AccountController : BaseApiController
         SignInManager<User> signInManager,
         IEmailService emailService,
         IUnitOfWork unitOfWork,
-        IConfiguration configuration)
+        IConfiguration configuration, IGoogleOauthService oauthService)
     {
         _accountService = accountService;
         _userManager = userManager;
         _tokenService = tokenService;
         _signInManager = signInManager;
         _configuration = configuration;
+        _oauthService = oauthService;
         _unitOfWork = unitOfWork;
         _emailService = emailService;
     }
@@ -308,7 +312,7 @@ public class AccountController : BaseApiController
 
         var refreshToken = _tokenService.CreateRefreshToken();
         user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(15);
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddYears(15);
 
         await _userManager.UpdateAsync(user);
 
@@ -388,6 +392,13 @@ public class AccountController : BaseApiController
         await _userManager.UpdateAsync(user);
         return Ok();
     }
+
+    [HttpPost("google-auth")]
+    public async Task<IActionResult> GoogleLoginAsync(GoogleAuthRequest request)
+    {
+        return await HandleResultAsync(async () => await _oauthService.LoginAsync(request));
+    }
+    
 
     private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
     {
