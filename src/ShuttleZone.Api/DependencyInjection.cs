@@ -32,6 +32,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Net.payOS;
+using ShuttleZone.Domain.WebResponses.Transactions;
 
 namespace ShuttleZone.Api.DependencyInjection;
 
@@ -165,6 +166,7 @@ public static class DependencyInjection
         #region Wallet
 
         builder.EntitySet<WalletResponse>(GetControllerShortName<WalletController>());
+        builder.EntitySet<TransactionResponse>(GetControllerShortName<TransactionsController>());
         #endregion
 
         builder.EnableLowerCamelCase();

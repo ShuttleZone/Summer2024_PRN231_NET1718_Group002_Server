@@ -9,6 +9,7 @@ using ShuttleZone.DAL.Common.Interfaces;
 using ShuttleZone.Domain.Entities;
 using ShuttleZone.Domain.Enums;
 using ShuttleZone.Domain.WebRequests.Payment;
+using ShuttleZone.Domain.WebResponses.Transactions;
 using ShuttleZone.Domain.WebResponses.Wallets;
 
 namespace ShuttleZone.Application.Services.Wallets
@@ -16,6 +17,17 @@ namespace ShuttleZone.Application.Services.Wallets
     [AutoRegister]
     public class WalletService(IUnitOfWork _unitOfWork, IMapper _mapper, IUser _user) : IWalletService
     {
+        public async Task<IQueryable<TransactionResponse>> GetMyTransactionsAsync(Guid userId)
+        {
+            var transactionQueryable =  (await _unitOfWork.UserRepository.GetAllAsync())
+                .Where(u => u.Id == userId)
+                .Include(u => u.Wallet)
+                .ThenInclude(w => w!.Transactions)
+                .SelectMany(u => u.Wallet!.Transactions);
+
+            return transactionQueryable.ProjectTo<TransactionResponse>(_mapper.ConfigurationProvider);
+        }
+
         public async Task<WalletResponse> GetMyWalletAsync(Guid currentUserId)
         {
             var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == currentUserId);
