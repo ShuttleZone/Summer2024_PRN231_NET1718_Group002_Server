@@ -22,8 +22,7 @@ public class ContestsController : BaseApiController
         _user = user;
     }
 
-    [EnableQuery]
-    [Authorize]
+    [EnableQuery] 
     public ActionResult<IQueryable<DtoContestResponse>> Get()
     {
         var contests = _contestService.GetContests();
@@ -37,7 +36,7 @@ public class ContestsController : BaseApiController
         return Ok(contest);
     }
 
-    // [Authorize(Roles = SystemRole.Manager)]
+    [Authorize(Roles = SystemRole.Customer)]
     [HttpGet("/api/Contests/get-my-contests")]
     public IActionResult GetMyContests()
     {
