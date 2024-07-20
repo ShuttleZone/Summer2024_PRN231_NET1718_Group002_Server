@@ -80,10 +80,9 @@ public class UserService : IUserService
 
     public async Task UploadNewAvatar(IFormFile file)
     {
-        var list = new List<IFormFile>();
-        list.Add(file);
-        var imageUrl = (await _fileService.UploadMultipleFileAsync(list)).FirstOrDefault();
+        
         var user = await _userRepository.GetAsync(x => x.Id.ToString() == _user.Id) ?? throw new Exception("Người dùng không tồn tại");
+        var imageUrl = (await _fileService.UploadSingleFileAsync(file));
         user.ProfilePic = imageUrl;
         _userRepository.Update(user);
         await _unitOfWork.CompleteAsync();
