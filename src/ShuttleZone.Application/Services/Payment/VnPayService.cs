@@ -61,7 +61,9 @@ namespace ShuttleZone.Application.Services.Payment
             else if (vnPayRequest.OrderType.Equals(VnPayConstansts.ORDER_TYPE_JOIN_CONTEST, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(vnPayRequest.OrderInfo))
             {
                 var contestId = new Guid(vnPayRequest.OrderInfo ?? throw new Exception("Cuộc thi không tồn tại"));
-                var contest = _unitOfWork.ContestRepository.Get(r => r.Id == contestId) ?? throw new Exception("Cuộc thi không tồn tại");
+                var contest = _unitOfWork.ContestRepository.Find(c => c.Id == contestId).Include(c => c.UserContests)
+                    .Include(c => c.Reservation)
+                    .FirstOrDefault() ?? throw new HttpException(400, $"Cuộc thi với không tồn tại"); ;
 
                 var reservationStartTime = _unitOfWork.ReservationRepository
                                          .Find(r => r.Id == contest.Reservation!.Id)
