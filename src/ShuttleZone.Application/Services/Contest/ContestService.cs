@@ -238,9 +238,13 @@ public class ContestService(
         var contest = _unitOfWork.ContestRepository.Find(c => c.Id == contestId).Include(c => c.UserContests).FirstOrDefault()
             ?? throw new HttpException(400, $"Cuộc thi không tồn tại");
 
-        var isInPast = contest.ContestDate < DateTime.Now;
-        if (isInPast)
-            throw new HttpException(400, "Cuộc thi đã kết thúc");
+        var reservationStartTime = _unitOfWork.ReservationRepository
+            .Find(r => r.Id == contest.Reservation!.Id)
+            .Include(r => r.ReservationDetails)
+            .SelectMany(r => r.ReservationDetails.Select(rd => rd.StartTime))
+            .Min();
+        if (reservationStartTime < DateTime.Now)
+            throw new HttpException(400, "Cuộc thi đã diễn ra, không thể tham gia.");
 
         if (contest.ContestStatus == ContestStatusEnum.Closed)
             throw new HttpException(400, "Cuộc thi đã kết thúc");
@@ -276,8 +280,13 @@ public class ContestService(
         }
 
         //validation for time, if contest does not happen, is not allowed update 
-        if (contest.ContestDate > DateTime.Now)
-            throw new HttpException(400, $"Cuộc thi chưa diễn ra, không thể cập nhật");
+        var reservationStartTime = _unitOfWork.ReservationRepository
+            .Find(r => r.Id == contest.Reservation!.Id)
+            .Include(r => r.ReservationDetails)
+            .SelectMany(r => r.ReservationDetails.Select(rd => rd.StartTime))
+            .Min();
+        if (reservationStartTime > DateTime.Now)
+            throw new HttpException(400, "Cuộc thi chưa diễn ra. Không thể cập nhật kết quả.");
 
         if (request.UserContests!.Count() == 2)
         {
