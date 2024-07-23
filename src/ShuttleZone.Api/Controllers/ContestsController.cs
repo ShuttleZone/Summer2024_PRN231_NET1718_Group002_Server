@@ -23,7 +23,6 @@ public class ContestsController : BaseApiController
     }
 
     [EnableQuery]
-    [Authorize]
     public ActionResult<IQueryable<DtoContestResponse>> Get()
     {
         var contests = _contestService.GetContests();
