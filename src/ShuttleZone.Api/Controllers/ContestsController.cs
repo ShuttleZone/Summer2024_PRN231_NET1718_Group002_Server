@@ -12,12 +12,12 @@ namespace ShuttleZone.Api.Controllers;
 
 public class ContestsController(IContestService _contestService) : BaseApiController
 {
-    [EnableQuery]   
-    public ActionResult<IQueryable<DtoContestResponse>> Get()
-    {
-        var contests = _contestService.GetContests();
-        return Ok(contests);
-    }
+    // [EnableQuery]   
+    // public ActionResult<IQueryable<DtoContestResponse>> Get()
+    // {
+    //     var contests = _contestService.GetContests();
+    //     return Ok(contests);
+    // }
     
     [HttpGet("/contests")]
     public ActionResult<IQueryable<DtoContestResponse>> GetContests()
@@ -25,7 +25,7 @@ public class ContestsController(IContestService _contestService) : BaseApiContro
         var contests = _contestService.GetContests();
         return Ok(contests);
     }
-    [EnableQuery]
+    [EnableQuery(MaxExpansionDepth = 6)]
     public ActionResult<DtoContestResponse> Get([FromRoute] Guid key)
     {
         var contest = _contestService.GetContestByContestId(key);
