@@ -94,7 +94,7 @@ public class UserService : IUserService
             .Where(u =>
                 u.EmailConfirmed
                 && u.Roles.Select(ur => ur.Role != null ? ur.Role.NormalizedName : "")
-                    .Contains(SystemRole.Staff.ToUpper())
+                    .Contains(SystemRole.Customer.ToUpper())
             );
         
         return queryableUsers .ProjectTo<DtoUserProfile>(_mapper.ConfigurationProvider);
