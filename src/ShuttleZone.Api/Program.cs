@@ -56,3 +56,4 @@ app.UseExceptionHandler();
 app.EnsureMigrations();
 RecurringJobScheduler.ScheduleJob();
 app.Run();
+    

@@ -147,7 +147,9 @@ public static class DependencyInjection
 
         #region Packages
 
-        builder.EntitySet<PackageResponseDto>(GetControllerShortName<PackageController>());
+        var set = builder.EntitySet<PackageResponseDto>(GetControllerShortName<PackageController>());
+        set.EntityType.HasKey(p => p.Id);
+        // builder.EntityType<PackageResponseDto>().HasKey(p => p.Id);
 
 
         #endregion
