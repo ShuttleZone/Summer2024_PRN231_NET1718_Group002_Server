@@ -26,14 +26,20 @@ public class ContestService(
 {
     public IQueryable<DtoContestResponse> GetContests()
     {
-        var queryableClubs = _unitOfWork.ContestRepository
-            .GetAll()
-            .Include(c => c.Reservation)
-            .Where(c => c.Reservation!.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED);
-        var dtoClubs = queryableClubs
+        var queryableContests = _unitOfWork.ContestRepository
+         .FindAsNoTracking(_ => true)
+         .Include(c => c.UserContests)
+         .Include(c => c.Reservation)
+         .ThenInclude(r => r!.ReservationDetails)
+         .ThenInclude(rd => rd.Court)
+         .ThenInclude(c => c.Club)
+         .Where(c => c.Reservation!.ReservationStatusEnum == ReservationStatusEnum.PAYSUCCEED);
+
+        // Project to DTO using AutoMapper
+        var dtoContests = queryableContests
             .ProjectTo<DtoContestResponse>(_mapper.ConfigurationProvider);
 
-        return dtoClubs;
+        return dtoContests;
     }
 
     public DtoContestResponse? GetContestByContestId(Guid userId)
@@ -54,7 +60,7 @@ public class ContestService(
 
     public IQueryable<DtoContestResponse?> GetMyContest(Guid userId)
     {
-        var myContests = _unitOfWork.ContestRepository.GetAll()
+        var myContests = _unitOfWork.ContestRepository.FindAsNoTracking(_ => true)
             .Where(c => c.UserContests.Select(uc => uc.ParticipantsId).Contains(userId))
             .Include(c => c.Reservation)
             .ThenInclude(r => r!.ReservationDetails)

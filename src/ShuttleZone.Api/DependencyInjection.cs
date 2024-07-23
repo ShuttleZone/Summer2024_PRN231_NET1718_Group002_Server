@@ -124,12 +124,13 @@ public static class DependencyInjection
         builder.EntityType<CreateCourtRequest>();
         builder.EnumType<CourtType>();
         builder.EnumType<CourtStatus>();
-      
+
         #endregion
 
         builder.EntitySet<DtoContestResponse>(GetControllerShortName<ContestsController>());
-        builder.EntityType<UserContestDto>().HasKey(cr => new{cr.ContestId, cr.ParticipantsId});
-        // builder.EntityType<ContestStatusEnum>();
+        //builder.EntityType<UserContestDto>().HasKey(cr => new{cr.ContestId, cr.ParticipantsId});
+        //builder.EntityType<ReservationDto>();
+       
 
         #region Reservation Models
         builder.EntityType<DtoReservationDetail>();
@@ -156,6 +157,7 @@ public static class DependencyInjection
         #region Contest Models
         builder.EntitySet<ContestResponse>("ContestDetail");
         builder.EntityType<UserContestResponse>().HasKey(cr => new { cr.ContestId, cr.ParticipantsId });
+
 
         #endregion
 

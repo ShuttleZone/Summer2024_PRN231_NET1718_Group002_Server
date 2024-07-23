@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using ShuttleZone.Api.Controllers.BaseControllers;
-using ShuttleZone.Application.Common.Interfaces;
 using ShuttleZone.Application.Services;
 using ShuttleZone.Domain.Constants;
 using ShuttleZone.Domain.WebRequests;
@@ -11,24 +10,21 @@ using ShuttleZone.Domain.WebResponses.Contest;
 
 namespace ShuttleZone.Api.Controllers;
 
-public class ContestsController : BaseApiController
+public class ContestsController(IContestService _contestService) : BaseApiController
 {
-    private readonly IContestService _contestService;
-    private readonly IUser _user;
-
-    public ContestsController(IContestService contestService, IUser user)
-    {
-        _contestService = contestService;
-        _user = user;
-    }
-
-    [EnableQuery]
+    [EnableQuery]   
     public ActionResult<IQueryable<DtoContestResponse>> Get()
     {
         var contests = _contestService.GetContests();
         return Ok(contests);
     }
-
+    
+    [HttpGet("/contests")]
+    public ActionResult<IQueryable<DtoContestResponse>> GetContests()
+    {
+        var contests = _contestService.GetContests();
+        return Ok(contests);
+    }
     [EnableQuery]
     public ActionResult<DtoContestResponse> Get([FromRoute] Guid key)
     {
@@ -36,12 +32,10 @@ public class ContestsController : BaseApiController
         return Ok(contest);
     }
 
-    // [Authorize(Roles = SystemRole.Manager)]
     [HttpGet("/api/Contests/get-my-contests")]
     public IActionResult GetMyContests()
     {
-        var userId = new Guid(_user.Id?? throw new ArgumentNullException());
-        var result = _contestService.GetMyContest(userId);
+        var result = _contestService.GetMyContest(UserId);
         return Ok(result);
     }
 
@@ -52,10 +46,10 @@ public class ContestsController : BaseApiController
     {
         return HandleResult(() => _contestService.GetMyClubContests(key));
     }
-    
+
     [Authorize(Roles = SystemRole.Staff)]
     [HttpGet("club-contest")]
-    public IActionResult GetMyContestsStaff()
+    public IActionResult GetContestOfAClub()
     {
         return HandleResult(() => _contestService.GetMyClubContestsStaff());
     }
@@ -66,13 +60,6 @@ public class ContestsController : BaseApiController
     {
         return HandleResult(() => _contestService.GetMyClubContestsStaff(key));
     }
-
-    // [EnableQuery]
-    // public ActionResult<Contest> Get([FromRoute]Guid key)
-    // {
-    //     var contest = _contestService.GetContestDetail(key);
-    //     return Ok(contest);
-    // }
 
     [Authorize]
     public async Task<IActionResult> Post([FromBody] CreateContestRequest request, CancellationToken cancellationToken = default)
