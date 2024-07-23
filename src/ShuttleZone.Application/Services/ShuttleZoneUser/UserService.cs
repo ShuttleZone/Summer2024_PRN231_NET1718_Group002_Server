@@ -45,7 +45,7 @@ public class UserService : IUserService
                 .FirstOrDefault()
             ?? throw new Exception("Người dùng không tồn tại.");
         var totalReservation = user.Reservations.Count;
-        var totalWinContest = user.UserContests.Select(x => x.isWinner).Count();
+        var totalWinContest = user.UserContests.Count(x => x.isWinner);
 
         var dto = new DtoUserProfile
         {

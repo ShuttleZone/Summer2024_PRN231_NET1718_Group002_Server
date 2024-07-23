@@ -38,6 +38,12 @@ public class PackageService : IPackageService
         throw new Exception();
     }
 
+    public async Task<PackageResponseDto> GetPackageByIdAsync(Guid key)
+    {
+        var package = (await _unitOfWork.PackageRepository.GetAllAsync()).FirstOrDefault(x => x.Id == key) ?? throw new HttpException(404,"Khong tim thay package.");
+        return _mapper.Map<PackageResponseDto>(package);
+    }
+
     public IQueryable<PackageResponseDto>? GetPackagesAdmin()
     {
         var packages = _unitOfWork.PackageRepository.GetAll()

@@ -35,6 +35,13 @@ public class PackageController: BaseApiController
         var dtos =  _packageService.GetPackagesAdmin();
         return Ok(dtos);
     }
+    
+    [EnableQuery]
+    public async Task<ActionResult<PackageResponseDto>> Get([FromRoute] Guid key)
+    {
+        var dtos =  await _packageService.GetPackageByIdAsync(key);
+        return Ok(dtos);
+    }
 
     [HttpPut("/api/Package/update-package")]
     public async Task<IActionResult> UpdatePackage([FromBody] UpdatePackageDto updatePackageDto)
