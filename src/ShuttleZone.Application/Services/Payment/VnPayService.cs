@@ -152,7 +152,7 @@ namespace ShuttleZone.Application.Services.Payment
                 {
                     Id = new Guid(),
                     PaymentMethod = PaymentMethod.VNPAY,
-                    Amount = result,
+                    Amount = result / 100,
                     TransactionStatus = isPaySucceed
                     ? TransactionStatusEnum.SUCCESS : TransactionStatusEnum.FAIL,
                     //if join contest add contest reservationid
@@ -263,7 +263,7 @@ namespace ShuttleZone.Application.Services.Payment
 
                     }
                 }
-                 _unitOfWork.TransactionRepository.Add(transaction);
+                _unitOfWork.TransactionRepository.Add(transaction);
                 var isSuccess = await _unitOfWork.CompleteAsync();
             }
 
