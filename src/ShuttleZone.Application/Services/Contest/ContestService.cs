@@ -13,6 +13,7 @@ using ShuttleZone.Domain.WebRequests.Contest;
 using ShuttleZone.Domain.WebRequests.Notifications;
 using ShuttleZone.Domain.WebResponses.Contest;
 using ShuttleZone.Domain.WebResponses.Notifications;
+using System.Reflection;
 
 namespace ShuttleZone.Application.Services;
 
@@ -96,7 +97,7 @@ public class ContestService(
             .ThrowIfNull(_currentUser.Id)
             .ThrowIf(!Guid.TryParse(_currentUser.Id, out var userIdAsGuid));
 
-        var minTimeToStart = DateTime.Now.AddDays(1);
+        var minTimeToStart = DateTime.Now.AddMinutes(30);
         var minDuration = TimeSpan.FromMinutes(30);
 
         var court = await _unitOfWork.CourtRepository
@@ -129,7 +130,7 @@ public class ContestService(
                 .WithStatusCode(409)
                 .WithErrorMessage($"Sân không mở cửa vào thời gian này (từ {court.Club.OpenTime} đến {court.Club.CloseTime}).")
                 .ThrowIf(slot.StartTime.TimeOfDay < court.Club.OpenTime.ToTimeSpan() || slot.EndTime.TimeOfDay > court.Club.CloseTime.ToTimeSpan())
-                .WithErrorMessage("Cuộc thi đấu phải được đặt trước ít nhất 1 ngày.")
+                .WithErrorMessage("Cuộc thi đấu phải được đặt trước ít nhất 30 phút.")
                 .ThrowIf(slot.StartTime < minTimeToStart)
                 .WithErrorMessage($"Thời gian thi đấu phải ít nhất {minDuration.TotalMinutes} phút.")
                 .ThrowIf(slot.StartTime - slot.EndTime >= minDuration)
@@ -241,8 +242,10 @@ public class ContestService(
 
     public async Task JoinContest(Guid contestId, Guid userId)
     {
-        var contest = _unitOfWork.ContestRepository.Find(c => c.Id == contestId).Include(c => c.UserContests).FirstOrDefault()
+        var contest = _unitOfWork.ContestRepository.Find(c => c.Id == contestId).Include(c => c.UserContests).Include(c => c.UserContests).Include(c => c.Reservation).FirstOrDefault()
             ?? throw new HttpException(400, $"Cuộc thi không tồn tại");
+
+        var user = _unitOfWork.UserRepository.Find(u => u.Id == userId).FirstOrDefault() ?? throw new HttpException(401, "You have to login");
 
         var reservationStartTime = _unitOfWork.ReservationRepository
             .Find(r => r.Id == contest.Reservation!.Id)
@@ -270,13 +273,24 @@ public class ContestService(
                 ContestId = contestId
             });
 
+        var createdPerson = contest.UserContests.Find(u => u.isCreatedPerson) ?? throw new DbUpdateConcurrencyException();
+        //notifiy to user
+        var notificationRequest = new NotificationRequest
+        {
+            UserId = createdPerson.ParticipantsId,
+            Description = $"{user.Fullname} đã tham gia cuộc thi của bạn.",
+        };
+        var notification = _notificationHubService.CreateNotification(notificationRequest);
+        await _unitOfWork.NotificationRepository.AddAsync(notification);
+        await _notificationHubService.SendNotificationAsync(createdPerson.ParticipantsId, _mapper.Map<NotificationResponse>(notification));
+
         await _unitOfWork.CompleteAsync();
 
     }
 
     public async Task UpdateContestAsync(UpdateContestRequest request)
     {
-        var contest = _unitOfWork.ContestRepository.Find(c => c.Id == request.Id).Include(c => c.UserContests).FirstOrDefault()
+        var contest = _unitOfWork.ContestRepository.Find(c => c.Id == request.Id).Include(c => c.UserContests).Include(c=>c.Reservation).FirstOrDefault()
             ?? throw new HttpException(400, $"Cuộc thi không tồn tại");
 
         //check if contest is already updated, can not update       

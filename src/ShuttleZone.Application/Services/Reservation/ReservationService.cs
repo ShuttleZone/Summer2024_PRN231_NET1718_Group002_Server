@@ -82,6 +82,44 @@ namespace ShuttleZone.Application.Services.Reservation
                 var notification = _notificationHubService.CreateNotification(notificationRequest);
                 await _unitOfWork.NotificationRepository.AddAsync(notification);
                 await _notificationHubService.SendNotificationAsync((Guid)reservation.CustomerId, _mapper.Map<NotificationResponse>(notification));
+
+                //nhi: Jul 4 2024
+                //TODO: should refund to all transaction have this reservationId cause if person create contest cancel reservation
+                //all joined people need be refunded 
+                var isReservationOfAContest = (await _unitOfWork.ContestRepository.GetAllAsync())
+                    .Include(c => c.Reservation)
+                    .Any(c => c.Reservation!.Id == reservation.Id);
+                if (isReservationOfAContest)
+                {
+                    var contest = (await _unitOfWork.ContestRepository.GetAllAsync())
+                    .Include(c => c.Reservation)
+                    .Include(c => c.UserContests)
+                    .Where(c => c.Reservation!.Id == reservation.Id).FirstOrDefault() ?? throw new ArgumentNullException();
+
+                    var joinedPerson = contest.UserContests.FirstOrDefault(uc => !uc.isCreatedPerson) ?? throw new ArgumentNullException();
+
+                    _unitOfWork.WalletRepository.UpdateWalletBalanceByUserId(joinedPerson.ParticipantsId, refundAmount);
+
+                    var transactionOfJoinedPerson = new Domain.Entities.Transaction()
+                    {
+                        Id = new Guid(),
+                        PaymentMethod = PaymentMethod.WALLET,
+                        Amount = refundAmount,
+                        TransactionStatus = TransactionStatusEnum.SUCCESS,
+                    };
+                    var walletOfJoinedPerson = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == joinedPerson.ParticipantsId) ?? throw new HttpException(400, "Ví không hợp lệ");
+                    walletOfJoinedPerson.Transactions.Add(transactionOfJoinedPerson);
+
+                    //notifiy to joined person
+                    var notificationRequestOfJoinedPerson = new NotificationRequest
+                    {
+                        UserId = joinedPerson.ParticipantsId,
+                        Description = $"Người tạo cuộc thi đã hủy cuộc thi. {refundAmount} VND đã được hoàn lại vào ví của bạn",
+                    };
+                    var notificationOfJoinedPerson = _notificationHubService.CreateNotification(notificationRequestOfJoinedPerson);
+                    await _unitOfWork.NotificationRepository.AddAsync(notificationOfJoinedPerson);
+                    await _notificationHubService.SendNotificationAsync(joinedPerson.ParticipantsId, _mapper.Map<NotificationResponse>(notificationOfJoinedPerson));
+                }
             }
 
             await _unitOfWork.CompleteAsync();
@@ -105,19 +143,17 @@ namespace ShuttleZone.Application.Services.Reservation
             }
 
             if (reservationDetail.StartTime < DateTime.Now)
-                throw new HttpException(400, "Không thể hủy đặt chỗ đã bắt đầu hoặc đã qua.");
+                throw new HttpException(400, "Không thể hủy đặt chỗ đã bắt đầu.");
 
-            var alloweCancelByTime = DateTime.Now < reservationDetail.StartTime.AddDays(-1);
-            if (!alloweCancelByTime)
-                throw new HttpException(400, "Đặt chỗ chỉ có thể hủy 24 giờ trước thời gian bắt đầu.");
+            var allowCancelByTime = DateTime.Now < reservationDetail.StartTime.AddHours(-12);
+            if (!allowCancelByTime)
+                throw new HttpException(400, "Đặt chỗ chỉ có thể hủy 12 giờ trước thời gian bắt đầu.");
 
             reservationDetail.ReservationDetailStatus = ReservationStatusEnum.CANCELLED;
             reservationDetail.Reservation.TotalPrice -= reservationDetail.Price;
 
             if (reservationDetail.ReservationDetailStatus == ReservationStatusEnum.PAYSUCCEED)
             {
-                //refund to vnPay
-                //await _vnPayService.RefundPaymentAsync(reservationDetail.Reservation.Id, reservationDetail.Price, VnPayConstansts.LESS_THAN_TOTAL_REFUND);
                 //refund to wallet
                 _unitOfWork.WalletRepository.UpdateWalletBalanceByUserId(reservationDetail.Reservation.CustomerId ?? Guid.Empty, reservationDetail.Price);
 
@@ -128,21 +164,57 @@ namespace ShuttleZone.Application.Services.Reservation
                     Amount = reservationDetail.Price,
                     TransactionStatus = TransactionStatusEnum.SUCCESS,
                 };
-                //nhi: Jul 4 2024
-                //improve later: should refund to all transaction have this reservationId cause if person create contest cancel reservation
-                //all joined people need be refunded 
                 var wallet = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == reservationDetail.Reservation.CustomerId) ?? throw new HttpException(400, "Ví không hợp lệ");
                 wallet.Transactions.Add(transaction);
 
                 //notifiy to user
                 var notificationRequest = new NotificationRequest
-                {                    
+                {
                     UserId = reservationDetail.Reservation.CustomerId ?? throw new HttpException(400, "Người dùng không hợp lệ"),
                     Description = $"Bạn đã hủy đặt chỗ. {reservationDetail.Price} VND đã được hoàn lại vào ví của bạn",
                 };
                 var notification = _notificationHubService.CreateNotification(notificationRequest);
                 await _unitOfWork.NotificationRepository.AddAsync(notification);
                 await _notificationHubService.SendNotificationAsync((Guid)reservationDetail.Reservation.CustomerId, _mapper.Map<NotificationResponse>(notification));
+
+                //nhi: Jul 4 2024
+                //TODO: should refund to all transaction have this reservationId cause if person create contest cancel reservation
+                //all joined people need be refunded 
+                var isReservationOfAContest = (await _unitOfWork.ContestRepository.GetAllAsync())
+                    .Include(c => c.Reservation)
+                    .Any(c => c.Reservation!.Id == reservationDetail.Reservation.Id);
+                if (isReservationOfAContest)
+                {
+                    var contest = (await _unitOfWork.ContestRepository.GetAllAsync())                        
+                    .Include(c => c.Reservation)
+                    .Include(c=>c.UserContests)
+                    .Where(c => c.Reservation!.Id == reservationDetail.ReservationId).FirstOrDefault() ?? throw new ArgumentNullException();
+
+                    var joinedPerson = contest.UserContests.FirstOrDefault(uc => !uc.isCreatedPerson) ?? throw new ArgumentNullException();
+
+                    _unitOfWork.WalletRepository.UpdateWalletBalanceByUserId(joinedPerson.ParticipantsId, reservationDetail.Price);
+
+                    var transactionOfJoinedPerson = new Domain.Entities.Transaction()
+                    {
+                        Id = new Guid(),
+                        PaymentMethod = PaymentMethod.WALLET,
+                        Amount = reservationDetail.Price,
+                        TransactionStatus = TransactionStatusEnum.SUCCESS,
+                    };
+                    var walletOfJoinedPerson = await _unitOfWork.WalletRepository.GetAsync(w => w.UserId == joinedPerson.ParticipantsId) ?? throw new HttpException(400, "Ví không hợp lệ");
+                    walletOfJoinedPerson.Transactions.Add(transactionOfJoinedPerson);
+
+                    //notifiy to joined person
+                    var notificationRequestOfJoinedPerson = new NotificationRequest
+                    {
+                        UserId = joinedPerson.ParticipantsId,
+                        Description = $"Người tạo cuộc thi đã hủy cuộc thi. {reservationDetail.Price} VND đã được hoàn lại vào ví của bạn",
+                    };
+                    var notificationOfJoinedPerson = _notificationHubService.CreateNotification(notificationRequestOfJoinedPerson);
+                    await _unitOfWork.NotificationRepository.AddAsync(notificationOfJoinedPerson);
+                    await _notificationHubService.SendNotificationAsync(joinedPerson.ParticipantsId, _mapper.Map<NotificationResponse>(notificationOfJoinedPerson));
+                }
+               
             }
 
             await _unitOfWork.CompleteAsync();

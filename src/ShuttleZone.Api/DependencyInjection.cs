@@ -128,7 +128,7 @@ public static class DependencyInjection
         #endregion
 
         builder.EntitySet<DtoContestResponse>(GetControllerShortName<ContestsController>());
-        //builder.EntityType<UserContestDto>().HasKey(cr => new{cr.ContestId, cr.ParticipantsId});
+        builder.EntityType<UserContestDto>().HasKey(cr => new{cr.ContestId, cr.ParticipantsId});
         //builder.EntityType<ReservationDto>();
        
 
